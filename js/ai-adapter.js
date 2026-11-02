@@ -548,7 +548,11 @@ var PodiumAI = (function () {
     var lang = (o && typeof o.lang === "string" && /^[A-Za-z]{2,3}(-[A-Za-z0-9]+)?$/.test(o.lang)) ? o.lang.toLowerCase() : "und";
     return { hard: hard, soft: soft, lang: lang };
   }
-  function checkTextLive(text) {
+  /* opts.isCurrent (optional): the caller passes a freshness test that is true
+     only while this run is still the newest one. A stale run resolving late must
+     not flip the session mode or the AI indicator - the current run owns it.
+     Callers that pass nothing keep today's behavior exactly. */
+  function checkTextLive(text, opts) {
     if (!getKey()) return Promise.resolve(null);
     return withTimeout(function (signal) {
       return detectLangLive(text, signal).then(function (lang) {
@@ -579,7 +583,7 @@ var PodiumAI = (function () {
           return f;
         });
       }
-      setLiveMode(ok);
+      if (!opts || typeof opts.isCurrent !== 'function' || opts.isCurrent()) setLiveMode(ok);
       return r;
     });
   }
@@ -596,14 +600,14 @@ var PodiumAI = (function () {
     var p = (typeof o.proposal === "string" && o.proposal.trim()) ? o.proposal.trim().slice(0, 6000) : null;
     return { unclear: o.unclear, proposal: p };
   }
-  function checkClarityLive(text) {
+  function checkClarityLive(text, opts) {
     if (!getKey()) return Promise.resolve(null);
     return withTimeout(function (signal) {
       return detectLangLive(text, signal).then(function (lang) {
         return liveChat(withLangInstruction(CLARITY_SYSTEM, lang), "Draft:\n" + String(text).slice(0, 8000), signal).then(validClarityResult);
       });
     }, LIVE_TIMEOUT_MS).then(function (r) {
-      setLiveMode(!!r);
+      if (!opts || typeof opts.isCurrent !== 'function' || opts.isCurrent()) setLiveMode(!!r);
       return r;
     });
   }

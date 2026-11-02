@@ -1613,8 +1613,12 @@
     }
   }
 
-  function renderComposerGate() {
+  function renderComposerGate(fast) {
     var text = composerText.value;
+    /* Last-seen text for the sentence-ender fast path (below): every caller
+       that sets the composer value programmatically renders right after,
+       so syncing here keeps the keystroke diff exact with no per-site edits. */
+    composerPrevText = text;
     /* A wholly replaced draft (new opening) is a new draft: guided answers
        given for the old opening must not leak into its help panel. */
     var headNow = text.slice(0, 24);
@@ -1639,7 +1643,7 @@
     var localClarity = PodiumAI.clarityOf(text);
     var clarity = localClarity;
     var proposal = null;
-    scheduleClarityLive(text, res.hard.length > 0);
+    scheduleClarityLive(text, res.hard.length > 0, fast);
     if (liveClarityCache && liveClarityCache.text === text) {
       if (liveClarityCache.unclear && !localClarity.unclear) {
         clarity = { unclear: true, hasSentence: localClarity.hasSentence, topic: localClarity.topic, ask: localClarity.ask, words: localClarity.words };
@@ -1669,7 +1673,7 @@
     var sf = $("softFlags");
     sf.innerHTML = "";
 
-    scheduleLiveGate(text);
+    scheduleLiveGate(text, fast);
     if (!text.trim()) {
       publishBtn.disabled = true;
       clarityDismissedFor = null;
@@ -1748,6 +1752,8 @@
      The cache is keyed by exact draft text, so stale results never apply. */
   var liveGateCache = null;
   var liveGateTimer = null;
+  var liveGateSnap = null; /* latest text for the armed run */
+  var liveGateSeq = 0; /* in-flight guard: only the newest run may render or flip the AI mode */
   function unionHard(a, b) {
     var out = (a || []).slice(), seen = {};
     out.forEach(function (x) { seen[x] = true; });
@@ -1779,24 +1785,53 @@
     });
     return out;
   }
-  function scheduleLiveGate(text) {
-    if (liveGateTimer) clearTimeout(liveGateTimer);
-    liveGateTimer = null;
-    if (!text.trim()) { liveGateCache = null; return; }
-    if (liveGateCache && liveGateCache.text === text) return; /* cached; merges on render */
-    var snapshot = text;
+  /* Sentence-ender fast path: typing . ? or ! runs the live gate check on
+     a short debounce instead of waiting for the full pause. Slow keystrokes
+     refresh the armed run's snapshot but keep its deadline; a punct keystroke
+     shortens a pending pause wait. Commas and other mid-sentence punctuation
+     never qualify, so they keep the pause path. */
+  var SENT_END_RE = /[.?!]/;
+  var composerPrevText = "";
+  function endsSentenceNew(cur, e) {
+    /* Synthetic input events carry no data: diff against the last-seen text
+       (synced at the top of renderComposerGate) and inspect the net insertion.
+       Deletions and net-zero replacements keep the pause path. */
+    if (e && typeof e.data === "string" && e.data) return SENT_END_RE.test(e.data);
+    if (cur.length <= composerPrevText.length) return false;
+    var i = 0;
+    while (i < composerPrevText.length && cur.charCodeAt(i) === composerPrevText.charCodeAt(i)) i++;
+    return SENT_END_RE.test(cur.slice(i, i + (cur.length - composerPrevText.length)));
+  }
+  function scheduleLiveGate(text, fast) {
+    if (!text.trim()) {
+      if (liveGateTimer) { clearTimeout(liveGateTimer); liveGateTimer = null; }
+      liveGateCache = null; liveGateSnap = null; return;
+    }
+    if (liveGateCache && liveGateCache.text === text) {
+      if (liveGateTimer) { clearTimeout(liveGateTimer); liveGateTimer = null; }
+      return; /* cached; merges on render */
+    }
+    liveGateSnap = text;
+    if (liveGateTimer) {
+      if (!fast) return; /* armed: snapshot refreshed above, deadline stands */
+      clearTimeout(liveGateTimer); liveGateTimer = null; /* punct: shorten the wait */
+    }
     liveGateTimer = setTimeout(function () {
       liveGateTimer = null;
-      PodiumAI.checkTextLive(snapshot).then(function (live) {
+      var snapshot = liveGateSnap;
+      var seq = ++liveGateSeq;
+      PodiumAI.checkTextLive(snapshot, { isCurrent: function () { return seq === liveGateSeq; } }).then(function (live) {
         if (!live) return; /* fallback: local stands, cache untouched */
         liveGateCache = { text: snapshot, hard: live.hard || [], soft: live.soft || [], lang: live.lang || "und" };
+        if (seq !== liveGateSeq) return; /* stale: a newer run started */
         if (composerText.value !== snapshot) return; /* stale */
         renderComposerGate();
       });
-    }, LIVE_DEBOUNCE_MS);
+    }, fast ? PUNCT_DEBOUNCE_MS : LIVE_DEBOUNCE_MS);
   }
-  composerText.addEventListener("input", function () {
-    renderComposerGate();
+  composerText.addEventListener("input", function (e) {
+    var fast = endsSentenceNew(composerText.value, e);
+    renderComposerGate(fast);
     scheduleVoiced();
     saveDraft();
   });
@@ -1860,22 +1895,35 @@
 
   var liveClarityCache = null;
   var liveClarityTimer = null;
-  function scheduleClarityLive(text, skip) {
-    if (liveClarityTimer) clearTimeout(liveClarityTimer);
-    liveClarityTimer = null;
-    if (!text.trim()) { liveClarityCache = null; return; }
+  var liveClaritySnap = null;
+  var liveClaritySeq = 0; /* same in-flight guard as the wording channel */
+  function scheduleClarityLive(text, skip, fast) {
+    if (!text.trim()) {
+      if (liveClarityTimer) { clearTimeout(liveClarityTimer); liveClarityTimer = null; }
+      liveClarityCache = null; liveClaritySnap = null; return;
+    }
     if (skip) return;
-    if (liveClarityCache && liveClarityCache.text === text) return; /* cached; merges on render */
-    var snapshot = text;
+    if (liveClarityCache && liveClarityCache.text === text) {
+      if (liveClarityTimer) { clearTimeout(liveClarityTimer); liveClarityTimer = null; }
+      return; /* cached; merges on render */
+    }
+    liveClaritySnap = text;
+    if (liveClarityTimer) {
+      if (!fast) return; /* armed: snapshot refreshed above, deadline stands */
+      clearTimeout(liveClarityTimer); liveClarityTimer = null;
+    }
     liveClarityTimer = setTimeout(function () {
       liveClarityTimer = null;
-      PodiumAI.checkClarityLive(snapshot).then(function (live) {
+      var snapshot = liveClaritySnap;
+      var seq = ++liveClaritySeq;
+      PodiumAI.checkClarityLive(snapshot, { isCurrent: function () { return seq === liveClaritySeq; } }).then(function (live) {
         if (!live) return; /* fallback: local stands, cache untouched */
         liveClarityCache = { text: snapshot, unclear: live.unclear, proposal: live.proposal || null };
+        if (seq !== liveClaritySeq) return; /* stale: a newer run started */
         if (composerText.value !== snapshot) return; /* stale */
         renderComposerGate();
       });
-    }, LIVE_DEBOUNCE_MS);
+    }, fast ? PUNCT_DEBOUNCE_MS : LIVE_DEBOUNCE_MS);
   }
 
   var clarityDismissedFor = null; /* snapshot whose rewrite offer was declined */
@@ -2097,6 +2145,10 @@
   /* Generic live-AI debounce: the live gate, live clarity, and Already-voiced
      checks all wait this long after typing stops before calling out. */
   var LIVE_DEBOUNCE_MS = 2500;
+  /* Sentence-ender fast path: typing . ? or ! re-runs the live gate and live
+     clarity checks this soon — clearly sooner than the pause, long enough to
+     coalesce rapid punctuation ("?!", "..", two quick sentences). */
+  var PUNCT_DEBOUNCE_MS = 600;
 
   /* The box appears only after the user STOPS typing for a few seconds, and
      only once per draft. It sits below the composer and never blocks input. */
