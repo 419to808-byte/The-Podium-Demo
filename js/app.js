@@ -3591,6 +3591,29 @@
   function setHtml(id, v) { var el = $(id); if (el) el.innerHTML = v; }
   function setAttr(id, a, v) { var el = $(id); if (el) el.setAttribute(a, v); }
   function setPh(id, v) { var el = $(id); if (el) el.setAttribute("placeholder", v); }
+  /* Verbatim Rule minimize: one button after the last rule paragraph
+     collapses the three rule paragraphs AND the Fine print <details>;
+     heading + button stay. The card is a single shared node, so one toggle
+     covers every tab. Session-only state ("1" = minimized); fresh sessions
+     start expanded. Hiding uses hidden, never the open attribute, so the
+     Fine print keeps its own open/closed state across the cycle. */
+  var RULE_KEY = "podium.v1.rule";
+  var ruleCollapsed = false;
+  try { ruleCollapsed = sessionStorage.getItem(RULE_KEY) === "1"; } catch (e) {}
+  function syncRuleToggle() {
+    ["ruleP1", "ruleP2", "ruleP3"].forEach(function (id) {
+      var p = $(id);
+      if (p) p.hidden = ruleCollapsed;
+    });
+    var card = $("ruleCard");
+    var fine = card ? card.querySelector("details.fine-print") : null;
+    if (fine) fine.hidden = ruleCollapsed;
+    var btn = $("ruleToggle");
+    if (btn) {
+      btn.textContent = T(ruleCollapsed ? "rule.show" : "rule.minimize");
+      btn.setAttribute("aria-expanded", ruleCollapsed ? "false" : "true");
+    }
+  }
   function applyStaticChrome() {
     document.documentElement.lang = uiLang();
     document.title = T("doc.title");
@@ -3612,6 +3635,7 @@
     setHtml("ruleP1", T("rule.p1"));
     setText("ruleP2", T("rule.p2"));
     setText("ruleP3", T("rule.p3"));
+    syncRuleToggle(); /* re-labels the button, keeps the collapsed state */
     setText("readFullRule", T("rule.readfull"));
     setText("fineSummary", T("fine.summary"));
     setText("fineLede", T("fine.lede"));
@@ -3743,6 +3767,15 @@
     langSelInit.value = uiLang();
     langSelInit.addEventListener("change", function () { applyLanguage(langSelInit.value); });
   }
+  var ruleToggleBtn = $("ruleToggle");
+  if (ruleToggleBtn) ruleToggleBtn.addEventListener("click", function () {
+    ruleCollapsed = !ruleCollapsed;
+    try {
+      if (ruleCollapsed) sessionStorage.setItem(RULE_KEY, "1");
+      else sessionStorage.removeItem(RULE_KEY);
+    } catch (e) { /* private mode: the toggle still works for the session view */ }
+    syncRuleToggle();
+  });
   applyStaticChrome();
   renderCitizen();
   updateOnePostNotice();
