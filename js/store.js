@@ -230,6 +230,76 @@ var PodiumStore = (function () {
     return { state: s, filled: filled };
   }
 
+  /* Forward seed migration: a saved state whose version is older than the
+     seed gains the seed content added since the save — posts, briefing
+     updates, and citizens — without losing anything the visitor created
+     or voted on. Existing entries are never removed, modified, or
+     re-ordered (except trackerStatus, which follows its seed item's
+     newest update, the ref counter, and the version stamp). Every merge
+     step dedups, so re-running changes nothing: idempotent. */
+  function updateDayNum(u) {
+    var m = /^([A-Za-z]{3})\s+(\d{1,2})/.exec((u && u.date) || "");
+    if (!m) return null;
+    var mi = ET_MONTHS.indexOf(m[1]);
+    if (mi < 0) return null;
+    return (mi + 1) * 100 + Number(m[2]);
+  }
+  function sameSeedUpdate(a, b) { return !!(a && b && a.date === b.date && a.text === b.text); }
+  function migrateSeedVersion(s) {
+    var seed = seedState();
+    /* Posts: add seed ids missing from the save, appended in seed order.
+       Saved posts (including the visitor's own) keep their order and bytes. */
+    var havePost = {};
+    (s.posts || []).forEach(function (p) { if (p && p.id) havePost[p.id] = true; });
+    seed.posts.forEach(function (p) {
+      if (p && p.id && !havePost[p.id]) { s.posts.push(deepCopy(p)); havePost[p.id] = true; }
+    });
+    /* Briefing items: merge updates by (date + text), in date order, then
+       follow the seed trackerStatus; add wholly missing items as-is. */
+    var byPostId = {};
+    (s.briefingItems || []).forEach(function (b) { if (b && b.postId) byPostId[b.postId] = b; });
+    var savedPostByRef = {};
+    (s.posts || []).forEach(function (p) { if (p && p.ref) savedPostByRef[p.ref] = p; });
+    var seedPostById = {};
+    seed.posts.forEach(function (p) { if (p && p.id) seedPostById[p.id] = p; });
+    seed.briefingItems.forEach(function (sb) {
+      var match = (sb.postId && byPostId[sb.postId]) || null;
+      if (!match && sb.postId && seedPostById[sb.postId] && seedPostById[sb.postId].ref) {
+        var sp = savedPostByRef[seedPostById[sb.postId].ref];
+        if (sp && byPostId[sp.id]) match = byPostId[sp.id];
+      }
+      if (!match) { s.briefingItems.push(deepCopy(sb)); return; }
+      if (!match.updates) match.updates = [];
+      (sb.updates || []).forEach(function (su) {
+        var already = match.updates.some(function (eu) { return sameSeedUpdate(eu, su); });
+        if (already) return;
+        var at = match.updates.length, nd = updateDayNum(su);
+        if (nd !== null) {
+          for (var i = 0; i < match.updates.length; i++) {
+            var ed = updateDayNum(match.updates[i]);
+            if (ed !== null && ed > nd) { at = i; break; }
+          }
+        }
+        match.updates.splice(at, 0, deepCopy(su));
+      });
+      if (match.trackerStatus !== sb.trackerStatus) match.trackerStatus = sb.trackerStatus;
+    });
+    /* Citizens: add seed ids missing from the save, appended in seed order. */
+    var haveCit = {};
+    (s.citizens || []).forEach(function (c) { if (c && c.id) haveCit[c.id] = true; });
+    seed.citizens.forEach(function (c) {
+      if (c && c.id && !haveCit[c.id]) { s.citizens.push(deepCopy(c)); haveCit[c.id] = true; }
+    });
+    /* Keep the derived ref counter ahead of every assigned ref. */
+    var maxRef = (typeof s.refSeq === "number" && s.refSeq >= 0) ? s.refSeq : 0;
+    s.posts.forEach(function (p) {
+      var m = /-(\d+)$/.exec((p && p.ref) || "");
+      if (m && Number(m[1]) > maxRef) maxRef = Number(m[1]);
+    });
+    s.refSeq = maxRef;
+    s.version = PODIUM_SEED.version;
+    return { state: s, filled: true };
+  }
   var BACKUP_KEY = KEY + ".bak";
   /* Salvage path for saves the current version cannot load (old version or
      shape drift): carry user posts (u- ids), their votes, and the user id
@@ -275,12 +345,24 @@ var PodiumStore = (function () {
       raw = window.localStorage.getItem(KEY);
       if (raw) {
         var s = JSON.parse(raw);
-        if (s && s.version === PODIUM_SEED.version && s.posts && s.cycles) {
-          var norm = normalizeState(s);
-          var out = cleanupClosedCycles(norm.state, nowEt);
-          collapseExtraVotes(out, nowEt); /* one vote per citizen per cycle */
-          if (norm.filled) save(out); /* persist the migration exactly once */
-          return out;
+        if (s && s.posts && s.cycles) {
+          if (s.version === PODIUM_SEED.version) {
+            var norm = normalizeState(s);
+            var out = cleanupClosedCycles(norm.state, nowEt);
+            collapseExtraVotes(out, nowEt); /* one vote per citizen per cycle */
+            if (norm.filled) save(out); /* persist the migration exactly once */
+            return out;
+          }
+          if (typeof s.version === "number" && s.version < PODIUM_SEED.version) {
+            /* Older seed: merge new posts, updates, and citizens forward.
+               Votes, own posts, tab, language, and draft are untouched. */
+            var mig = migrateSeedVersion(s);
+            var mnorm = normalizeState(mig.state);
+            var mout = cleanupClosedCycles(mnorm.state, nowEt);
+            collapseExtraVotes(mout, nowEt);
+            save(mout); /* version stamp + merged content, exactly once */
+            return mout;
+          }
         }
         /* Version mismatch or shape drift: never silently wipe the user's
            posts and votes. Preserve the exact old payload under a backup

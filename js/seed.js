@@ -3,7 +3,7 @@
    pool (publication order, top-voted winner excluded). One post per citizen
    per cycle holds for every seeded post. */
 var PODIUM_SEED = {
-  version: 10,
+  version: 11,
   citizens: [
     { id: "c-lisa", name: "Lisa S.", state: "New York" },
     { id: "c-daniel", name: "Jeff M.", state: "California" },
