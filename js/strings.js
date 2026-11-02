@@ -23,10 +23,6 @@ var PodiumStrings = (function () {
     "citizen.verified.chip": { en: "\u2713 Verified citizen (demo)", es: "\u2713 Ciudadano verificado (demo)" },
     "citizen.verified.small": { en: "\u2713 verified (demo)", es: "\u2713 verificado (demo)" },
     "citizen.verified.title": { en: "Simulated verification for demo", es: "Verificaci\u00f3n simulada para la demo" },
-    "citizen.state.label": { en: "State (demo)", es: "Estado (demo)" },
-    "citizen.state.aria": { en: "Your state (demo)", es: "Tu estado (demo)" },
-    "citizen.state.title": { en: "Demo only: your stated state, not a verified record", es: "Solo demo: tu estado declarado, no un registro verificado" },
-    "citizen.state.unset": { en: "State not set", es: "Estado sin definir" },
     "lang.label": { en: "Language", es: "Idioma" },
     /* tabs */
     "tab.feed": { en: "Live Feed", es: "Feed en vivo" },

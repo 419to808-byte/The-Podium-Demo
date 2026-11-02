@@ -97,10 +97,6 @@
     "citizen.verified.chip": "\u2713 Verified citizen (demo)",
     "citizen.verified.small": "\u2713 verified (demo)",
     "citizen.verified.title": "Simulated verification for demo",
-    "citizen.state.label": "State (demo)",
-    "citizen.state.aria": "Your state (demo)",
-    "citizen.state.title": "Demo only: your stated state, not a verified record",
-    "citizen.state.unset": "State not set",
     "lang.label": "Language",
     /* tabs */
     "tab.feed": "Live Feed",
@@ -515,15 +511,12 @@
     if (!state.currentUserId) {
       chip.textContent = T("citizen.signedout");
       $("switchCitizenBtn").textContent = T("citizen.signin");
-      $("citizenStateWrap").hidden = true;
     } else {
       var me = currentUser();
       chip.innerHTML = esc(T("citizen.signedin")) + " <strong>" + esc(me.name) + "</strong>" +
         (me.state ? " \u00b7 " + esc(me.state) : "") +
         ' <span class="verified" title="' + esc(T("citizen.verified.title")) + '">' + esc(T("citizen.verified.chip")) + "</span>";
       $("switchCitizenBtn").textContent = T("citizen.switch");
-      $("citizenStateWrap").hidden = false;
-      $("citizenStateSel").value = me.state || "";
     }
   }
   /* ---------- modal focus management ---------- */
@@ -664,29 +657,6 @@
   fillTopics($("topicFilter"), true);
   fillTopics($("composerTopic"), false);
   $("composerTopic").addEventListener("change", saveDraft);
-  /* Citizen state (demo): stated state for the signed-in citizen, frozen
-     onto posts at publish by the store. Display metadata only. */
-  var US_STATES = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"];
-  (function () {
-    var sel = $("citizenStateSel");
-    var o0 = document.createElement("option");
-    o0.value = "";
-    o0.textContent = T("citizen.state.unset");
-    sel.appendChild(o0);
-    US_STATES.forEach(function (nm) {
-      var o = document.createElement("option");
-      o.value = nm;
-      o.textContent = nm;
-      sel.appendChild(o);
-    });
-    sel.addEventListener("change", function () {
-      var u = currentUser();
-      if (!u) return;
-      u.state = sel.value || "";
-      PodiumStore.save(state);
-      renderCitizen();
-    });
-  })();
   $("topicFilter").addEventListener("change", function () { setFeedTopic($("topicFilter").value); });
   /* Search re-renders the whole feed per keystroke, so it waits for a
      short pause (same clear-then-set style as the draft-save debounce). */
@@ -3654,9 +3624,6 @@
     });
     setText("liveFeedToggleLabel", T("livefeed.toggle"));
     syncLiveUi();
-    setText("citizenStateLabel", T("citizen.state.label"));
-    setAttr("citizenStateSel", "aria-label", T("citizen.state.aria"));
-    setAttr("citizenStateSel", "title", T("citizen.state.title"));
     setText("langLabel", T("lang.label"));
     setAttr("langSel", "aria-label", T("lang.label"));
     setAttr("view-feed", "aria-label", T("feed.aria"));
