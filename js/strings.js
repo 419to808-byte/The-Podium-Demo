@@ -250,6 +250,7 @@ var PodiumStrings = (function () {
     "mock.forgotnote": { en: "This demo cannot email you a reset link. To start over, clear this site's data in your browser.", es: "Esta demo no puede enviarte un enlace. Para empezar de nuevo, borra los datos de este sitio en tu navegador." },
     "mock.nomatch": { en: "Email or password doesn't match an account in this browser.", es: "El correo o la contrase\\u00f1a no coincide con ninguna cuenta de este navegador." },
     "mock.incomplete": { en: "Fill in every field to create the account.", es: "Completa todos los campos para crear la cuenta." },
+    "mock.exists": { en: "An account already exists in this browser. Sign in with it, or clear this site's data to start over.", es: "Ya existe una cuenta en este navegador. Inicia sesi\u00f3n con ella o borra los datos de este sitio para empezar de nuevo." },
     "mock.verify": { en: "Verify identity", es: "Verificar identidad" },
     "mock.verifynote": { en: "In the real product, your identity is verified (SSN) before you can post. This demo does not collect SSNs.", es: "En el producto real, tu identidad se verifica (SSN) antes de poder publicar. Esta demo no recoge SSN." },
     "mock.browsernote": { en: "This account lives only in this browser. No real verification, no server.", es: "Esta cuenta vive solo en este navegador. Sin verificaci\\u00f3n real, sin servidor." },

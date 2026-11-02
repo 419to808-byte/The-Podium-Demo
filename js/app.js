@@ -316,6 +316,7 @@
     "mock.forgotnote": "This demo cannot email you a reset link. To start over, clear this site's data in your browser.",
     "mock.nomatch": "Email or password doesn't match an account in this browser.",
     "mock.incomplete": "Fill in every field to create the account.",
+    "mock.exists": "An account already exists in this browser. Sign in with it, or clear this site's data to start over.",
     "mock.verify": "Verify identity",
     "mock.verifynote": "In the real product, your identity is verified (SSN) before you can post. This demo does not collect SSNs.",
     "mock.browsernote": "This account lives only in this browser. No real verification, no server.",
@@ -659,6 +660,7 @@
     setText("mockVerifyBtn", T("mock.verify"));
     setText("mockVerifyNote", T("mock.verifynote"));
     setText("mockSignupBtn", T("mock.signup"));
+    setText("mockExistsNote", T("mock.exists"));
     setText("mockBrowserNote", T("mock.browsernote"));
     setText("mockShowSignin", T("mock.tosignin"));
     setText("mockSignoutBtn", T("mock.signout"));
@@ -681,6 +683,8 @@
     var si = $("mockSigninForm"), su = $("mockSignupForm");
     if (si) si.hidden = mockView !== "signin";
     if (su) su.hidden = mockView !== "signup";
+    var xn = $("mockExistsNote");
+    if (xn) xn.hidden = !(mockView === "signup" && !!loadProfile());
     var so = $("mockSignoutBtn");
     if (so) so.hidden = !currentIsMock();
   }
@@ -708,6 +712,12 @@
       var pw = $("mockNewPass").value;
       var st = $("mockStateSel").value;
       var err = $("mockSignupError");
+      if (loadProfile()) {
+        /* single-profile mock: never overwrite — sign in instead, or clear
+           site data to start over (see the forgot-password note) */
+        if (err) { err.textContent = T("mock.exists"); err.hidden = false; }
+        return;
+      }
       if (!nm || em.indexOf("@") < 0 || !pw) {
         if (err) { err.textContent = T("mock.incomplete"); err.hidden = false; }
         return;
