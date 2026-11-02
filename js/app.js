@@ -139,6 +139,7 @@
     "fine.li17": "Language: a citizen may post in any language. The original post is the official record and is read aloud verbatim in the author's language. Translations are machine aids for readers and never replace the original.",
     "fine.li18": "Live activity: when \u2018Simulate live activity\u2019 is on, the feed shows AI-generated demonstration posts, clearly labeled. They are never voted on, never drawn, and never briefed.",
     "fine.li19": "Mock accounts: signing up stores a local profile in this browser only, with no real identity verification.",
+    "fine.li20": "Real sign-in/sign-up: shown as a preview; the backend and text verification are not built yet.",
     /* feed */
     "feed.aria": "Feed of citizen posts",
     "feed.order": "Feed order",
@@ -321,6 +322,14 @@
     "mock.verifynote": "In the real product, your identity is verified (SSN) before you can post. This demo does not collect SSNs.",
     "mock.browsernote": "This account lives only in this browser. No real verification, no server.",
     "mock.signout": "Sign out",
+    "real.heading": "Real account \u2014 coming soon",
+    "real.note": "Preview only \u2014 the real sign-in/sign-up needs a backend and a texting service, which are not built yet. Nothing here is saved or sent.",
+    "real.phone": "Phone number",
+    "real.sendcode": "Send verification code",
+    "real.code": "6-digit code",
+    "real.smsnote": "The real product texts a 6-digit code to your phone. Enter it here to verify. This demo cannot send texts \u2014 the backend and texting service are not built yet.",
+    "real.incode": "Send me a sign-in code",
+    "real.innote": "Sign in with your password plus a texted code, or with a texted code alone.",
     /* briefing */
     "briefing.aria": "Weekly briefing",
     "briefing.title": "This week\u2019s briefing \u2014 {date}",
@@ -667,6 +676,21 @@
     setText("mockBrowserNote", T("mock.browsernote"));
     setText("mockShowSignin", T("mock.tosignin"));
     setText("mockSignoutBtn", T("mock.signout"));
+    setText("realPathHeading", T("real.heading"));
+    setText("realNote", T("real.note"));
+    setText("realNameLabel", T("mock.name"));
+    setText("realEmailLabel", T("mock.email"));
+    setText("realPassLabel", T("mock.password"));
+    setText("realPhoneLabel", T("real.phone"));
+    setText("realVerifyBtn", T("mock.verify"));
+    setText("realVerifyNote", T("mock.verifynote"));
+    setText("realSendCodeBtn", T("real.sendcode"));
+    setText("realCodeLabel", T("real.code"));
+    setText("realSmsNote", T("real.smsnote"));
+    setText("realInEmailLabel", T("mock.email"));
+    setText("realInPassLabel", T("mock.password"));
+    setText("realInCodeBtn", T("real.incode"));
+    setText("realInNote", T("real.innote"));
     var sel = $("mockStateSel");
     if (sel) {
       var cur = sel.value;
@@ -3812,6 +3836,11 @@
       var li19 = document.createElement("li");
       li19.id = "fineLi19";
       fineUl.appendChild(li19);
+    }
+    if (fineUl && !document.getElementById("fineLi20")) {
+      var li20 = document.createElement("li");
+      li20.id = "fineLi20";
+      fineUl.appendChild(li20);
     }
     Array.prototype.forEach.call(document.querySelectorAll("#fineList li"), function (li, i) {
       li.textContent = T("fine.li" + (i + 1));

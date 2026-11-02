@@ -294,6 +294,25 @@
       </form>
       <div class="btn-row"><button type="button" class="btn btn-secondary" id="mockSignoutBtn" hidden>Sign out</button></div>
     </div>
+    <!-- TODO (real product): POST /api/auth/signup + /api/auth/signin go here — backend not built yet. -->
+    <!-- TODO (real product): 6-digit code SMS via texting service (e.g. Twilio) — not built yet. Nothing below is saved or sent. -->
+    <h4 id="realPathHeading">Real account — coming soon</h4>
+    <p class="hint" id="realNote">Preview only — the real sign-in/sign-up needs a backend and a texting service, which are not built yet. Nothing here is saved or sent.</p>
+    <div id="realBox">
+      <div class="field"><label><span id="realNameLabel">Display name</span><input id="realName" type="text" disabled></label></div>
+      <div class="field"><label><span id="realEmailLabel">Email</span><input id="realEmail" type="email" disabled></label></div>
+      <div class="field"><label><span id="realPassLabel">Password</span><input id="realPass" type="password" disabled></label></div>
+      <div class="field"><label><span id="realPhoneLabel">Phone number</span><input id="realPhone" type="tel" autocomplete="tel" disabled></label></div>
+      <div class="field"><button type="button" class="btn btn-small" id="realVerifyBtn" disabled>Verify identity</button>
+        <div class="hint" id="realVerifyNote">In the real product, your identity is verified (SSN) before you can post. This demo does not collect SSNs.</div></div>
+      <div class="field"><button type="button" class="btn btn-small" id="realSendCodeBtn" disabled>Send verification code</button></div>
+      <div class="field"><label><span id="realCodeLabel">6-digit code</span><input id="realCode" inputmode="numeric" maxlength="6" disabled></label></div>
+      <p class="hint" id="realSmsNote">The real product texts a 6-digit code to your phone. Enter it here to verify. This demo cannot send texts — the backend and texting service are not built yet.</p>
+      <div class="field"><label><span id="realInEmailLabel">Email</span><input id="realInEmail" type="email" disabled></label></div>
+      <div class="field"><label><span id="realInPassLabel">Password</span><input id="realInPass" type="password" disabled></label></div>
+      <div class="btn-row"><button type="button" class="btn btn-small" id="realInCodeBtn" disabled>Send me a sign-in code</button></div>
+      <p class="hint" id="realInNote">Sign in with your password plus a texted code, or with a texted code alone.</p>
+    </div>
     <div class="modal-actions">
       <button type="button" class="btn btn-secondary" id="citizenClose">Cancel</button>
     </div>
