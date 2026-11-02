@@ -572,6 +572,9 @@
     var ul = $("citizenList");
     ul.innerHTML = "";
     state.citizens.forEach(function (c) {
+      /* Mock accounts live only in the sign-in form below: the seeded list
+         never shows them (they carry the u-c- mock id prefix). */
+      if (c.id.indexOf("u-c-") === 0) return;
       var li = document.createElement("li");
       var b = document.createElement("button");
       b.type = "button";
