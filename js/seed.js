@@ -414,33 +414,53 @@ var PODIUM_SEED = {
   briefingItems: [
     { cycleId: "w1", postId: "p-w1-16", selection: "top", pipeline: "briefed",
       answer: "Sample committee response: the committee will direct the Food and Drug Administration to issue guidance encouraging potassium bicarbonate over sodium bicarbonate, and require clear labeling of sodium added when water is alkalized, routed through the Department of Health and Human Services and the Food and Drug Administration.",
-      trackerStatus: "Action Promised", officialReason: "",
+      trackerStatus: "Resolved", officialReason: "",
       updates: [
         { date: "Oct 21", text: "Read aloud verbatim and discussed in the weekly briefing." },
-        { date: "Oct 23", text: "Draft guidance circulated to bottled-water producers; sodium labeling proposal opened for public comment." }
+        { date: "Oct 23", text: "Draft guidance circulated to bottled-water producers; sodium labeling proposal opened for public comment." },
+        { date: "Oct 27", status: "In Progress", text: "Final guidance issued to bottled-water producers encouraging potassium bicarbonate; sodium labeling rule advances to final review." },
+        { date: "Oct 30", status: "Resolved", text: "First producers confirm the switch to potassium bicarbonate, and revised labels disclose added sodium." }
       ] },
     { cycleId: "w1", postId: "p-w1-05", selection: "random", pipeline: "briefed",
       answer: "Sample committee response: the committee will ask for funds for a two-year pilot of quarterly mobile cardiac screening in twelve rural counties, allocate the funds across the twelve counties, with schedules published one year ahead, routed through the Department of Health and Human Services and state health departments.",
-      trackerStatus: "Action Promised", officialReason: "",
+      trackerStatus: "In Progress", officialReason: "",
       updates: [
         { date: "Oct 21", text: "Read aloud verbatim and discussed in the weekly briefing." },
-        { date: "Oct 24", text: "Pilot counties announced; first quarterly schedule due Nov 15." }
+        { date: "Oct 24", text: "Pilot counties announced; first quarterly schedule due Nov 15." },
+        { date: "Oct 27", status: "In Progress", text: "Funding request transmitted for the two-year pilot; allocations published across the twelve counties." },
+        { date: "Oct 31", status: "In Progress", text: "First quarterly schedules published one year ahead; screening units assigned to participating counties." }
       ] },
     { cycleId: "w2", postId: "p-w2-01", selection: "top", pipeline: "committee",
       answer: "Sample committee response (briefing Oct 28): the committee will require monthly cash-price posting for the fifty most prescribed drugs at every licensed pharmacy, with a public price-comparison file, routed through the Department of Health and Human Services.",
-      trackerStatus: "Answered", officialReason: "",
-      updates: [ { date: "Oct 19", text: "Selected as top-voted post; referred to committee for answer." } ] },
+      trackerStatus: "In Progress", officialReason: "",
+      updates: [
+        { date: "Oct 19", text: "Selected as top-voted post; referred to committee for answer." },
+        { date: "Oct 29", status: "Action Promised", text: "Answer delivered at the briefing; cash-price posting rule in drafting for the fifty most prescribed drugs." },
+        { date: "Nov 1", status: "In Progress", text: "Draft posting rule shared with pharmacy associations; price-comparison file format published for comment." }
+      ] },
     { cycleId: "w2", postId: "p-w2-06", selection: "random", pipeline: "committee",
       answer: "Sample committee response (briefing Oct 28): the committee will establish a twenty-year published schedule to replace the oldest urban water mains, beginning with a national pipe-age survey, routed through the Environmental Protection Agency and municipal water authorities.",
-      trackerStatus: "Answered", officialReason: "",
-      updates: [ { date: "Oct 19", text: "Selected by random draw (position 4 of 12); referred to committee for answer." } ] },
+      trackerStatus: "In Progress", officialReason: "",
+      updates: [
+        { date: "Oct 19", text: "Selected by random draw (position 4 of 12); referred to committee for answer." },
+        { date: "Oct 29", status: "Action Promised", text: "Answer delivered at the briefing; national pipe-age survey in scoping with municipal water authorities." },
+        { date: "Nov 2", status: "In Progress", text: "Survey design underway; replacement-schedule framework published for the twenty-year program." }
+      ] },
     { cycleId: "w3", postId: "p-w3-01", selection: "top", pipeline: "committee",
       answer: "The committee will ask for funds for a three-year phase-in of the twenty-five-student classroom maximum in publicly funded schools, allocate the funds across school districts by enrollment and current class size, and require districts to publish annual class-size figures, routed through the Department of Education and state education agencies.",
       trackerStatus: "Answered", officialReason: "",
-      updates: [ { date: "Oct 26", text: "Selected as top-voted post; referred to committee for answer." } ] },
+      updates: [
+        { date: "Oct 26", text: "Selected as top-voted post; referred to committee for answer." },
+        { date: "Oct 28", status: "Answered", text: "Funding request prepared for the three-year phase-in; district allocations compiled by enrollment and class size." },
+        { date: "Nov 1", status: "Answered", text: "Annual class-size reporting format shared with state education agencies ahead of the briefing." }
+      ] },
     { cycleId: "w3", postId: "p-w3-09", selection: "random", pipeline: "committee",
       answer: "The committee will require a plain-language juror guide mailed with every jury summons nationwide, covering pay, parking, and deferrals, routed through the Administrative Office of the Courts and state court administrators.",
       trackerStatus: "Answered", officialReason: "",
-      updates: [ { date: "Oct 26", text: "Selected by random draw (position 8 of 10); referred to committee for answer." } ] }
+      updates: [
+        { date: "Oct 26", text: "Selected by random draw (position 8 of 10); referred to committee for answer." },
+        { date: "Oct 28", status: "Answered", text: "Juror guide draft completed covering pay, parking, and deferrals; coordination with state court administrators underway." },
+        { date: "Nov 1", status: "Answered", text: "Plain-language review completed; mailing format confirmed for distribution with jury summonses." }
+      ] }
   ]
 };

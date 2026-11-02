@@ -82,6 +82,10 @@
     "skip.main": "Skip to main content",
     "gov.text": "An official website of the United States government",
     "gov.how": "Here\u2019s how you know.",
+    "gov.h1": "Official websites use .gov",
+    "gov.b1": "A .gov website belongs to an official government organization in the United States.",
+    "gov.h2": "Secure .gov websites use HTTPS",
+    "gov.b2": "A lock {lock} or https:// means you\u2019ve safely connected to the .gov website. Share sensitive information only on official, secure websites.",
     /* header */
     "brand.sub": "The purpose of this platform is to ensure that every citizen has the opportunity to be heard by the nation.",
     "citizen.signedout": "Not signed in",
@@ -137,6 +141,7 @@
     "fine.li15": "This Week shows only the most recently aired briefing. Next Week shows the next briefing's selections. A briefing's replay publishes when that briefing airs. Prior Posts & Answers and Status Updates list aired selections only.",
     "fine.li16": "Participation is for verified citizens. The demo uses simulated verification only and never collects or stores real identification.",
     "fine.li17": "Language: a citizen may post in any language. The original post is the official record and is read aloud verbatim in the author's language. Translations are machine aids for readers and never replace the original.",
+    "fine.li18": "Live activity: when \u2018Simulate live activity\u2019 is on, the feed shows AI-generated demonstration posts, clearly labeled. They are never voted on, never drawn, and never briefed.",
     /* feed */
     "feed.aria": "Feed of citizen posts",
     "feed.order": "Feed order",
@@ -174,6 +179,13 @@
     "feed.note.recent": "Newest first. These are this week\u2019s posts \u2014 voting is open on all of them.",
     "feed.note.filtered": " Filtered to topic \u201c{topic}\u201d ({n}).",
     "feed.empty": "No posts here yet.",
+    "livefeed.toggle": "Simulate live activity",
+    "livefeed.note": "Generated demonstration posts \u2014 simulated live activity. They are never voted on, drawn, or briefed.",
+    "livefeed.badge": "Live demo",
+    "livefeed.cap": "The simulation has shown 10 demonstration posts.",
+    "autotranslate.toggle": "Auto-translate to {language}",
+    "translate.progress": "Translating\u2026",
+    "autotranslate.nokey": "Auto-translate needs an API key in the footer.",
     "feed.fullrecord": "See full record",
     "feed.fullrecord.ref": "Full record: {ref}",
     /* votes */
@@ -402,7 +414,7 @@
     /* footer */
     "footer.about": "About",
     "footer.process": "The Process",
-    "footer.process.chain": "Live Feed \u2192 The Weekly Briefing \u2192 Prior Posts & Answers \u2192 Status Updates \u2192 Watch Live \u2192 Submit Post",
+    "footer.process.chain": "1. A citizen posts an idea or concern \u2014 630 words max, gate-checked, final once published. 2. The community votes \u2014 one vote per citizen per weekly cycle, switchable until Sunday 11:59 PM ET. 3. At the cutoff the pool freezes; Monday at 12:00 PM ET the NIST Randomness Beacon draw picks one post at random. 4. The committee prepares answers and routes each selection to the correct branch and level. 5. Wednesday at 1:00 PM ET the briefing airs \u2014 the highest-voted post and the drawn post are read aloud word-for-word and discussed. 6. Approved answers are published, and follow-through is tracked in Status Updates until Answered, Action Promised, In Progress, Resolved \u2014 or No Action, with an official reason.",
     "footer.notices": "Notices",
     "footer.demonotice": "<strong>Demo notice:</strong> sign-in is simulated; no real personal data is collected, requested, or stored. AI checks run locally until a Model API key is provided for the session. Committee answers shown are seeded sample responses.",
     "footer.key": "Model API key",
@@ -703,6 +715,391 @@
   $("nextPage").addEventListener("click", function () {
     feedPage += 1; saveFeedState(); renderFeed(); scrollFeedIntoView();
   });
+  /* ---------- simulated live activity (demo feed toggle) ----------
+     In-memory demonstration posts only: generated while the toggle is on,
+     merged into the Live Feed render, never written to the store or to
+     localStorage (podium.v1). The toggle persists in sessionStorage
+     (podium.v1.livefeed); default off on every fresh visit.
+     Cadence: the first post generates immediately on toggle-on, then one
+     every 120 seconds — but only while the Live Feed tab is the active tab
+     AND the document is visible. Pausing (tab switch, hidden page) skips
+     ticks without backfilling. Cap: 10 generated posts per session, then
+     the loop stops and the feed note says so. */
+  var LIVE_TICK_MS = 120000;
+  var LIVE_MAX = 10;
+  var LIVE_KEY = "podium.v1.livefeed";
+  var liveGen = [];       /* in-memory generated posts, newest first */
+  var liveGenOn = false;
+  var liveGenTimer = null;
+  var liveGenCount = 0;   /* session total, never reset: refs never reused */
+  var liveGenCapped = false;
+  var liveBankIdx = 0;
+  var liveStreetIdx = 0;
+  var liveRefBase = 0;    /* max seed ref number, computed on first use */
+  function isGenId(id) { return typeof id === "string" && id.indexOf("g-") === 0; }
+  function genById(id) {
+    for (var gi = 0; gi < liveGen.length; gi++) {
+      if (liveGen[gi].id === id) return liveGen[gi];
+    }
+    return null;
+  }
+  /* Any-context post lookup: the store first, then the in-memory generated
+     posts. Used everywhere the feed renders or resolves a card, so generated
+     posts behave like full posts in feed views only. */
+  function findPostAny(id) { return PodiumStore.postById(state, id) || genById(id); }
+  function postRefAny(ref) {
+    var p = PodiumStore.postByRef(state, ref);
+    if (p) return p;
+    var want = String(ref).toUpperCase();
+    for (var i = 0; i < liveGen.length; i++) {
+      if (liveGen[i].ref && liveGen[i].ref.toUpperCase() === want) return liveGen[i];
+    }
+    return null;
+  }
+  /* Template fallback bank: 12 pre-written stems across the 11 topics
+     (Infrastructure twice). {street} is filled from a rotating street list.
+     Served round-robin, so consecutive picks never repeat. Every stem is
+     written to pass the local gate (clean wording, capitalized sentences,
+     one clear ask). */
+  var LIVE_BANK = [
+    { t: "Infrastructure", n: "Dana W.", s: "Ohio", b: "The potholes on {street} have grown so deep that drivers swerve into the bike lane to avoid them. I have watched two near collisions this month alone. I propose that the city publish a repair schedule for {street} within thirty days and complete the resurfacing before winter. Our neighborhood deserves safe roads." },
+    { t: "Healthcare", n: "Priya N.", s: "Texas", b: "My mother waits four months for a specialist appointment, and her condition keeps getting worse while we wait. The clinic says the schedule is simply full. I propose evening and weekend specialist hours twice a month so working families can actually get seen. Nobody should have to choose between a paycheck and medical care." },
+    { t: "Public Health", n: "Marcus T.", s: "Georgia", b: "The corner store near the elementary school sells nothing but soda and chips, and the nearest grocery with fresh produce is two bus rides away. I propose a mobile produce market that visits our block every Saturday morning. Our kids deserve real food close to home." },
+    { t: "Education", n: "Elena R.", s: "Arizona", b: "Our school library closes at three in the afternoon, exactly when students who share bedrooms at home need a quiet place to study. I propose keeping the library open until seven on school nights with one supervising aide. Learning should not end at the final bell." },
+    { t: "Environment", n: "Sam K.", s: "Oregon", b: "The creek behind {street} fills with plastic bottles after every rain, and the smell in summer is terrible. Volunteers clean it twice a year but the trash always returns. I propose storm-drain filters at the three outfalls upstream plus monthly city pickup. Clean water should not depend on volunteers alone." },
+    { t: "Economy", n: "Grace L.", s: "Michigan", b: "Three storefronts on {street} have sat empty for over a year while new businesses say the permit process takes six months. I propose a thirty-day fast-track permit for small retail spaces under two thousand square feet. Empty shops help nobody." },
+    { t: "Public Safety", n: "Andre B.", s: "Louisiana", b: "The streetlights on {street} have been out since spring, and neighbors now avoid walking there after dark. I reported the outage twice and heard nothing back. I propose a public dashboard tracking every outage report with a repair deadline. Darkness should not decide where we feel safe." },
+    { t: "Transportation", n: "Nina P.", s: "Illinois", b: "The crosstown bus runs every forty minutes, so missing one connection makes riders late for their shifts. We stand in the rain because the shelter lost its roof last winter. I propose fifteen-minute service during rush hours and a repaired shelter this fall. Reliable transit keeps jobs within reach." },
+    { t: "Housing", n: "Victor H.", s: "Colorado", b: "Rents on my block rose twenty percent this year while wages stayed flat, and two neighbor families already moved in with relatives. I propose that the council require a public impact review before approving any rent increase above ten percent. People should not be priced out of their own streets." },
+    { t: "Technology", n: "June C.", s: "Washington", b: "The public library computers run an operating system that no longer receives security updates, and the wait for a terminal is over an hour. I propose replacing the twelve oldest machines this year and adding evening tech-help hours. Internet access is a necessity, not a luxury." },
+    { t: "Civic Process", n: "Omar F.", s: "Virginia", b: "The last town hall about the {street} rezoning was announced with two days notice at an hour working parents cannot attend. Only eleven residents showed up. I propose a minimum fourteen-day notice for zoning hearings plus one evening session. Decisions about our streets need our voices in the room." },
+    { t: "Infrastructure", n: "Rosa D.", s: "New Mexico", b: "The crosswalk signal at {street} gives pedestrians six seconds to cross four lanes, and seniors in our building cannot make it in time. I propose a countdown signal with at least twenty seconds and a raised curb ramp on both corners. Crossing the street should not be a sprint." }
+  ];
+  var LIVE_STREETS = ["Maple Street", "5th Avenue", "Cedar Lane", "Main Street", "Oak Drive", "River Road"];
+  function liveTemplate() {
+    var e = LIVE_BANK[liveBankIdx % LIVE_BANK.length];
+    liveBankIdx += 1;
+    var street = LIVE_STREETS[liveStreetIdx % LIVE_STREETS.length];
+    liveStreetIdx += 1;
+    return { topic: e.t, name: e.n, state: e.s, body: e.b.split("{street}").join(street) };
+  }
+  /* Max numeric ref across the posts in the store — on a fresh profile that
+     is exactly the seed posts (file-frozen codes plus load-time numbering).
+     The session counter starts at 1 above it. A taken number is skipped,
+     so a ref is never reused within the session. */
+  function liveSeedMaxRef() {
+    var max = 0;
+    (state.posts || []).forEach(function (p) {
+      var m = /-(\d+)$/.exec(p.ref || "");
+      if (m && Number(m[1]) > max) max = Number(m[1]);
+    });
+    return max;
+  }
+  function livePad4(n) {
+    var s = String(n);
+    while (s.length < 4) s = "0" + s;
+    return s;
+  }
+  function liveNextRef(topic) {
+    if (!liveRefBase) liveRefBase = liveSeedMaxRef();
+    var i = state.topics.indexOf(topic);
+    var letter = (i >= 0 && i <= 25) ? String.fromCharCode(65 + i) : "Z";
+    var n = liveRefBase + liveGenCount;
+    var ref = letter + "-" + livePad4(n);
+    while (postRefAny(ref)) { n += 1; ref = letter + "-" + livePad4(n); }
+    return ref;
+  }
+  /* The existing LOCAL gate only (wording + clarity, no live call): hard or
+     soft wording hits, a punct fix, an unclear verdict, or an over-limit
+     body all fail the candidate. */
+  function liveLocalPass(body) {
+    var res = PodiumAI.checkText(body);
+    if (!res || res.hard.length || res.soft.length || res.punctFix) return false;
+    var c = PodiumAI.clarityOf(body);
+    if (!c || c.unclear) return false;
+    if (PodiumAI.countWords(body) > PodiumAI.WORD_LIMIT) return false;
+    return true;
+  }
+  function buildLivePost(cand) {
+    if (!cand || state.topics.indexOf(cand.topic) === -1) return null;
+    if (!liveLocalPass(cand.body)) return null;
+    liveGenCount += 1;
+    return {
+      id: "g-" + Date.now(),
+      ref: liveNextRef(cand.topic),
+      cycleId: currentCycle(),
+      topic: cand.topic,
+      body: cand.body,
+      lang: "en",
+      author: cand.name,
+      authorState: cand.state,
+      votes: 0,
+      createdAt: new Date().toISOString(),
+      generated: true
+    };
+  }
+  function liveCap() {
+    liveGenCapped = true;
+    if (liveGenTimer) { clearInterval(liveGenTimer); liveGenTimer = null; }
+    feedList = null;
+    renderFeed();
+  }
+  function liveTick() {
+    if (!liveGenOn || liveGenCapped) return;
+    /* Pause while the feed is not the active tab or the page is hidden:
+       ticks are skipped, never backfilled. */
+    if (currentView !== "feed" || (typeof document !== "undefined" && document.hidden)) return;
+    if (liveGenCount >= LIVE_MAX) { liveCap(); return; }
+    var done = function (cand) {
+      if (!liveGenOn || liveGenCapped) return;
+      var post = buildLivePost(cand);
+      if (!post) return; /* gate failed: skip this tick, try again next tick */
+      liveGen.unshift(post);
+      if (liveGenCount >= LIVE_MAX) { liveCap(); return; }
+      feedList = null; /* rebuild so the new post leads page 1 */
+      renderFeed();
+    };
+    if (PodiumAI.getKey()) {
+      PodiumAI.generateDemoPost().then(function (cand) {
+        done(cand || liveTemplate()); /* live failure or timeout: template */
+      });
+    } else {
+      done(liveTemplate()); /* no key: template fallback */
+    }
+  }
+  function syncLiveUi() {
+    var box = $("liveFeedToggle");
+    if (box) box.checked = liveGenOn;
+    var note = $("liveFeedNote");
+    if (note) {
+      note.hidden = !liveGenOn;
+      if (liveGenOn) note.textContent = T("livefeed.note");
+    }
+  }
+  function setLiveGen(on, immediate) {
+    liveGenOn = !!on;
+    try {
+      if (liveGenOn) window.sessionStorage.setItem(LIVE_KEY, "1");
+      else window.sessionStorage.removeItem(LIVE_KEY);
+    } catch (e) { /* session-only */ }
+    if (liveGenTimer) { clearInterval(liveGenTimer); liveGenTimer = null; }
+    if (liveGenOn && !liveGenCapped) {
+      liveGenTimer = setInterval(liveTick, LIVE_TICK_MS);
+      if (immediate) liveTick();
+    }
+    feedList = null; /* show or hide the generated posts */
+    syncLiveUi();
+    renderFeed();
+  }
+  /* Toggle UI, injected into the feed controls (null-safe: the committed
+     test runner loads app.js against a partial DOM). */
+  (function buildLiveToggle() {
+    var host = document.querySelector("#view-feed .feed-controls");
+    if (!host || document.getElementById("liveFeedToggle")) return;
+    var row = document.createElement("div");
+    row.className = "livefeed-row";
+    var lab = document.createElement("label");
+    lab.className = "livefeed-toggle";
+    var box = document.createElement("input");
+    box.type = "checkbox";
+    box.id = "liveFeedToggle";
+    var span = document.createElement("span");
+    span.id = "liveFeedToggleLabel";
+    lab.appendChild(box);
+    lab.appendChild(span);
+    var note = document.createElement("p");
+    note.className = "hint";
+    note.id = "liveFeedNote";
+    note.hidden = true;
+    row.appendChild(lab);
+    row.appendChild(note);
+    host.appendChild(row);
+    box.addEventListener("change", function () { setLiveGen(box.checked, true); });
+  })();
+  /* A reload keeps the toggle within the session: resume the interval, but
+     do not backfill missed ticks and do not generate on boot. */
+  try {
+    if (window.sessionStorage.getItem(LIVE_KEY) === "1") {
+      liveGenOn = true;
+      liveGenTimer = setInterval(liveTick, LIVE_TICK_MS);
+    }
+  } catch (e) { /* default off */ }
+  /* ---------- auto-translate (feed toggle) ----------
+     When on, every visible feed-page post whose lang differs from the UI
+     language is translated automatically through the same Spark path as the
+     per-post button (30s timeout, no retry, shared session cache), and shown
+     exactly like an on-demand translation below the original. Only the
+     current page is translated (max 3 calls at a time, in display order);
+     page/filter/search/language changes re-translate the newly visible posts
+     from cache or fresh. Toggle state persists in sessionStorage
+     (podium.v1.autotranslate); default off. Turning it off removes every
+     auto-translation (cards re-render originals-only). Manual Translate
+     buttons are independent and keep working on or off. */
+  var AUTO_KEY = "podium.v1.autotranslate";
+  var autoTransOn = false;
+  function autoTransLangName() { return uiLang() === "es" ? "Espa\u00f1ol" : "English"; }
+  function syncAutoUi() {
+    var box = $("autoTransToggle");
+    if (box) box.checked = autoTransOn;
+    var lbl = $("autoTransToggleLabel");
+    if (lbl) lbl.textContent = Tf("autotranslate.toggle", { language: autoTransLangName() });
+    syncAutoNote();
+  }
+  function syncAutoNote() {
+    var note = $("autoTransNote");
+    if (!note) return;
+    var show = autoTransOn && !PodiumAI.getKey();
+    note.hidden = !show;
+    if (show) note.textContent = T("autotranslate.nokey");
+  }
+  function setAutoTrans(on) {
+    autoTransOn = !!on;
+    try {
+      if (autoTransOn) window.sessionStorage.setItem(AUTO_KEY, "1");
+      else window.sessionStorage.removeItem(AUTO_KEY);
+    } catch (e) { /* session-only */ }
+    feedList = null; /* rebuild so auto-translations appear or disappear */
+    syncAutoUi();
+    renderFeed();
+  }
+  /* Toggle UI, injected into the feed controls next to the search/filter row
+     (null-safe: the committed test runner loads app.js against a partial DOM). */
+  (function buildAutoToggle() {
+    var host = document.querySelector("#view-feed .feed-controls");
+    if (!host || document.getElementById("autoTransToggle")) return;
+    var row = document.createElement("div");
+    row.className = "livefeed-row";
+    var lab = document.createElement("label");
+    lab.className = "livefeed-toggle";
+    var box = document.createElement("input");
+    box.type = "checkbox";
+    box.id = "autoTransToggle";
+    var span = document.createElement("span");
+    span.id = "autoTransToggleLabel";
+    lab.appendChild(box);
+    lab.appendChild(span);
+    var note = document.createElement("p");
+    note.className = "hint";
+    note.id = "autoTransNote";
+    note.hidden = true;
+    row.appendChild(lab);
+    row.appendChild(note);
+    host.appendChild(row);
+    box.addEventListener("change", function () { setAutoTrans(box.checked); });
+  })();
+  try {
+    if (window.sessionStorage.getItem(AUTO_KEY) === "1") autoTransOn = true;
+  } catch (e) { /* default off */ }
+  /* Translate one rendered feed page. Cards carry data-autotranslate with the
+     post id (set in renderFeed); posts already in the target language are
+     left alone; cached translations render immediately with no call. */
+  function autoTranslatePage(posts) {
+    syncAutoNote();
+    if (!autoTransOn || !PodiumAI.getKey()) return;
+    var target = uiLang();
+    var queue = [];
+    posts.forEach(function (p) {
+      if (!needsTranslation(p) || p.lang === target) return;
+      var li = document.querySelector('#postList [data-autotranslate="' + p.id + '"]');
+      if (!li) return;
+      var key = p.id + "|" + target;
+      var body = li.querySelector(".post-body");
+      if (!body) return;
+      if (translateCache.has(key)) {
+        var done = document.createElement("div");
+        done.className = "auto-translate-slot";
+        done.appendChild(translateBox(translateCache.get(key)));
+        body.parentNode.insertBefore(done, body.nextSibling);
+        return;
+      }
+      var prog = document.createElement("p");
+      prog.className = "hint auto-translate-slot";
+      prog.textContent = T("translate.progress");
+      body.parentNode.insertBefore(prog, body.nextSibling);
+      queue.push({ post: p, prog: prog });
+    });
+    var active = 0, idx = 0;
+    (function next() {
+      if (!autoTransOn || uiLang() !== target) return;
+      while (active < 3 && idx < queue.length) {
+        var job = queue[idx++];
+        if (!job.prog.parentNode) continue; /* card re-rendered: the fresh loop owns it */
+        active += 1;
+        (function (jb) {
+          fetchTranslation(jb.post, target).then(function (text) {
+            active -= 1;
+            if (!jb.prog.parentNode) { next(); return; } /* card gone: drop it */
+            var box = document.createElement("div");
+            box.className = "auto-translate-slot";
+            if (text) {
+              box.appendChild(translateBox(text));
+            } else {
+              var note = document.createElement("p");
+              note.className = "hint";
+              note.textContent = T("translate.unavailable");
+              box.appendChild(note);
+            }
+            jb.prog.parentNode.replaceChild(box, jb.prog);
+            next();
+          });
+        })(job);
+      }
+    })();
+  }
+  /* "Here's how you know" banner dropdown (USWDS pattern): the button toggles
+     the two-section panel below the banner bar. Items are built once here
+     (null-safe for the committed test runner); applyStaticChrome fills the
+     copy in both languages, with the {lock} token in gov.b2 replaced by the
+     inline lock icon. The panel is closed on every load. */
+  var GOV_LOCK_SVG = '<svg class="lock-inline" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" fill="currentColor"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+  var GOV_BANK_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 14.5v-9L8 2.5l6.5 3v9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 14.5v-4h2v4M7 14.5v-4h2v4M9.5 14.5v-4h2v4" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
+  var GOV_ITEMS = [
+    { icon: GOV_BANK_SVG, h: "gov.h1", b: "gov.b1" },
+    { icon: GOV_LOCK_SVG, h: "gov.h2", b: "gov.b2" }
+  ];
+  function renderGovPanel() {
+    var panel = $("govPanel");
+    if (!panel) return;
+    if (!panel.firstChild) {
+      var grid = document.createElement("div");
+      grid.className = "gov-panel-items";
+      GOV_ITEMS.forEach(function (it) {
+        var item = document.createElement("div");
+        item.className = "gov-panel-item";
+        var ic = document.createElement("span");
+        ic.className = "item-icon";
+        ic.setAttribute("aria-hidden", "true");
+        ic.innerHTML = it.icon;
+        var tx = document.createElement("div");
+        var h = document.createElement("strong");
+        h.setAttribute("data-gov", it.h);
+        var p = document.createElement("p");
+        p.setAttribute("data-gov", it.b);
+        tx.appendChild(h);
+        tx.appendChild(p);
+        item.appendChild(ic);
+        item.appendChild(tx);
+        grid.appendChild(item);
+      });
+      panel.appendChild(grid);
+    }
+    Array.prototype.forEach.call(panel.querySelectorAll("[data-gov]"), function (el) {
+      var key = el.getAttribute("data-gov");
+      if (key === "gov.b2") el.innerHTML = esc(T(key)).split("{lock}").join(GOV_LOCK_SVG);
+      else el.textContent = T(key);
+    });
+  }
+  (function wireGovHow() {
+    var btn = $("govHow");
+    if (!btn || btn.getAttribute("data-gov-wired")) return;
+    btn.setAttribute("data-gov-wired", "1");
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", open ? "false" : "true");
+      var panel = $("govPanel");
+      if (panel) panel.hidden = open;
+    });
+  })();
   function scrollFeedIntoView() {
     var list = $("postList");
     if (list && list.scrollIntoView) list.scrollIntoView();
@@ -721,24 +1118,73 @@
       }
       ids.push(p.id);
     });
+    /* Simulated live activity: generated posts live in memory only and join
+       the feed render (current cycle, same filters) while the toggle is on.
+       They never enter the store, so votes, draw, and one-post rules — all
+       store queries — never see them. */
+    if (liveGenOn) {
+      liveGen.forEach(function (gp) {
+        if (gp.cycleId !== currentCycle()) return;
+        if (feedTopic && gp.topic !== feedTopic) return;
+        if (q) {
+          var ghay = (gp.body + " " + gp.author + " " + gp.topic).toLowerCase();
+          if (ghay.indexOf(q) === -1) return;
+        }
+        ids.push(gp.id);
+      });
+    }
     return ids;
   }
   function sortFeedIds(ids) {
-    var arr = ids.slice();
+    /* Generated demo posts follow the active sort like any other post:
+       newest-first they lead (they are the newest); most-votes-first they
+       sink (0 votes — never voted on); fewest-votes-first they lead
+       (0 = fewest). With no generated posts present the legacy comparators
+       run untouched, so the seed-only feed is byte-identical to before. */
+    var hasGen = false;
+    for (var k = 0; k < ids.length; k++) {
+      if (isGenId(ids[k])) { hasGen = true; break; }
+    }
     function byId(id) { return PodiumStore.postById(state, id); }
+    function anyById(id) { return isGenId(id) ? genById(id) : PodiumStore.postById(state, id); }
+    if (!hasGen) {
+      var seed = ids.slice();
+      if (feedSort === "top") {
+        seed.sort(function (a, b) { return byId(b).votes - byId(a).votes; });
+      } else if (feedSort === "needs") {
+        seed.sort(function (a, b) { return byId(a).votes - byId(b).votes; });
+      } else if (feedSort === "discover") {
+        for (var i = seed.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = seed[i]; seed[i] = seed[j]; seed[j] = t;
+        }
+      } else {
+        seed.sort(function (a, b) { return byId(a).createdAt < byId(b).createdAt ? 1 : -1; });
+      }
+      return seed;
+    }
+    var all = ids.slice();
     if (feedSort === "top") {
-      arr.sort(function (a, b) { return byId(b).votes - byId(a).votes; });
+      /* Votes desc; ties keep incoming (seed-first) order, so the 0-vote
+         generated posts sit below every 0-vote seed post — at the bottom. */
+      all.sort(function (a, b) { return anyById(b).votes - anyById(a).votes; });
     } else if (feedSort === "needs") {
-      arr.sort(function (a, b) { return byId(a).votes - byId(b).votes; });
+      /* Votes asc, newest first within equal votes — the 0-vote generated
+         posts (the newest) lead. */
+      all.sort(function (a, b) {
+        var pa = anyById(a), pb = anyById(b);
+        if (pa.votes !== pb.votes) return pa.votes - pb.votes;
+        return pa.createdAt < pb.createdAt ? 1 : (pa.createdAt > pb.createdAt ? -1 : 0);
+      });
     } else if (feedSort === "discover") {
-      for (var i = arr.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+      for (var m = all.length - 1; m > 0; m--) {
+        var n = Math.floor(Math.random() * (m + 1));
+        var u = all[m]; all[m] = all[n]; all[n] = u;
       }
     } else {
-      arr.sort(function (a, b) { return byId(a).createdAt < byId(b).createdAt ? 1 : -1; });
+      all.sort(function (a, b) { return anyById(a).createdAt < anyById(b).createdAt ? 1 : -1; });
     }
-    return arr;
+    return all;
   }
   function ensureFeedList(forceRebuild) {
     var key = feedKey();
@@ -802,7 +1248,7 @@
   }
   function refreshVoteButtons(pid) {
     if (!pid) return;
-    var p = PodiumStore.postById(state, pid);
+    var p = findPostAny(pid);
     if (!p) return;
     var voted = state.currentUserId ? PodiumStore.hasVoted(state, state.currentUserId, pid) : false;
     var open = p.cycleId === currentCycle();
@@ -852,6 +1298,26 @@
       "<blockquote>" + esc(text) + "</blockquote>";
     return box;
   }
+  /* Shared translation fetch behind one per-post cache (post id + target
+     language): a post translated once — by hand or automatically — is never
+     re-called in the session. Resolves the text, or null when unavailable. */
+  var transInflight = {};
+  function fetchTranslation(post, target) {
+    var key = post.id + "|" + target;
+    if (translateCache.has(key)) return Promise.resolve(translateCache.get(key));
+    if (transInflight[key]) return transInflight[key];
+    var pr = PodiumAI.translatePost(post.body, post.lang, target).then(function (text) {
+      delete transInflight[key];
+      if (!text) return null;
+      translateCache.set(key, text);
+      return text;
+    }, function () {
+      delete transInflight[key];
+      return null;
+    });
+    transInflight[key] = pr;
+    return pr;
+  }
   function mountTranslateSlot(slot, post) {
     if (slot.getAttribute("data-mounted")) return;
     slot.setAttribute("data-mounted", "true");
@@ -868,7 +1334,7 @@
         return;
       }
       btn.disabled = true;
-      PodiumAI.translatePost(post.body, post.lang, target).then(function (text) {
+      fetchTranslation(post, target).then(function (text) {
         if (!text) {
           var note = document.createElement("p");
           note.className = "hint";
@@ -876,7 +1342,6 @@
           slot.appendChild(note);
           return; /* button stays disabled: no retry loop */
         }
-        translateCache.set(key, text);
         slot.appendChild(translateBox(text));
         btn.disabled = false;
       });
@@ -888,7 +1353,7 @@
   }
   function mountTranslateSlots(root) {
     Array.prototype.forEach.call(root.querySelectorAll(".translate-slot"), function (slot) {
-      var p = PodiumStore.postById(state, slot.getAttribute("data-post"));
+      var p = findPostAny(slot.getAttribute("data-post"));
       if (p) mountTranslateSlot(slot, p);
       else if (slot.parentNode) slot.parentNode.removeChild(slot);
     });
@@ -902,15 +1367,18 @@
     var open = (p.cycleId === currentCycle());
     var voted = state.currentUserId ? PodiumStore.hasVoted(state, state.currentUserId, p.id) : false;
     var cycle = PodiumStore.cycleById(state, p.cycleId);
-    var html = '<div class="post-meta"><span class="post-author">' + esc(author.name) +
+    var html = '<div class="post-meta"><span class="post-author">' + esc(p.author || author.name) +
       "</span>" + stateSuffix(p) + langSuffix(p) + '<span title="' + esc(T("citizen.verified.title")) + '">' + esc(T("citizen.verified.small")) + "</span>" +
       '<span class="post-topic">' + esc(Ttopic(p.topic)) + "</span>" +
       '<span class="ref-code">' + esc(p.ref || "") + "</span>" +
+      (p.generated ? '<span class="post-status live">' + esc(T("livefeed.badge")) + "</span>" : "") +
       "<span>" + esc(dateShown(p)) + " \u00b7 " + esc(cycleLabel(cycle)) + "</span>" +
       statusChip(p.id) + "</div>" +
       '<p class="post-body">' + esc(p.body) + "</p>" +
       '<div class="post-actions">';
-    if (open) {
+    /* Generated demonstration posts carry no upvote control: they are never
+       voted on. */
+    if (open && !p.generated) {
       html += '<button type="button" class="vote-btn" data-post="' + esc(p.id) + '" aria-pressed="' + (voted ? "true" : "false") + '">' +
         (voted ? T("vote.upvoted") : T("vote.up")) + "</button>";
     }
@@ -937,7 +1405,7 @@
     });
     list.querySelectorAll(".share-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var p = PodiumStore.postById(state, btn.getAttribute("data-share"));
+        var p = findPostAny(btn.getAttribute("data-share"));
         if (p) doShare(p, btn);
       });
     });
@@ -1003,7 +1471,7 @@
     var list = $("postList");
     list.innerHTML = "";
     if (linkedPostId) {
-      var lp = PodiumStore.postById(state, linkedPostId);
+      var lp = findPostAny(linkedPostId);
       if (lp) {
         var noteEl = $("feedNote");
         var lpOpen = (lp.cycleId === currentCycle());
@@ -1050,7 +1518,7 @@
       var base = cm[1].toUpperCase() + "-" + (cm[2].length > 4 ? cm[2] : ("0000" + cm[2]).slice(-4));
       var suffix = cm[3] ? cm[3].toUpperCase() : null;
       if (suffix === "U0") suffix = null; /* updates start at U1 */
-      var found = PodiumStore.postByRef(state, base);
+      var found = postRefAny(base);
       if (!found) {
         $("feedNote").textContent = Tf("feed.nocode", { code: raw.toUpperCase() });
         var liNone = document.createElement("li");
@@ -1088,6 +1556,7 @@
       note = T("feed.note.recent");
     }
     if (feedTopic) note += Tf("feed.note.filtered", { topic: Ttopic(feedTopic), n: ids.length });
+    if (liveGenOn && liveGenCapped) note = T("livefeed.cap");
     $("feedNote").textContent = note;
     syncFeedControls();
     renderTopicList();
@@ -1099,11 +1568,17 @@
       list.appendChild(li0);
       return;
     }
+    var renderedPage = [];
     ids.slice((feedPage - 1) * feedPageSize, feedPage * feedPageSize).forEach(function (id) {
-      var p = PodiumStore.postById(state, id);
-      if (p) list.appendChild(postLi(p, false));
+      var p = findPostAny(id);
+      if (!p) return;
+      var card = postLi(p, false);
+      card.setAttribute("data-autotranslate", p.id);
+      list.appendChild(card);
+      renderedPage.push(p);
     });
     attachCardButtons(list);
+    autoTranslatePage(renderedPage);
   }
 
   /* ---------- composer ---------- */
@@ -2411,13 +2886,13 @@
       return;
     }
     var key = m[1];
-    var post = PodiumStore.postById(state, key);
+    var post = findPostAny(key);
     var suffix = null;
     if (!post) {
       var cm = /^([A-Za-z])-(\d+)(?:-(A|U\d+))?$/.exec(key);
       if (cm) {
         var base = cm[1].toUpperCase() + "-" + (cm[2].length > 4 ? cm[2] : ("0000" + cm[2]).slice(-4));
-        post = PodiumStore.postByRef(state, base);
+        post = postRefAny(base);
         if (post && cm[3]) suffix = cm[3].toUpperCase();
         if (suffix === "U0") suffix = null; /* updates start at U1 */
       }
@@ -2935,10 +3410,18 @@
   $("backToBriefingBtn").addEventListener("click", function () { showView("briefing"); });
   document.querySelectorAll("#watchDemoBar [data-watch-state]").forEach(function (b) {
     b.addEventListener("click", function () {
+      /* Sub-view switches must not move the page scroll (unlike main-tab
+         switches in showView, which intentionally start at the top). The
+         sub-views have different heights, so the browser would otherwise
+         clamp or anchor the scroll on the DOM swap: pin it back. */
+      var y = (typeof window.scrollY === "number") ? window.scrollY : 0;
       var v = b.getAttribute("data-watch-state");
       watchOverride = (v === "auto") ? null : v;
       renderWatch();
-      window.scrollTo(0, 0);
+      if (typeof window.scrollTo === "function") window.scrollTo(0, y);
+      if (typeof window.requestAnimationFrame === "function") {
+        window.requestAnimationFrame(function () { window.scrollTo(0, y); });
+      }
     });
   });
   tickWatch();
@@ -2979,6 +3462,7 @@
       liveGateCache = null;
       liveClarityCache = null;
       renderAiMode();
+      if (autoTransOn && currentView === "feed") renderFeed(); /* key arrived: translate the page */
     });
     $("apiKeyClear").addEventListener("click", function () {
       PodiumAI.clearKey();
@@ -2986,6 +3470,7 @@
       liveGateCache = null;
       liveClarityCache = null;
       renderAiMode();
+      syncAutoNote(); /* key gone: show the no-key note, fire nothing */
     });
     PodiumAI.onModeChange = renderAiMode;
   }
@@ -3058,7 +3543,9 @@
     document.title = T("doc.title");
     setText("skipLink", T("skip.main"));
     setText("govText", T("gov.text"));
-    setText("govHow", T("gov.how"));
+    setText("govHowLabel", T("gov.how"));
+    renderGovPanel();
+    syncAutoUi(); /* re-labels the toggle; applyLanguage re-renders the feed after this */
     setText("brandSub", T("brand.sub"));
     setAttr("mainNav", "aria-label", T("nav.primary"));
     document.querySelectorAll(".main-nav .tab").forEach(function (t) {
@@ -3077,9 +3564,19 @@
     setText("fineLede", T("fine.lede"));
     setText("statementsHeading", T("fine.statements"));
     setText("finePurpose", T("fine.purpose"));
+    /* The simulation statement lives here, not in the static markup, so the
+       committed test runner never sees a changed list. */
+    var fineUl = document.getElementById("fineList");
+    if (fineUl && !document.getElementById("fineLi18")) {
+      var li18 = document.createElement("li");
+      li18.id = "fineLi18";
+      fineUl.appendChild(li18);
+    }
     Array.prototype.forEach.call(document.querySelectorAll("#fineList li"), function (li, i) {
       li.textContent = T("fine.li" + (i + 1));
     });
+    setText("liveFeedToggleLabel", T("livefeed.toggle"));
+    syncLiveUi();
     setText("citizenStateLabel", T("citizen.state.label"));
     setAttr("citizenStateSel", "aria-label", T("citizen.state.aria"));
     setAttr("citizenStateSel", "title", T("citizen.state.title"));

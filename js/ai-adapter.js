@@ -639,6 +639,46 @@ var PodiumAI = (function () {
     });
   }
 
+  /* ---------- live demonstration posts (Simulate live activity) ----------
+     One-shot Spark generation for the demo feed toggle. Same endpoint, model
+     (muse-spark-1.3), footer key, and 30-second timeout pattern as the other
+     transports â€” but a single attempt with NO fallback retry: any failure
+     (no key, timeout, error, model rejection, malformed reply) resolves
+     null so the caller uses the template fallback. */
+  var GEN_TIMEOUT_MS = 30000;
+  var GEN_SYSTEM = "You write ONE short citizen post for a civic demonstration feed. Pick one of these topics: " + ADAPTER_TOPICS.join(" | ") + ". Pick a plausible US state, a citizen first name plus last initial, and write 40 to 120 words: one clear concern or proposal in plain professional language. No profanity, slurs, or personal attacks; no real person; no false claims about real-world events; original wording, not a copy of any existing post. Respond with ONLY this JSON, no other text: {\"topic\": \"...\", \"state\": \"...\", \"name\": \"...\", \"body\": \"...\"}";
+  function validGenResult(o) {
+    if (!o || typeof o !== "object") return null;
+    var topic = (typeof o.topic === "string") ? o.topic.trim() : "";
+    if (ADAPTER_TOPICS.indexOf(topic) === -1) return null;
+    var name = (typeof o.name === "string") ? o.name.trim() : "";
+    var st = (typeof o.state === "string") ? o.state.trim() : "";
+    var body = (typeof o.body === "string") ? o.body.trim() : "";
+    if (!name || !st || !body) return null;
+    if (countWords(body) > WORD_LIMIT) return null;
+    return { topic: topic, name: name, state: st, body: body };
+  }
+  function generateDemoPost() {
+    if (!getKey()) return Promise.resolve(null);
+    var t = LIVE_TRANSPORT;
+    if (!t.endpoint || !t.model) return Promise.resolve(null);
+    return withTimeout(function (signal) {
+      var opts = {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + getKey() },
+        body: JSON.stringify({ model: t.model, messages: [{ role: "user", content: GEN_SYSTEM }] })
+      };
+      if (signal) opts.signal = signal;
+      return fetch(t.endpoint, opts).then(function (resp) {
+        if (!resp.ok) throw new Error("model api " + resp.status);
+        return resp.json();
+      }).then(function (data) {
+        var msg = data && data.choices && data.choices[0] && data.choices[0].message;
+        var text = msg && typeof msg.content === "string" ? msg.content : "";
+        return text ? validGenResult(parseJsonReply(text)) : null;
+      });
+    }, GEN_TIMEOUT_MS);
+  }
   /* ---------- committee answers (Muse Wonder via Meta Model API) ----------
      Model roles stay clean: Spark = composer gate (above), Wonder = answer
      drafting ONLY. Wonder never touches a citizen post. Drafts are for human
@@ -765,6 +805,7 @@ var PodiumAI = (function () {
     suggestTopicLive: suggestTopicLive,
     topicLabels: TOPIC_KEYWORDS.map(function (pair) { return pair[0]; }),
     draftCommitteeAnswer: draftCommitteeAnswer,
+    generateDemoPost: generateDemoPost,
     translatePost: translatePost,
     WONDER_MODEL: WONDER_TRANSPORT.model,
     getKey: getKey,
