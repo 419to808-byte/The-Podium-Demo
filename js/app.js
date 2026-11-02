@@ -490,6 +490,7 @@
     ["feed", "post", "briefing", "watch", "prior", "status"].forEach(function (v) {
       $("view-" + v).hidden = (v !== name);
     });
+    if (name === "feed") renderFeed();
     if (name === "briefing") renderBriefing();
     if (name === "prior") renderPrior();
     if (name === "status") renderStatus();
