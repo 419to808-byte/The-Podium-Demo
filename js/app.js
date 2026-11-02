@@ -138,6 +138,7 @@
     "fine.li16": "Participation is for verified citizens. The demo uses simulated verification only and never collects or stores real identification.",
     "fine.li17": "Language: a citizen may post in any language. The original post is the official record and is read aloud verbatim in the author's language. Translations are machine aids for readers and never replace the original.",
     "fine.li18": "Live activity: when \u2018Simulate live activity\u2019 is on, the feed shows AI-generated demonstration posts, clearly labeled. They are never voted on, never drawn, and never briefed.",
+    "fine.li19": "Mock accounts: signing up stores a local profile in this browser only, with no real identity verification.",
     /* feed */
     "feed.aria": "Feed of citizen posts",
     "feed.order": "Feed order",
@@ -301,6 +302,24 @@
     "citizens.vote": "Sign in to vote \u2014 pick a demo citizen. No sign-in, no vote.",
     "citizens.post": "Sign in to post \u2014 pick a demo citizen.",
     "citizens.cancel": "Cancel",
+    "mock.demopath": "Try as a demo citizen",
+    "mock.ownpath": "Or use your own local account",
+    "mock.name": "Display name",
+    "mock.email": "Email",
+    "mock.password": "Password",
+    "mock.state": "State",
+    "mock.state.unset": "State not set",
+    "mock.signin": "Sign in",
+    "mock.signup": "Sign up",
+    "mock.tosignin": "Back to sign in",
+    "mock.forgot": "Forgot password?",
+    "mock.forgotnote": "This demo cannot email you a reset link. To start over, clear this site's data in your browser.",
+    "mock.nomatch": "Email or password doesn't match an account in this browser.",
+    "mock.incomplete": "Fill in every field to create the account.",
+    "mock.verify": "Verify identity",
+    "mock.verifynote": "In the real product, your identity is verified (SSN) before you can post. This demo does not collect SSNs.",
+    "mock.browsernote": "This account lives only in this browser. No real verification, no server.",
+    "mock.signout": "Sign out",
     /* briefing */
     "briefing.aria": "Weekly briefing",
     "briefing.title": "This week\u2019s briefing \u2014 {date}",
@@ -565,10 +584,167 @@
       li.appendChild(b);
       ul.appendChild(li);
     });
+    renderMockBox();
     openModal($("citizenModal"));
   }
   $("switchCitizenBtn").addEventListener("click", openCitizens);
   $("citizenClose").addEventListener("click", function () { closeModal($("citizenModal")); });
+
+  /* ---------- mock local account (demo sign-up / sign-in) ---------- */
+  /* A visitor-created profile stored in this browser only under its own key
+     (PROFILE_KEY) — never the seed, and never the main-state shape beyond
+     the citizen row and the citizen's posts/votes. The citizen row lets the
+     existing one-post / one-vote rules apply unchanged. Mock-grade: the
+     password is a non-crypto hash, never plaintext; no real verification. */
+  var PROFILE_KEY = "podium.v1.profile";
+  var MOCK_STATES = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"];
+  var mockView = "signin"; /* "signin" | "signup" */
+  function hashPw(s) {
+    var h1 = 0xdeadbeef, h2 = 0x41c6ce57, i, ch;
+    s = String(s);
+    for (i = 0; i < s.length; i++) {
+      ch = s.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
+  }
+  function loadProfile() {
+    try {
+      var raw = window.localStorage.getItem(PROFILE_KEY);
+      if (!raw) return null;
+      var p = JSON.parse(raw);
+      if (p && typeof p.id === "string" && typeof p.email === "string" && typeof p.pw === "string") return p;
+      return null;
+    } catch (e) { return null; }
+  }
+  function saveProfile(p) {
+    try { window.localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch (e) {}
+  }
+  function currentIsMock() {
+    var p = loadProfile();
+    return !!(p && state.currentUserId === p.id);
+  }
+  function ensureMockCitizen(p) {
+    /* NOTE: citizenById never returns null (it fabricates an "Unknown
+       citizen"), so the presence check must scan the array directly. */
+    for (var i = 0; i < state.citizens.length; i++) {
+      if (state.citizens[i].id === p.id) return;
+    }
+    state.citizens.push({ id: p.id, name: p.name, state: p.state || "" });
+    PodiumStore.save(state);
+  }
+  function mockSignInAs(p) {
+    ensureMockCitizen(p);
+    state.currentUserId = p.id;
+    PodiumStore.save(state);
+    renderCitizen(); renderFeed(); updateOnePostNotice();
+    closeModal($("citizenModal"));
+  }
+  function renderMockBox() {
+    setText("demoPathHeading", T("mock.demopath"));
+    setText("mockPathHeading", T("mock.ownpath"));
+    setText("mockEmailLabel", T("mock.email"));
+    setText("mockPassLabel", T("mock.password"));
+    setText("mockSigninBtn", T("mock.signin"));
+    setText("mockForgotLink", T("mock.forgot"));
+    setText("mockForgotNote", T("mock.forgotnote"));
+    setText("mockShowSignup", T("mock.signup"));
+    setText("mockNameLabel", T("mock.name"));
+    setText("mockNewEmailLabel", T("mock.email"));
+    setText("mockNewPassLabel", T("mock.password"));
+    setText("mockStateLabel", T("mock.state"));
+    setText("mockVerifyBtn", T("mock.verify"));
+    setText("mockVerifyNote", T("mock.verifynote"));
+    setText("mockSignupBtn", T("mock.signup"));
+    setText("mockBrowserNote", T("mock.browsernote"));
+    setText("mockShowSignin", T("mock.tosignin"));
+    setText("mockSignoutBtn", T("mock.signout"));
+    var sel = $("mockStateSel");
+    if (sel) {
+      var cur = sel.value;
+      sel.innerHTML = "";
+      var o0 = document.createElement("option");
+      o0.value = "";
+      o0.textContent = T("mock.state.unset");
+      sel.appendChild(o0);
+      MOCK_STATES.forEach(function (nm) {
+        var o = document.createElement("option");
+        o.value = nm;
+        o.textContent = nm;
+        sel.appendChild(o);
+      });
+      sel.value = cur;
+    }
+    var si = $("mockSigninForm"), su = $("mockSignupForm");
+    if (si) si.hidden = mockView !== "signin";
+    if (su) su.hidden = mockView !== "signup";
+    var so = $("mockSignoutBtn");
+    if (so) so.hidden = !currentIsMock();
+  }
+  function wireMockBox() {
+    var sif = $("mockSigninForm");
+    if (sif) sif.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var em = $("mockEmail").value.trim().toLowerCase();
+      var pw = $("mockPass").value;
+      var err = $("mockError");
+      var p = loadProfile();
+      if (p && p.email === em && p.pw === hashPw(pw)) {
+        if (err) err.hidden = true;
+        mockView = "signin";
+        mockSignInAs(p);
+        return;
+      }
+      if (err) { err.textContent = T("mock.nomatch"); err.hidden = false; }
+    });
+    var suf = $("mockSignupForm");
+    if (suf) suf.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var nm = $("mockName").value.trim();
+      var em = $("mockNewEmail").value.trim().toLowerCase();
+      var pw = $("mockNewPass").value;
+      var st = $("mockStateSel").value;
+      var err = $("mockSignupError");
+      if (!nm || em.indexOf("@") < 0 || !pw) {
+        if (err) { err.textContent = T("mock.incomplete"); err.hidden = false; }
+        return;
+      }
+      if (err) err.hidden = true;
+      var p = { id: "u-c-" + Date.now().toString(36), name: nm, email: em, pw: hashPw(pw), state: st };
+      saveProfile(p);
+      mockView = "signin";
+      mockSignInAs(p);
+    });
+    var fl = $("mockForgotLink");
+    if (fl) fl.addEventListener("click", function (e) {
+      e.preventDefault();
+      var n = $("mockForgotNote");
+      if (n) n.hidden = !n.hidden;
+    });
+    var ss = $("mockShowSignup");
+    if (ss) ss.addEventListener("click", function (e) {
+      e.preventDefault();
+      mockView = "signup";
+      renderMockBox();
+    });
+    var sb = $("mockShowSignin");
+    if (sb) sb.addEventListener("click", function (e) {
+      e.preventDefault();
+      mockView = "signin";
+      renderMockBox();
+    });
+    var so = $("mockSignoutBtn");
+    if (so) so.addEventListener("click", function () {
+      state.currentUserId = null;
+      PodiumStore.save(state);
+      renderCitizen(); renderFeed(); updateOnePostNotice();
+      closeModal($("citizenModal"));
+    });
+  }
+  wireMockBox();
 
   /* ---------- feed ---------- */
   /* Feed scale (TY, Oct 28, part 1 of 2): DISPLAY-ONLY pagination and sorts.
@@ -3619,6 +3795,11 @@
       li18.id = "fineLi18";
       fineUl.appendChild(li18);
     }
+    if (fineUl && !document.getElementById("fineLi19")) {
+      var li19 = document.createElement("li");
+      li19.id = "fineLi19";
+      fineUl.appendChild(li19);
+    }
     Array.prototype.forEach.call(document.querySelectorAll("#fineList li"), function (li, i) {
       li.textContent = T("fine.li" + (i + 1));
     });
@@ -3708,6 +3889,7 @@
     setText("citizenModalTitle", T("citizens.title"));
     setText("citizenHint", T("citizens.hint"));
     setText("citizenClose", T("citizens.cancel"));
+    renderMockBox();
   }
   function renderCurrentView() {
     renderCitizen();

@@ -267,7 +267,32 @@
     <h3 id="citizenModalTitle">Switch demo citizen</h3>
     <p class="hint" id="citizenHint">Simulated sign-in. No real identity is used. Pick any demo citizen to post and vote as them.</p>
     <p class="notice" id="citizenPrompt" hidden></p>
+    <h4 id="demoPathHeading">Try as a demo citizen</h4>
     <ul class="citizen-list" id="citizenList"></ul>
+    <h4 id="mockPathHeading">Or use your own local account</h4>
+    <div id="mockBox">
+      <form id="mockSigninForm">
+        <div class="field"><label><span id="mockEmailLabel">Email</span><input id="mockEmail" type="email" autocomplete="email"></label></div>
+        <div class="field"><label><span id="mockPassLabel">Password</span><input id="mockPass" type="password" autocomplete="current-password"></label></div>
+        <div class="gate-error" id="mockError" hidden></div>
+        <div class="btn-row"><button type="submit" class="btn btn-primary" id="mockSigninBtn">Sign in</button></div>
+        <p class="hint"><a href="#" id="mockForgotLink">Forgot password?</a> &middot; <a href="#" id="mockShowSignup">Sign up</a></p>
+        <p class="hint" id="mockForgotNote" hidden></p>
+      </form>
+      <form id="mockSignupForm" hidden>
+        <div class="field"><label><span id="mockNameLabel">Display name</span><input id="mockName" type="text" autocomplete="nickname"></label></div>
+        <div class="field"><label><span id="mockNewEmailLabel">Email</span><input id="mockNewEmail" type="email" autocomplete="email"></label></div>
+        <div class="field"><label><span id="mockNewPassLabel">Password</span><input id="mockNewPass" type="password" autocomplete="new-password"></label></div>
+        <div class="field"><label><span id="mockStateLabel">State</span><select id="mockStateSel"></select></label></div>
+        <div class="field"><button type="button" class="btn btn-small" id="mockVerifyBtn" disabled>Verify identity</button>
+          <div class="hint" id="mockVerifyNote"></div></div>
+        <div class="gate-error" id="mockSignupError" hidden></div>
+        <div class="btn-row"><button type="submit" class="btn btn-primary" id="mockSignupBtn">Sign up</button></div>
+        <p class="hint" id="mockBrowserNote"></p>
+        <p class="hint"><a href="#" id="mockShowSignin">Back to sign in</a></p>
+      </form>
+      <div class="btn-row"><button type="button" class="btn btn-secondary" id="mockSignoutBtn" hidden>Sign out</button></div>
+    </div>
     <div class="modal-actions">
       <button type="button" class="btn btn-secondary" id="citizenClose">Cancel</button>
     </div>
