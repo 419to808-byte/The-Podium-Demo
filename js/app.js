@@ -135,7 +135,7 @@
     "fine.li13": "The Live Feed shows the current cycle only. Past-cycle posts that were never selected are deleted; selected posts are kept as the briefing record.",
     "fine.li14": "Posting and voting run Monday 12:00 AM to Sunday 11:59 PM ET. The pool freezes at the Sunday cutoff, the draw is Monday at 12:00 PM ET, the committee has the week plus a Monday-Tuesday buffer, and the briefing airs Wednesdays at 1:00 PM ET as the fixed opening segment.",
     "fine.li15": "This Week shows only the most recently aired briefing. Next Week shows the next briefing's selections. A briefing's replay publishes when that briefing airs. Prior Posts & Answers and Status Updates list aired selections only.",
-    "fine.li16": "Participation is for verified citizens. The demo uses simulated verification only and never collects or stores real identification.",
+    "fine.li16": "Participation is for verified citizens; in this demo, verification is simulated only and no real identification is collected or stored.",
     "fine.li17": "Language: a citizen may post in any language. The original post is the official record and is read aloud verbatim in the author's language. Translations are machine aids for readers and never replace the original.",
     "fine.li18": "Live activity: when \u2018Simulate live activity\u2019 is on, the feed shows AI-generated demonstration posts, clearly labeled. They are never voted on, never drawn, and never briefed.",
     "fine.li19": "Mock accounts: signing up stores a local profile in this browser only, with no real identity verification.",

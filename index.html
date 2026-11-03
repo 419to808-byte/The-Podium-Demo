@@ -10,7 +10,7 @@
 <body>
 <a class="skip-link" href="#main" id="skipLink">Skip to main content</a>
 
-<div class="gov-banner"><div class="wrap"><span class="flag-mark" aria-hidden="true"></span><span><span id="govText">An official website of the United States government</span> <button type="button" class="how-you-know" id="govHow" aria-expanded="false" aria-controls="govPanel"><span id="govHowLabel">Here&rsquo;s how you know.</span><svg class="chev" width="10" height="7" viewBox="0 0 10 7" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button></span></div><div class="wrap gov-panel" id="govPanel" hidden></div></div>
+<div class="gov-banner"><div class="wrap"><span class="flag-mark" aria-hidden="true"></span><span><span id="govText">An official website of the United States government</span> <button type="button" class="how-you-know" id="govHow" aria-expanded="false" aria-controls="govPanel"><span id="govHowLabel">Here&rsquo;s how you know.</span><svg class="chev" width="10" height="7" viewBox="0 0 10 7" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button></span></div><div class="wrap"><strong class="gov-qual">Demo — not an official U.S. government website.</strong></div><div class="wrap gov-panel" id="govPanel" hidden></div></div>
 
 <header class="site-header">
   <div class="wrap header-row">
@@ -69,7 +69,7 @@
         <li>The Live Feed shows the current cycle only. Past-cycle posts that were never selected are deleted; selected posts are kept as the briefing record.</li>
         <li>Posting and voting run Monday 12:00 AM to Sunday 11:59 PM ET. The pool freezes at the Sunday cutoff, the draw is Monday at 12:00 PM ET, the committee has the week plus a Monday-Tuesday buffer, and the briefing airs Wednesdays at 1:00 PM ET as the fixed opening segment.</li>
         <li>This Week shows only the most recently aired briefing. Next Week shows the next briefing's selections. A briefing's replay publishes when that briefing airs. Prior Posts &amp; Answers and Status Updates list aired selections only.</li>
-        <li>Participation is for verified citizens. The demo uses simulated verification only and never collects or stores real identification.</li>
+        <li>Participation is for verified citizens; in this demo, verification is simulated only and no real identification is collected or stored.</li>
         <li>Language: a citizen may post in any language. The original post is the official record and is read aloud verbatim in the author's language. Translations are machine aids for readers and never replace the original.</li>
       </ul>
     </details>
@@ -78,6 +78,7 @@
   <!-- ============ FEED ============ -->
   <section id="view-feed" class="view" aria-label="Feed of citizen posts">
     <h2 class="sr-only" id="feedHeading">Live Feed</h2>
+    <p><span class="status-pill" id="demoDataBadge">Demo data — simulated citizen posts</span></p>
     <div class="feed-controls">
       <div class="subtabs" role="tablist" aria-label="Feed order" id="orderList">
         <button type="button" class="subtab is-active" data-feed="recent" role="tab" aria-selected="true">Recent</button>
