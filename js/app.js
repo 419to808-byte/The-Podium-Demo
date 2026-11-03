@@ -3075,7 +3075,7 @@
   function selectedBriefing(selId) {
     var b = PodiumStore.briefingItemFor(state, $(selId).value);
     if (b && airedCycleIds()[b.cycleId]) return b;
-    return defaultAiredBriefing() || state.briefingItems[0];
+    return defaultAiredBriefing();
   }
   function selectionTitle(b) {
     var c = PodiumStore.cycleById(state, b.cycleId);
