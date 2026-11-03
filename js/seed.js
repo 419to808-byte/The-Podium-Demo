@@ -189,7 +189,7 @@ var PODIUM_SEED = {
       body: "Jury duty summons in my county arrive with no information about pay, parking, or deferrals. I propose a plain-language juror guide mailed with every summons nationwide. Citizens serve more willingly when the system respects their time and questions.", ref: "K-0032" },
     { id: "p-w3-12", lang: "en", cycleId: "w3", authorId: "c-carl", topic: "Education", votes: 0, createdAt: "2026-10-22T13:30:00", displayDate: "Oct 22", demoCopy: true, authorState: "Connecticut",
       body: "Class sizes in my son's school reach thirty-four students per teacher. I propose a national maximum of twenty-five students per classroom in publicly funded schools, phased in over three years. Teachers cannot reach every child in a crowd of thirty-four.", ref: "D-0045" },
-/* ---- W4 (voting now) ---- */
+/* ---- W4 (voting closed Nov 1) ---- */
     { id: "p-w4-01", lang: "en", cycleId: "w4", authorId: "c-maya", topic: "Healthcare", votes: 41, createdAt: "2026-10-26T08:00:00", displayDate: "Oct 26", authorState: "Oregon",
       body: "Prior authorization delays have twice postponed my father's surgery. I propose a forty-eight-hour decision deadline for urgent authorizations, with automatic approval if the insurer misses it. Medical timing should be set by doctors, not paperwork queues.", ref: "B-0035" },
     { id: "p-w4-02", lang: "en", cycleId: "w4", authorId: "c-daniel", topic: "Infrastructure", votes: 35, createdAt: "2026-10-26T09:00:00", displayDate: "Oct 26", authorState: "California",
