@@ -1372,11 +1372,16 @@
     return ids;
   }
   function sortFeedIds(ids) {
-    /* Generated demo posts follow the active sort like any other post:
-       newest-first they lead (they are the newest); most-votes-first they
-       sink (0 votes — never voted on); fewest-votes-first they lead
-       (0 = fewest). With no generated posts present the legacy comparators
-       run untouched, so the seed-only feed is byte-identical to before. */
+    /* Generated demo posts follow the active sort, with one exception:
+       in Recent they are pinned to the top (newest generated first),
+       above all seed posts regardless of date — a live post is the
+       newest by definition; the seed's future-dated posts are the
+       artifact. Top Voted treats generated posts like any other post
+       (0 votes — never voted on, below every seed); Fewest Votes ranks
+       by votes with live posts winning equal-vote ties; Discover
+       shuffles them in. With no
+       generated posts present the legacy comparators run untouched, so
+       the seed-only feed is byte-identical to before. */
     var hasGen = false;
     for (var k = 0; k < ids.length; k++) {
       if (isGenId(ids[k])) { hasGen = true; break; }
@@ -1405,11 +1410,14 @@
          generated posts sit below every 0-vote seed post — at the bottom. */
       all.sort(function (a, b) { return anyById(b).votes - anyById(a).votes; });
     } else if (feedSort === "needs") {
-      /* Votes asc, newest first within equal votes — the 0-vote generated
-         posts (the newest) lead. */
+      /* Votes asc; a live post wins equal-vote ties (it is the newest by
+         definition — same future-date artifact as Recent). Vote ranks are
+         untouched: generated posts hold 0 votes, the global minimum. */
       all.sort(function (a, b) {
         var pa = anyById(a), pb = anyById(b);
         if (pa.votes !== pb.votes) return pa.votes - pb.votes;
+        var ga = isGenId(a), gb = isGenId(b);
+        if (ga !== gb) return ga ? -1 : 1;
         return pa.createdAt < pb.createdAt ? 1 : (pa.createdAt > pb.createdAt ? -1 : 0);
       });
     } else if (feedSort === "discover") {
@@ -1418,7 +1426,13 @@
         var u = all[m]; all[m] = all[n]; all[n] = u;
       }
     } else {
-      all.sort(function (a, b) { return anyById(a).createdAt < anyById(b).createdAt ? 1 : -1; });
+      /* Recent: generated posts lead (newest generated first); seed posts
+         keep their exact Recent order below. */
+      var gens = [], rest = [];
+      all.forEach(function (id) { (isGenId(id) ? gens : rest).push(id); });
+      gens.sort(function (a, b) { return anyById(a).createdAt < anyById(b).createdAt ? 1 : -1; });
+      rest.sort(function (a, b) { return anyById(a).createdAt < anyById(b).createdAt ? 1 : -1; });
+      all = gens.concat(rest);
     }
     return all;
   }
