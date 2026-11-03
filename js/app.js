@@ -121,13 +121,13 @@
     "committee.note": "One citizen cycles out and one new citizen joins every week, so the committee is always 12 people with a mix of experience.",
     "committee.rules.summary": "Committee rules \u2014 selection, pay, structure & schedule",
     "committee.rules.selection.heading": "How members are selected",
-    "committee.rules.selection.body": "Twelve ordinary verified citizens, chosen by random draw from a national pool using the NIST Randomness Beacon \u2014 the same rig-proof method as the post draw. Selection is a summons, not a draft: if your name comes up, you agree to serve or decline and the next citizen is drawn. To serve you must be a verified citizen, 18 or older, with no post in the current cycle, not a government employee, and not currently incarcerated or on parole or probation \u2014 a past felony does not exclude you; eligibility returns 5 years after the sentence is fully complete. Terms are 12 weeks, one new citizen joins every week, and after cycling out you sit out 12 weeks. No more than 2 terms per year.",
+    "committee.rules.selection.body": "Twelve ordinary verified citizens, chosen by random draw from a national pool using the NIST Randomness Beacon \u2014 the same rig-proof method as the post draw. Selection is a summons, not a draft: if your name comes up, you agree to serve or decline and the next citizen is drawn. To serve you must be a verified citizen, 18 or older, with no post in the current cycle, not a government employee, and not currently incarcerated or on parole or probation \u2014 a past felony does not exclude you; eligibility returns 5 years after the sentence is fully complete. Terms are 12 weeks, one new citizen joins every week, and after cycling out you sit out 12 weeks. No more than 2 terms per year. No committee member can submit a post while serving on the committee, for the whole 12-week term.",
     "committee.rules.pay.heading": "Pay",
-    "committee.rules.pay.body": "Members are paid $150 per day, once a week, for the Wednesday vote. Travel, hotel, and meals for the weekly in-person meeting are covered separately at government rates and booked directly \u2014 members never pay out of pocket \u2014 plus childcare support for in-person days and an optional top-up for shift workers who can show they lose more than the base stipend.",
+    "committee.rules.pay.body": "Members are paid $150 per day, for Friday and Saturday ($300 a week). The solo thinking days are not separately paid. Travel, hotel, and meals for the weekly in-person meeting are covered separately at government rates and booked directly \u2014 members never pay out of pocket \u2014 plus childcare support for in-person days. The pay is $150 flat, no top-up. The plan isn't for committee members to get rich off this \u2014 it's more of a public service.",
     "committee.rules.structure.heading": "Structure",
-    "committee.rules.structure.body": "Twelve members, each holding an equal share of the decision-making power. Government agency liaisons advise only and do not vote. Each week the committee receives the selected posts and the AI-drafted answers and votes on whether to follow the AI suggestions. A split vote means no action on that post this week and the post reverts to shine light \u2014 it is still read aloud and tracked, never buried. The narrator and the committee spokesperson are permanent salaried roles who present only: the narrator reads posts word-for-word and the spokesperson presents the committee's approved answers. Neither has any authority over posts or answers. If either quits or is fired, a selection, election, or hiring process replaces them.",
+    "committee.rules.structure.body": "Twelve members, each holding an equal share of the decision-making power. Government agency liaisons advise only and do not vote. Each week the committee receives the selected posts and the AI-drafted answers and votes on whether to follow the AI suggestions. A split vote means no action on that post this week and the post reverts to shine light \u2014 it is still read aloud and tracked, never buried. The narrator and the committee spokesperson are permanent salaried roles who present only: the narrator reads posts word-for-word and the spokesperson presents the committee's approved answers. Neither has any authority over posts or answers. If either quits or is fired, the committee hires a replacement \u2014 hired by the committee, fired by the committee by vote, against public criteria.",
     "committee.rules.schedule.heading": "Weekly schedule",
-    "committee.rules.schedule.body": "Members receive the selected posts as soon as they are selected and have 6 days on their own to think about them. They all meet in person on Wednesday morning to deliberate and vote. Then the narrator and the committee spokesperson make the script and record live at 1:00 PM ET. The Podium funds a round-trip ticket and a hotel for every member every week.",
+    "committee.rules.schedule.body": "Members receive the selected posts as soon as they are selected and have 3 days on their own to think about them. They all meet in person on Friday to deliberate and vote, and on Saturday to send the agency requests and set tracking in motion. The agency's response arrives Wednesday morning by video call, and the narrator and the committee spokesperson make the script and record live at 1:00 PM ET. The Podium funds a round-trip ticket and a hotel for every member every week.",
     /* answer approver (answerer of record) */
     "approver.prefix": "Reviewed and approved by",
     "approver.suffix": "civilian committee member, Week {week} of 12",
@@ -159,7 +159,7 @@
     "fine.li8": "The random draw is rig-proof: the eligible pool is frozen in a fixed published order at the cutoff, and the position is the NIST Randomness Beacon value mod pool size, plus one. The draw is internal only, with no button, replay, or re-roll.",
     "fine.li9": "The committee prepares answers only. It never alters, substitutes, delays, or declines a selection. It reviews selections a week ahead and routes each answer to the correct branch and level.",
     "fine.li10": "The committee does not fund. It asks for funds and allocates funds.",
-    "fine.li11": "Committee answers start as AI drafts, reviewed, edited, and approved by a real committee member who is the answerer of record. AI never delivers a final answer alone and never touches a citizen post. The public sees only approved answers.",
+    "fine.li11": "Committee answers start as AI drafts that the committee votes on as written \u2014 never edited \u2014 and approves as the committee, the answerer of record; no individual member is named. AI never delivers a final answer alone and never touches a citizen post. The drafts are public: the public sees the drafts and the vote, not only approved answers.",
     "fine.li12": "An exact-duplicate post in the same cycle does not create a new post; the citizen is offered an upvote on the existing post, with no post-anyway exit. The draw pool excludes the winner and any post exactly matching the winner. Similar-but-distinct posts are advisory only.",
     "fine.li13": "The Live Feed shows the current cycle only. Past-cycle posts that were never selected are deleted; selected posts are kept as the briefing record.",
     "fine.li14": "Posting and voting run Monday 12:00 AM to Sunday 11:59 PM ET. The pool freezes at the Sunday cutoff, the draw is Monday at 12:00 PM ET, the committee has the week plus a Monday-Tuesday buffer, and the briefing airs Wednesdays at 1:00 PM ET as the fixed opening segment.",
@@ -403,25 +403,25 @@
     "next.selectedfor": "\u2014 {name} \u00b7 selected for next week\u2019s briefing",
     "next.answercoming": "Answer coming {date}. The committee is still formulating it.",
     "wonder.draft": "Draft answer with Wonder",
-    "wonder.visibility": "Demo only: drafts and editing are committee-only in the real product and shown here for evaluation. The public sees only approved answers.",
-    "wonder.simulated": "Demo only: in the real product the committee reviews, edits, and approves drafts; approval here is simulated and changes only what is displayed.",
+    "wonder.visibility": "Demo only: drafts are public and shown here for evaluation. The public sees the drafts and the vote, not only approved answers. Drafts are never edited: the committee votes on each draft as written and approves as the committee, with no individual member named.",
+    "wonder.simulated": "Demo only: in the real product the committee reviews and approves drafts; approval here is simulated and changes only what is displayed.",
     "wonder.pending": "AI-drafted by Muse Wonder \u2014 pending committee review",
-    "wonder.edited": "AI-drafted by Muse Wonder, edited by committee \u2014 pending committee review",
-    "wonder.edit": "Edit draft",
-    "wonder.edit.aria": "Edit the committee draft answer",
-    "wonder.save": "Save edit",
-    "wonder.cancel": "Cancel",
     "wonder.approve": "Approve draft",
+    "wonder.decline": "Decline draft",
+    "wonder.declined.note": "Declined by the committee. This post reverts to shine light: it will still be read aloud at the briefing and tracked, never buried.",
     "wonder.drafting": "Drafting with Muse Wonder ({model})...",
     "wonder.unavailable": "Muse Wonder is unavailable (no session key, or the call failed) \u2014 the seeded answer above stands. Answers are never drafted by Spark.",
     "wonder.approved": "Approved by committee (demo)",
+    "wonder.nocites": "This draft carries no citations and no \u201cNo commitments in this answer\u201d declaration, so it cannot be approved.",
+    "wonder.request": "Agency request \u2014 ready to send.",
+    "wonder.copy": "Copy request",
+    "wonder.notapproval": "An AI suggestion is not a government approval.",
     "cite.legend": "Citations",
     "cite.commitment": "Commitment",
     "cite.source": "Source",
     "cite.add": "Add citation",
     "cite.remove": "Remove",
     "cite.nocommit": "No commitments in this answer",
-    "cite.required": "Citations are required \u2014 add one citation per commitment, or mark \u201cNo commitments in this answer\u201d.",
     "cite.commitment.ph": "Short quote of the commitment\u2026",
     "cite.source.ph": "Agency or authority\u2026",
     "cite.date": "Date",
@@ -465,6 +465,7 @@
     "audit.ev.draw": "Draw run",
     "audit.ev.draft": "Answer drafted",
     "audit.ev.approve": "Answer approved",
+    "audit.ev.decline": "Answer declined",
     "audit.ev.update": "Status update posted",
     "audit.ev.signin": "Sign-in",
     "audit.ev.signout": "Sign-out",
@@ -2869,7 +2870,7 @@
     wireApproverLinks(apw);
     while (apw.firstChild) li.appendChild(apw.firstChild);
     var citeDiv = document.createElement("div");
-    citeDiv.innerHTML = citationsHtml(item, p);
+    citeDiv.innerHTML = citationsHtml(item, p) + standingLabelHtml();
     while (citeDiv.firstChild) li.appendChild(citeDiv.firstChild);
     var row = document.createElement("div");
     row.className = "btn-row";
@@ -2913,12 +2914,10 @@
      then does the DISPLAYED text change (approved pill). The seeded
      record is never mutated. The zone lives under Next Week posts: the
      committee drafts during committee week, before the briefing airs. */
-  var wonderDrafts = {};   /* postId -> draft text */
+  var wonderDrafts = {};   /* postId -> draft envelope { text, citations, noCommitments }, session-only */
   var wonderApproved = {}; /* postId -> true once approved in this session */
-  var wonderCitations = {}; /* postId -> [{commitment, source, date}] recorded at approval, session-only */
-  var wonderNoCommit = {}; /* postId -> true when the approver marked "no commitments" */
+  var wonderDeclined = {}; /* postId -> true once declined in this session (post reverts to shine light) */
   var wonderLiaisonAdvice = {}; /* postId -> [{liaison, claim, authority, date, outcome}] recorded in the draft zone, logged on approval, session-only */
-  var wonderEdited = {};   /* postId -> true once the committee edited the draft */
   /* Committee-only visibility (TY, Oct 28): in the real product drafts
      and editing are committee-only; the demo shows them publicly for
      evaluation. Display text only — never gates or hides the controls. */
@@ -2936,60 +2935,49 @@
     wonderVisibility.textContent = wonderVisibilityNote();
     var wonderStatus = document.createElement("p");
     wonderStatus.className = "hint";
-    wonderBox.appendChild(draftBtn);
+    if (!draftEnvelope() && !wonderApproved[p.id] && !wonderDeclined[p.id]) wonderBox.appendChild(draftBtn);
     wonderBox.appendChild(wonderVisibility);
     wonderBox.appendChild(wonderStatus);
-    function draftLabel() {
-      return wonderEdited[p.id] ? T("wonder.edited") : T("wonder.pending");
+    function draftEnvelope() { return wonderDrafts[p.id] || null; }
+    function draftGate(d) { return !!(d && (d.noCommitments || (d.citations && d.citations.length))); }
+    function agencyRequestBlock(d) {
+      if (!d || !d.agencyRequest) return null;
+      var reqText = d.agencyRequest;
+      var reqBlock = document.createElement("div");
+      reqBlock.innerHTML = '<p><span class="zone-label">' + esc(T("wonder.request")) + '</span></p>' +
+        '<p>' + esc(reqText).replace(/\n/g, '<br>') + '</p>';
+      var copyBtn = document.createElement("button");
+      copyBtn.type = "button";
+      copyBtn.className = "btn btn-small";
+      copyBtn.textContent = T("wonder.copy");
+      copyBtn.addEventListener("click", function () {
+        copyText(reqText, function (ok) {
+          copyBtn.textContent = ok ? T("share.copied") : T("share.failed");
+          setTimeout(function () { copyBtn.textContent = T("wonder.copy"); }, 2000);
+        });
+      });
+      reqBlock.appendChild(copyBtn);
+      return reqBlock;
     }
     function showDraft() {
-      var draft = wonderDrafts[p.id];
-      if (!draft || wonderApproved[p.id]) return;
+      var prior = wonderBox.querySelector("[data-wonder-pending]");
+      if (prior) prior.remove();
+      var draft = draftEnvelope();
+      if (!draft || wonderApproved[p.id] || wonderDeclined[p.id]) return;
       var box = document.createElement("div");
-      box.innerHTML = '<span class="zone-label">' + esc(draftLabel()) + "</span>" +
-        "<p>" + esc(draft) + "</p>" +
+      box.setAttribute("data-wonder-pending", "1");
+      box.innerHTML = '<span class="zone-label">' + esc(T("wonder.pending")) + "</span>" +
+        "<p>" + esc(draft.text) + "</p>" +
         '<p class="hint">' + esc(wonderVisibilityNote()) + "</p>" +
         '<p class="hint">' + esc(wonderSimulatedNote()) + "</p>";
-      var editBtn = document.createElement("button");
-      editBtn.type = "button";
-      editBtn.className = "btn btn-small";
-      editBtn.textContent = T("wonder.edit");
-      editBtn.addEventListener("click", function () {
-        /* Local UI operation on the returned draft text only: no model
-           call, no re-draft. Save updates the session-only draft. */
-        box.innerHTML = '<span class="zone-label">' + esc(draftLabel()) + "</span>";
-        var ta = document.createElement("textarea");
-        ta.value = wonderDrafts[p.id];
-        ta.rows = 6;
-        ta.style.width = "100%";
-        ta.setAttribute("aria-label", T("wonder.edit.aria"));
-        box.appendChild(ta);
-        var saveBtn = document.createElement("button");
-        saveBtn.type = "button";
-        saveBtn.className = "btn btn-small";
-        saveBtn.textContent = T("wonder.save");
-        saveBtn.addEventListener("click", function () {
-          if (!ta.value.trim()) { renderBriefing(); return; }
-          wonderDrafts[p.id] = ta.value;
-          wonderEdited[p.id] = true;
-          renderBriefing();
-        });
-        var cancelBtn = document.createElement("button");
-        cancelBtn.type = "button";
-        cancelBtn.className = "btn btn-small";
-        cancelBtn.textContent = T("wonder.cancel");
-        cancelBtn.addEventListener("click", function () { renderBriefing(); });
-        box.appendChild(saveBtn);
-        box.appendChild(document.createTextNode(" "));
-        box.appendChild(cancelBtn);
-        ta.focus();
-      });
+      var reqPend = agencyRequestBlock(draft);
+      if (reqPend) box.appendChild(reqPend);
       var approveBtn = document.createElement("button");
       approveBtn.type = "button";
       approveBtn.className = "btn btn-small";
       approveBtn.textContent = T("wonder.approve");
       approveBtn.addEventListener("click", function () {
-        if (!wonderNoCommit[p.id] && !(wonderCitations[p.id] && wonderCitations[p.id].length)) { trackerMsg(box, "cite.required"); return; }
+        if (!draftGate(draftEnvelope())) { trackerMsg(box, "wonder.nocites"); return; }
         wonderApproved[p.id] = true;
         audit("approve", p.ref + "-A", "");
         (wonderLiaisonAdvice[p.id] || []).forEach(function (a) {
@@ -2997,55 +2985,29 @@
         });
         renderBriefing();
       });
-      var citeSection = document.createElement("div");
-      function renderCites() {
-        var list = wonderCitations[p.id] || [];
-        var h = '<p><span class="zone-label">' + esc(T("cite.legend")) + "</span></p>";
-        for (var i = 0; i < list.length; i++) {
-          h += '<p class="hint">' + esc(T("cite.commitment")) + ": " + esc(list[i].commitment) + " \u2014 " + esc(T("cite.source")) + ": " + esc(list[i].source) + ", " + esc(list[i].date) + (list[i].liaison ? " \u2014 " + esc(T("cite.via")) + " " + esc(list[i].liaison) : "") + ' <button type="button" class="btn btn-small" data-cite-rm="' + i + '">' + esc(T("cite.remove")) + "</button></p>";
-        }
-        h += '<div class="field"><label>' + esc(T("cite.commitment")) + '</label><textarea data-cite="commitment" rows="2" placeholder="' + esc(T("cite.commitment.ph")) + '"></textarea></div>' +
-          '<div class="field"><label>' + esc(T("cite.source")) + '</label><textarea data-cite="source" rows="2" placeholder="' + esc(T("cite.source.ph")) + '"></textarea></div>' +
-          '<div class="field"><label>' + esc(T("cite.date")) + '</label><input type="text" data-cite="date" placeholder="' + esc(T("cite.date.ph")) + '"></div>' +
-          '<div class="field"><label>' + esc(T("cite.liaison")) + '</label><input type="text" data-cite="liaison" placeholder="' + esc(T("cite.liaison.ph")) + '"></div>' +
-          '<div class="btn-row"><button type="button" class="btn btn-small" data-cite-add>' + esc(T("cite.add")) + "</button></div>" +
-          '<div class="field"><label><input type="checkbox" data-cite-none> ' + esc(T("cite.nocommit")) + "</label></div>";
-        citeSection.innerHTML = h;
-        function citeVal(n) { var el = citeSection.querySelector('[data-cite="' + n + '"]'); return el ? el.value : ""; }
-        var addBtn = citeSection.querySelector("[data-cite-add]");
-        if (addBtn) addBtn.addEventListener("click", function () {
-          if (!citeVal("commitment").trim() || !citeVal("source").trim() || !citeVal("date").trim()) { trackerMsg(box, "form.required"); return; }
-          var l = wonderCitations[p.id] || (wonderCitations[p.id] = []);
-          l.push({ commitment: citeVal("commitment"), source: citeVal("source"), date: citeVal("date"), liaison: citeVal("liaison").trim() ? citeVal("liaison") : "" });
-          delete wonderNoCommit[p.id];
-          trackerMsg(box, null);
-          renderCites();
-        });
-        Array.prototype.forEach.call(citeSection.querySelectorAll("[data-cite-rm]"), function (btn) {
-          btn.addEventListener("click", function () {
-            var l = wonderCitations[p.id] || [];
-            l.splice(Number(btn.getAttribute("data-cite-rm")), 1);
-            renderCites();
-          });
-        });
-        var none = citeSection.querySelector("[data-cite-none]");
-        if (none) {
-          none.checked = !!wonderNoCommit[p.id];
-          none.addEventListener("change", function () {
-            if (none.checked) { wonderNoCommit[p.id] = true; wonderCitations[p.id] = []; }
-            else delete wonderNoCommit[p.id];
-            renderCites();
-          });
-        }
+      var declineBtn = document.createElement("button");
+      declineBtn.type = "button";
+      declineBtn.className = "btn btn-small";
+      declineBtn.textContent = T("wonder.decline");
+      declineBtn.addEventListener("click", function () {
+        wonderDeclined[p.id] = true;
+        audit("decline", p.ref + "-A", "");
+        renderBriefing();
+      });
+      if (!draftGate(draft)) {
+        approveBtn.disabled = true;
+        var gateHint = document.createElement("p");
+        gateHint.className = "hint";
+        gateHint.textContent = T("wonder.nocites");
+        box.appendChild(gateHint);
       }
-      renderCites();
-      box.appendChild(citeSection);
       var adviceSection = document.createElement("div");
       var ADVICE_OUTCOMES = ["followed", "second", "notfollowed"];
       function adviceVal(n) { var el = adviceSection.querySelector('[data-advice="' + n + '"]'); return el ? el.value : ""; }
       function renderAdvice() {
+        var wasOpen = !!(adviceSection.querySelector("details") && adviceSection.querySelector("details").open);
         var list = wonderLiaisonAdvice[p.id] || [];
-        var h = '<p><span class="zone-label">' + esc(T("advice.legend")) + "</span></p>";
+        var h = '<details><summary><span class="zone-label">' + esc(T("advice.legend")) + "</span></summary>";
         for (var j = 0; j < list.length; j++) {
           h += '<p class="hint">' + esc(list[j].liaison) + " \u2014 " + esc(list[j].claim) + " (" + esc(adviceOutcomeLabel(list[j].outcome)) + ")" +
             ' <button type="button" class="btn btn-small" data-advice-rm="' + j + '">' + esc(T("cite.remove")) + "</button></p>";
@@ -3058,8 +3020,9 @@
           '<option value="followed">' + esc(T("advice.outcome.followed")) + "</option>" +
           '<option value="second">' + esc(T("advice.outcome.second")) + "</option>" +
           '<option value="notfollowed">' + esc(T("advice.outcome.notfollowed")) + "</option></select></div>" +
-          '<div class="btn-row"><button type="button" class="btn btn-small" data-advice-add>' + esc(T("advice.add")) + "</button></div>";
+          '<div class="btn-row"><button type="button" class="btn btn-small" data-advice-add>' + esc(T("advice.add")) + "</button></div>" + "</details>";
         adviceSection.innerHTML = h;
+        if (wasOpen) { var det = adviceSection.querySelector("details"); if (det) det.open = true; }
         var addBtn = adviceSection.querySelector("[data-advice-add]");
         if (addBtn) addBtn.addEventListener("click", function () {
           if (!adviceVal("liaison").trim() || !adviceVal("claim").trim() || !adviceVal("authority").trim() || !adviceVal("date").trim()) { trackerMsg(box, "form.required"); return; }
@@ -3079,15 +3042,16 @@
       }
       box.appendChild(adviceSection);
       renderAdvice();
-      box.appendChild(editBtn);
-      box.appendChild(document.createTextNode(" "));
       box.appendChild(approveBtn);
+      box.appendChild(document.createTextNode(" "));
+      box.appendChild(declineBtn);
       wonderBox.appendChild(box);
     }
     draftBtn.addEventListener("click", function () {
       draftBtn.disabled = true;
+      draftBtn.style.display = "none";
       wonderStatus.textContent = Tf("wonder.drafting", { model: PodiumAI.WONDER_MODEL });
-      PodiumAI.draftCommitteeAnswer(p).then(function (draft) {
+      PodiumAI.draftCommitteeEnvelope(p).then(function (draft) {
         draftBtn.disabled = false;
         if (!draft) {
           wonderStatus.textContent = T("wonder.unavailable");
@@ -3095,21 +3059,24 @@
         }
         wonderDrafts[p.id] = draft;
         delete wonderApproved[p.id];
-        delete wonderEdited[p.id];
-        delete wonderCitations[p.id];
-        delete wonderNoCommit[p.id];
         delete wonderLiaisonAdvice[p.id];
         wonderStatus.textContent = "";
         audit("draft", p.ref + "-A", "");
         showDraft();
       });
     });
-    if (wonderApproved[p.id] && wonderDrafts[p.id]) {
+    if (wonderDeclined[p.id]) {
+      var dec = document.createElement("div");
+      dec.innerHTML = '<p class="hint">' + esc(T("wonder.declined.note")) + '</p>';
+      wonderBox.appendChild(dec);
+    } else if (wonderApproved[p.id] && draftEnvelope()) {
       var done = document.createElement("div");
       done.innerHTML = '<p><span class="status-pill">' + esc(T("wonder.approved")) + "</span></p>" +
-        "<p>" + esc(wonderDrafts[p.id]) + "</p>" + committeeLineHtml() + citationsHtml(null, p);
+        "<p>" + esc(draftEnvelope().text) + "</p>" + committeeLineHtml() + citationsHtml(null, p) + standingLabelHtml();
+      var reqDone = agencyRequestBlock(draftEnvelope());
+      if (reqDone) done.appendChild(reqDone);
       wonderBox.appendChild(done);
-    } else if (wonderDrafts[p.id]) {
+    } else if (draftEnvelope()) {
       showDraft();
     }
     return wonderBox;
@@ -3486,7 +3453,7 @@
       translateSlotHtml(p) +
       '<div class="zone zone-answer"><span class="zone-label">' + esc(T("thread.answer")) + "</span>" +
       '<p><span class="ref-code">' + esc(answerCode(p)) + "</span></p>" +
-      "<p>" + esc(displayAnswer(b.answer)) + "</p>" + approverHtml(b) + citationsHtml(b, p) + "</div>";
+      "<p>" + esc(displayAnswer(b.answer)) + "</p>" + approverHtml(b) + citationsHtml(b, p) + standingLabelHtml() + "</div>";
     var last = b.updates[b.updates.length - 1];
     if (last) {
       html += '<div class="zone zone-answer"><span class="zone-label">' + esc(T("prior.updatelatest")) + "</span>" +
@@ -3548,7 +3515,7 @@
     var html = "<h3>" + selectionTitle(b) + "</h3>" +
       '<p><span class="ref-code">' + esc(p.ref || "") + "</span> " + esc(author.name) + stateSuffix(p) + langSuffix(p) + " \u00b7 " + esc(T("prior.status")) + ' <span class="status-pill">' + esc(Tstatus(b.trackerStatus)) + "</span>" +
       (b.trackerStatus === "No Action" && b.officialReason ? " \u2014 " + esc(b.officialReason) : "") + "</p>" + sealHtml(p) +
-      approverHtml(b) + citationsHtml(b, p) +
+      approverHtml(b) + citationsHtml(b, p) + standingLabelHtml() +
       "<h4>" + esc(T("status.dated")) + "</h4>" + '<ul class="updates">' +
       b.updates.map(function (u, i) { return "<li><span class=\"ref-code\">" + esc(updateCode(p, i)) + "</span> <strong>" + esc(u.date) + ":</strong> " + esc(u.text) + responsesHtml(b, p, "update", i) + "</li>"; }).join("") +
       "</ul>" + trackerHtml(b, p);
@@ -3579,7 +3546,8 @@
     return (m && m.committeeMember) ? m : null;
   }
   function citationsFor(b, p) {
-    if (p && wonderCitations[p.id] && wonderCitations[p.id].length) return wonderCitations[p.id];
+    var de = p && wonderDrafts[p.id];
+    if (de && de.citations && de.citations.length) return de.citations;
     return (b && b.citations) || [];
   }
   function citationsHtml(b, p) {
@@ -3594,6 +3562,9 @@
     if (i < 0) html = esc(full);
     else html = esc(full.slice(0, i)) + '<button type="button" class="btn btn-small approver-link">' + esc(name) + "</button>" + esc(full.slice(i + name.length));
     return '<p class="hint">' + html + "</p>";
+  }
+  function standingLabelHtml() {
+    return '<p class="hint">' + esc(T("wonder.notapproval")) + '</p>';
   }
   function approverHtml(b) {
     var m = approverFor(b && b.postId);
@@ -4003,6 +3974,10 @@
         '<p><span class="ref-code">' + esc(answerCode(p)) + "</span></p>" +
         "<blockquote>" + esc(displayAnswer(item.answer)) + "</blockquote>";
       frag.appendChild(za);
+      var zn = document.createElement("p");
+      zn.className = "hint";
+      zn.textContent = T("wonder.notapproval");
+      frag.appendChild(zn);
     }
     frag.appendChild(fullRecordButton(p.id, Tf("feed.fullrecord.ref", { ref: p.ref || "" })));
     return frag;

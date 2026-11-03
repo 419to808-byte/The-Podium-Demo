@@ -704,7 +704,10 @@ var PodiumAI = (function () {
     "Do NOT misrepresent the post: if you reference the citizen's words, quote them verbatim; never paraphrase the citizen's words as if they were the post. " +
     "Do NOT invent commitments beyond a plausible committee action (process steps only — transmit, report status — never promise enactment or outcomes). " +
     "Write ONLY the proposed answer itself. Do not include any sentence about the draft, its status, or whether it is final — no 'this draft...', 'this is a draft...', 'does not represent a final...' meta language of any kind. The interface labels the text as a draft pending committee review; the answer body must read as the proposed answer, nothing meta. " +
-    "Never alter, reword, or comment on the post itself. Reply with ONLY the draft answer text, no prefix, no label, no quotation marks around the whole answer.";
+    "Never alter, reword, or comment on the post itself. Reply with ONLY the draft answer text, no prefix, no label, no quotation marks around the whole answer. " +
+    "Add a 'Citations:' section listing one line per commitment in the exact form '- COMMITMENT | SOURCE | DATE' (commitment quote, agency or authority, date), or — if the answer makes no commitments — a line reading exactly 'No commitments in this answer.'. " +
+    "Then end your reply with its agency request: a final 'Agency request:' section of three lines in the exact form 'To: AGENCY' (the agency the answer asks something of), 'Ask: SPECIFIC ASK' (what the committee asks that agency to do), 'Post: REF' (this post's reference code) — or, if the answer asks nothing of any agency, a final line reading exactly 'No agency request.'" +
+    "The draft is a suggestion for the committee to vote on as written: Wonder does not decide, the draft text is never final, and Wonder is never the face of an answer.";
   function wonderChat(systemText, userText) {
     var t = WONDER_TRANSPORT;
     var key = getKey();
@@ -729,9 +732,9 @@ var PodiumAI = (function () {
   }
   /* Draft a committee answer for a selected post. Input is the post object
      (verbatim body, topic, ref, frozen authorState). Resolves the clean
-     draft text (no "Sample committee response:" prefix — the UI labels it
+     draft envelope { text, citations, noCommitments, agencyRequest } (no "Sample committee response:" prefix — the UI labels it
      as a draft), or null when Wonder is unavailable. */
-  function draftCommitteeAnswer(post) {
+  function draftCommitteeEnvelope(post) {
     if (!post || !getKey()) return Promise.resolve(null);
     var user = "Reference code: " + (post.ref || "") + "\n" +
       "Topic: " + (post.topic || "") + "\n" +
@@ -739,8 +742,62 @@ var PodiumAI = (function () {
       "Citizen post (verbatim):\n" + String(post.body || "");
     return wonderChat(ANSWER_SYSTEM, user).then(function (text) {
       if (!text) return null;
-      return text.replace(/^Sample committee response:\s*/i, "").trim() || null;
+      var d = parseDraftEnvelope(text.replace(/^Sample committee response:\s*/i, ""));
+      if (!d.text) return null;
+      return d;
     });
+  }
+  /* String form (existing contract — the gate suite asserts indexOf on the
+     result): the envelope text only, or null. */
+  function draftCommitteeAnswer(post) {
+    return draftCommitteeEnvelope(post).then(function (d) {
+      return d ? d.text : null;
+    });
+  }
+  /* Draft envelope (TY, Nov 3): a draft arrives complete — the answer text
+     plus its citations, so the committee votes on it as written and never
+     attaches citations itself. The model ends every draft with either a
+     'Citations:' section (one '- COMMITMENT | SOURCE | DATE' line per
+     commitment) or the exact line 'No commitments in this answer.'. The reply ends
+     with an agency-request section ('Agency request:' plus 'To:' / 'Ask:' / 'Post:' lines,
+     or the exact line 'No agency request.').
+     parseDraftEnvelope splits that envelope into { text, citations,
+     noCommitments, agencyRequest }. Malformed citation lines are dropped; a draft with
+     neither valid citations nor the declaration cannot be approved. The request
+     section is captured verbatim for the copy control; drafts without one
+     simply carry agencyRequest null (no vote-gate change). */
+  var NO_COMMIT_LINE = "No commitments in this answer.";
+  var AGENCY_HEADER = "Agency request:";
+  var NO_REQUEST_LINE = "No agency request.";
+  function parseDraftEnvelope(text) {
+    var lines = String(text == null ? "" : text).replace(/\s+$/, "").split("\n");
+    var cites = [], noCommit = false, agencyRequest = null, end = lines.length, i, t;
+    var req = [];
+    for (i = end - 1; i >= 0; i--) {
+      t = lines[i].trim();
+      if (!t) continue;
+      if (t.toLowerCase() === NO_REQUEST_LINE.toLowerCase()) { end = i; break; }
+      if (/^(to|ask|post)\s*:/i.test(t)) { req.unshift(lines[i].trim()); continue; }
+      if (t.toLowerCase() === AGENCY_HEADER.toLowerCase()) { if (req.length) agencyRequest = req.join("\n"); end = i; break; }
+      break;
+    }
+    for (i = end - 1; i >= 0; i--) {
+      t = lines[i].trim();
+      if (!t) { end = i; continue; }
+      if (t.toLowerCase() === NO_COMMIT_LINE.toLowerCase()) { noCommit = true; end = i; continue; }
+      if (t.charAt(0) === "-") {
+        var parts = t.slice(1).split("|");
+        if (parts.length >= 3) {
+          var cm = parts[0].trim().replace(/^["\u201c\u201d]+|["\u201c\u201d]+$/g, ""), sc = parts[1].trim(), dt = parts.slice(2).join("|").trim();
+          if (cm && sc && dt) { cites.unshift({ commitment: cm, source: sc, date: dt, liaison: "" }); end = i; continue; }
+        }
+        break;
+      }
+      if (t.toLowerCase() === "citations:") { end = i; continue; }
+      break;
+    }
+    if (cites.length) noCommit = false;
+    return { text: lines.slice(0, end).join("\n").replace(/\s+$/, ""), citations: cites, noCommitments: cites.length ? false : noCommit, agencyRequest: agencyRequest };
   }
   /* ---------- on-demand post translation (multilingual slice, step 4) ----
      Reader aid only: the original post is ALWAYS the official record and is
@@ -748,7 +805,6 @@ var PodiumAI = (function () {
      clicks, into the reader's current UI language. Same endpoint and same
      sessionStorage footer key as the other transports -- no second key.
      Model muse-spark-1.3 per the translate-only system prompt below.
-     On ANY failure (no key, timeout, error, model rejected) resolves null
      so the caller shows the unavailable note. NEVER retries, NEVER falls
      back to another model: one attempt, then the note. */
   var TRANSLATE_TRANSPORT = {
@@ -809,6 +865,7 @@ var PodiumAI = (function () {
     suggestTopicLive: suggestTopicLive,
     topicLabels: TOPIC_KEYWORDS.map(function (pair) { return pair[0]; }),
     draftCommitteeAnswer: draftCommitteeAnswer,
+    draftCommitteeEnvelope: draftCommitteeEnvelope,
     generateDemoPost: generateDemoPost,
     translatePost: translatePost,
     WONDER_MODEL: WONDER_TRANSPORT.model,
