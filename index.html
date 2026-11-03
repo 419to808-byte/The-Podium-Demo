@@ -219,6 +219,8 @@
       <select id="statusSelect"></select>
     </label>
     <article class="card" id="statusCard"></article>
+    <h3 id="auditHeading">Audit log</h3>
+    <article class="card" id="auditCard"></article>
   </section>
 
 </main>
@@ -232,6 +234,10 @@
     <div class="footer-col">
       <h2 id="footerProcess">The Process</h2>
       <p id="footerProcessChain">1. A citizen posts an idea or concern &#8212; 630 words max, gate-checked, final once published. 2. The community votes &#8212; one vote per citizen per weekly cycle, switchable until Sunday 11:59 PM ET. 3. At the cutoff the pool freezes; Monday at 12:00 PM ET the NIST Randomness Beacon draw picks one post at random. 4. The committee prepares answers and routes each selection to the correct branch and level. 5. Wednesday at 1:00 PM ET the briefing airs &#8212; the highest-voted post and the drawn post are read aloud word-for-word and discussed. 6. Approved answers are published, and follow-through is tracked in Status Updates until Answered, Action Promised, In Progress, Resolved &#8212; or No Action, with an official reason.</p>
+    </div>
+    <div class="footer-col">
+      <h2 id="footerSecurity">Security</h2>
+      <p id="footerSecurityNote">Demo: every post carries a SHA-256 hash, and every action is recorded in a hash-chained audit log. The real product verifies identity through Login.gov, uses phishing-resistant sign-in, and meets federal security standards. The backend items are not built yet.</p>
     </div>
     <div class="footer-col">
       <h2 id="footerNotices">Notices</h2>

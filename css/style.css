@@ -185,6 +185,7 @@ select, input[type="search"], input[type="text"], textarea {
   border-radius: 3px; padding: .3rem .9rem; font-weight: 600; cursor: pointer; font-size: .9rem;
 }
 .ref-code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: #eef1f4; border-radius: 4px; padding: 0 .4rem; font-size: .8rem; font-weight: 700; white-space: nowrap; }
+.seal-code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: #eef1f4; border-radius: 4px; padding: 0 .4rem; font-size: .8rem; font-weight: 700; white-space: nowrap; }
 .zone { border-radius: 3px; padding: .7rem .9rem; margin: .6rem 0; }
 .zone-post { background: #f4f6f8; border: 1px solid var(--navy); border-left: 5px solid var(--navy); }
 .zone-answer { background: #fff; border: 1px solid var(--accent); border-left: 5px solid var(--accent); }
@@ -252,7 +253,7 @@ h2 { text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid 
 @media (min-width: 40rem) {
   .brand-title { font-size: 1.6rem; }
   .pipeline { grid-template-columns: 1fr 1fr; }
-  .footer-cols { grid-template-columns: 1fr 1fr 1fr; }
+  .footer-cols { grid-template-columns: 1fr 1fr 1fr 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }

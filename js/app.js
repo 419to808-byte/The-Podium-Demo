@@ -140,6 +140,7 @@
     "fine.li18": "Live activity: when \u2018Simulate live activity\u2019 is on, the feed shows AI-generated demonstration posts, clearly labeled. They are never voted on, never drawn, and never briefed.",
     "fine.li19": "Mock accounts: signing up stores a local profile in this browser only, with no real identity verification.",
     "fine.li20": "Real sign-in/sign-up: shown as a preview; the backend and text verification are not built yet.",
+    "fine.li21": "Security: every post carries a SHA-256 hash, and every action is recorded in a hash-chained audit log.",
     /* feed */
     "feed.aria": "Feed of citizen posts",
     "feed.order": "Feed order",
@@ -395,6 +396,21 @@
     "status.lede": "The follow-through record: each item shows the dated progress updates plus the current status. Check anytime \u2014 this is not part of the live show.",
     "status.dated": "Dated progress updates",
     "status.toprior": "\u2190 Post and answer for {ref}",
+    "sec.tamper": "This post does not match its recorded hash.",
+    "audit.heading": "Audit log",
+    "audit.lede": "Every action is recorded in a hash-chained log, newest first.",
+    "audit.intact": "Audit log intact.",
+    "audit.broken": "Audit log does not verify â€” entry {n}.",
+    "audit.ev.genesis": "Log started",
+    "audit.ev.post": "Post published",
+    "audit.ev.vote": "Vote cast",
+    "audit.ev.draw": "Draw run",
+    "audit.ev.draft": "Answer drafted",
+    "audit.ev.approve": "Answer approved",
+    "audit.ev.update": "Status update posted",
+    "audit.ev.signin": "Sign-in",
+    "audit.ev.signout": "Sign-out",
+    "audit.ev.signup": "Mock sign-up",
     /* watch */
     "watch.aria": "Watch live broadcast",
     "watch.lede": "Attend the weekly briefing broadcast. The Weekly Briefing tab holds the record of what was and will be discussed; this tab is the airing itself.",
@@ -441,6 +457,8 @@
     "footer.process": "The Process",
     "footer.process.chain": "1. A citizen posts an idea or concern \u2014 630 words max, gate-checked, final once published. 2. The community votes \u2014 one vote per citizen per weekly cycle, switchable until Sunday 11:59 PM ET. 3. At the cutoff the pool freezes; Monday at 12:00 PM ET the NIST Randomness Beacon draw picks one post at random. 4. The committee prepares answers and routes each selection to the correct branch and level. 5. Wednesday at 1:00 PM ET the briefing airs \u2014 the highest-voted post and the drawn post are read aloud word-for-word and discussed. 6. Approved answers are published, and follow-through is tracked in Status Updates until Answered, Action Promised, In Progress, Resolved \u2014 or No Action, with an official reason.",
     "footer.notices": "Notices",
+    "footer.security": "Security",
+    "footer.security.note": "Demo: every post carries a SHA-256 hash, and every action is recorded in a hash-chained audit log. The real product verifies identity through Login.gov, uses phishing-resistant sign-in, and meets federal security standards. The backend items are not built yet.",
     "footer.demonotice": "<strong>Demo notice:</strong> sign-in is simulated; no real personal data is collected, requested, or stored. AI checks run locally until a Model API key is provided for the session. Committee answers shown are seeded sample responses.",
     "footer.key": "Model API key",
     "footer.key.hint": "(demo session only \u2014 kept in sessionStorage, cleared when the tab closes; never committed)",
@@ -591,6 +609,7 @@
       b.addEventListener("click", function () {
         state.currentUserId = c.id;
         PodiumStore.save(state);
+        audit("signin", c.name, "");
         renderCitizen(); renderFeed(); updateOnePostNotice();
         closeModal($("citizenModal"));
       });
@@ -653,6 +672,7 @@
     ensureMockCitizen(p);
     state.currentUserId = p.id;
     PodiumStore.save(state);
+    audit("signin", p.name, "");
     renderCitizen(); renderFeed(); updateOnePostNotice();
     closeModal($("citizenModal"));
   }
@@ -752,6 +772,7 @@
       if (err) err.hidden = true;
       var p = { id: "u-c-" + Date.now().toString(36), name: nm, email: em, pw: hashPw(pw), state: st };
       saveProfile(p);
+      audit("signup", nm, "");
       mockView = "signin";
       mockSignInAs(p);
     });
@@ -775,12 +796,41 @@
     });
     var so = $("mockSignoutBtn");
     if (so) so.addEventListener("click", function () {
+      var soUser = currentUser();
       state.currentUserId = null;
       PodiumStore.save(state);
+      audit("signout", (soUser && soUser.name) ? soUser.name : "", "");
       renderCitizen(); renderFeed(); updateOnePostNotice();
       closeModal($("citizenModal"));
     });
   }
+  /* GOVERNMENT-MODEL BACKEND HOOKS (TY, Nov 3 — structure only, nothing
+     below is implemented; the demo stays a static site with no backend):
+     - Identity proofing (IAL2, NIST SP 800-63): hook a Login.gov / ID.me
+       integration where the real sign-up collects identity (see the
+       disabled real-preview section and its TODOs) — photo ID + SSN +
+       selfie/facial match, or in-person at a Post Office. The demo never
+       collects SSNs (see mock.verifynote / real section note).
+     - Sign-in (AAL2): hook FIDO2/passkey + security-key (WebAuthn) and
+       authenticator-app MFA where the real sign-in verifies the session;
+       SMS text-back is NIST-"restricted" — fallback only, with a warning.
+     - SSN field-level encryption: hook envelope encryption (KMS/HSM data
+       keys) at any point that would persist an SSN — no such point exists
+       in the demo (SSN fields are disabled and unwired by design).
+     - Hosting: FedRAMP-authorized cloud behind WAF + DDoS protection;
+       hook at deploy/infra, not in this client code.
+     - Backups: encrypted off-site replicas hook at PodiumStore.save
+       (see the save() hook note in js/store.js) — WORM retention.
+     - Domain: .gov domain + DNSSEC + HSTS preload; hook at hosting/DNS.
+     - Crypto: FIPS 140-3 validated module replaces the local SHA-256
+       primitive (see the js/store.js hook); TLS 1.2 minimum / 1.3
+       preferred for all transports (same endpoint helper, footer key).
+     - Email: SPF/DKIM/DMARC p=reject + MTA-STS for any product mail
+       (verification codes ride SMS in the real product, email stays
+       transactional) — hook at the mail sender, none exists here.
+     - Monitoring: FISMA continuous monitoring (audit logging, vuln
+       scanning, incident response) — the client-side hash-chained audit
+       log in this demo is the visible model, not the compliance control. */
   wireMockBox();
 
   /* ---------- feed ---------- */
@@ -1008,7 +1058,7 @@
     if (!cand || state.topics.indexOf(cand.topic) === -1) return null;
     if (!liveLocalPass(cand.body)) return null;
     liveGenCount += 1;
-    return {
+    var post = {
       id: "g-" + Date.now(),
       ref: liveNextRef(cand.topic),
       cycleId: currentCycle(),
@@ -1021,6 +1071,8 @@
       createdAt: new Date().toISOString(),
       generated: true
     };
+    post.hash = PodiumStore.hashPost(state, post);
+    return post;
   }
   function liveCap() {
     liveGenCapped = true;
@@ -1558,7 +1610,7 @@
       (p.generated ? '<span class="post-status live">' + esc(T("livefeed.badge")) + "</span>" : "") +
       "<span>" + esc(dateShown(p)) + " \u00b7 " + esc(cycleLabel(cycle)) + "</span>" +
       statusChip(p.id) + "</div>" +
-      '<p class="post-body">' + esc(p.body) + "</p>" +
+      '<p class="post-body">' + esc(p.body) + "</p>" + sealHtml(p) +
       '<div class="post-actions">';
     /* Generated demonstration posts carry no upvote control: they are never
        voted on. */
@@ -1582,7 +1634,8 @@
            place — no re-sort, no re-page, no snapshot rebuild. */
         var pid = btn.getAttribute("data-post");
         var prev = PodiumStore.userVoteInCycle(state, state.currentUserId, currentCycle());
-        PodiumStore.castVote(state, state.currentUserId, pid);
+        var vres = PodiumStore.castVote(state, state.currentUserId, pid);
+        if (vres) { var vp = findPostAny(pid); audit("vote", vp ? (vp.ref || pid) : pid, vres); }
         refreshVoteButtons(prev);
         refreshVoteButtons(pid);
       });
@@ -1611,6 +1664,28 @@
     var s = String(a == null ? "" : a).replace(/^Sample committee response(\s*\([^)]*\))?:\s*/, "");
     if (!s) return s;
     return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  /* Post-integrity display (TY, Nov 3): recompute the stored hash at
+     display time. Match → short fingerprint (first 12 hex chars).
+     Mismatch (or a missing recorded hash) → tamper warning instead of a
+     verified fingerprint. Display-only; never mutates the post. */
+  function sealHtml(p) {
+    if (!p) return "";
+    var recomputed = PodiumStore.hashPost(state, p);
+    if (p.hash && p.hash === recomputed) {
+      return '<p class="hint">SHA-256 <span class="seal-code">' + esc(recomputed.slice(0, 12)) + "</span></p>";
+    }
+    return '<p class="gate-error">' + esc(T("sec.tamper")) + "</p>";
+  }
+  /* Audit logging (TY, Nov 3): every listed action appends a hash-chained
+     entry via the store; the chain is verified at display on the Status
+     tab. Log-only: a logging failure must never break the action. */
+  function audit(ev, ref, detail) {
+    try { PodiumStore.auditAppend(state, ev, ref || "", detail || "", etNow()); } catch (e) { /* log-only */ }
+  }
+  function auditEvLabel(ev) {
+    var k = "audit.ev." + ev, s = T(k);
+    return (s === k || !s) ? ev : s;
   }
 
   /* Thread view: the post plus its answer and updates, each with its code.
@@ -2493,6 +2568,7 @@
     var detectedLang = (liveGateCache && liveGateCache.text === text && liveGateCache.lang) ? liveGateCache.lang : "und";
     var post = PodiumStore.publishPost(state, state.currentUserId, currentCycle(), $("composerTopic").value, text, etNow(), detectedLang);
     if (!post) { updateOnePostNotice(); return; }
+    audit("post", post.ref, post.id);
     composerText.value = "";
     clearDraft();
     stopSpeak();
@@ -2658,6 +2734,9 @@
     var postExpander = zoneExpander("zone-post", T("zone.post.excerpt"), T("zone.post.full"),
       esc(briefExcerpt(p.body)), esc(p.body), T("zone.post.read"));
     li.appendChild(postExpander);
+    var postSeal = document.createElement("div");
+    postSeal.innerHTML = sealHtml(p);
+    li.appendChild(postSeal);
     var translateSlot = document.createElement("div");
     translateSlot.className = "translate-slot";
     translateSlot.setAttribute("data-post", p.id);
@@ -2694,7 +2773,7 @@
       '<p><span class="ref-code">' + esc(p.ref || "") + "</span> <strong>" + esc(author.name) + "</strong>" + stateSuffix(p) + langSuffix(p) + " \u00b7 " + esc(Ttopic(p.topic)) + "</p>" +
       '<div class="zone zone-post"><span class="zone-label">' + esc(T("zone.post.next")) + "</span>" +
       "<blockquote>" + esc(p.body) + "</blockquote>" +
-      '<p class="hint">' + esc(Tf("next.selectedfor", { name: author.name })) + "</p></div>" +
+      '<p class="hint">' + esc(Tf("next.selectedfor", { name: author.name })) + "</p></div>" + sealHtml(p) +
       '<p class="hint">' + esc(Tf("next.answercoming", { date: briefingWednesday(cycle) })) + "</p>" +
       translateSlotHtml(p);
     li.appendChild(buildWonderZone(p));
@@ -2781,6 +2860,7 @@
       approveBtn.textContent = T("wonder.approve");
       approveBtn.addEventListener("click", function () {
         wonderApproved[p.id] = true;
+        audit("approve", p.ref + "-A", "");
         renderBriefing();
       });
       box.appendChild(editBtn);
@@ -2801,6 +2881,7 @@
         delete wonderApproved[p.id];
         delete wonderEdited[p.id];
         wonderStatus.textContent = "";
+        audit("draft", p.ref + "-A", "");
         showDraft();
       });
     });
@@ -3000,7 +3081,7 @@
       '<p><span class="ref-code">' + esc(p.ref || "") + "</span></p>" +
       '<div class="zone zone-post"><span class="zone-label">' + esc(T("zone.post.final")) + "</span>" +
       "<blockquote>" + esc(p.body) + "</blockquote>" +
-      '<p class="hint">\u2014 ' + esc(author.name) + stateSuffix(p) + langSuffix(p) + " \u00b7 " + esc(Ttopic(p.topic)) + " \u00b7 " + votesLabel(p.votes) + "</p></div>" +
+      '<p class="hint">\u2014 ' + esc(author.name) + stateSuffix(p) + langSuffix(p) + " \u00b7 " + esc(Ttopic(p.topic)) + " \u00b7 " + votesLabel(p.votes) + "</p></div>" + sealHtml(p) +
       translateSlotHtml(p) +
       '<div class="zone zone-answer"><span class="zone-label">' + esc(T("thread.answer")) + "</span>" +
       '<p><span class="ref-code">' + esc(answerCode(p)) + "</span></p>" +
@@ -3028,6 +3109,26 @@
   function renderStatus() {
     threadSelect($("statusSelect"), renderStatusCard);
     renderStatusCard();
+    renderAudit();
+  }
+  /* Audit-log section (TY, Nov 3): newest entries first, each with its
+     timestamp, event, ref, and short hash, plus the chain-integrity line.
+     Display-only; the chain itself lives in the saved state. */
+  function renderAudit() {
+    var card = $("auditCard");
+    if (!card) return;
+    setText("auditHeading", T("audit.heading"));
+    var v = PodiumStore.verifyAudit(state.audit);
+    var html = "<p>" + esc(T("audit.lede")) + "</p>" +
+      '<p class="hint">' + esc(v.ok ? T("audit.intact") : Tf("audit.broken", { n: v.index })) + "</p>" +
+      '<ul class="updates">';
+    (state.audit || []).slice().reverse().forEach(function (e) {
+      html += "<li><strong>" + esc(e.t) + "</strong> · " + esc(auditEvLabel(e.ev)) +
+        (e.ref ? ' · <span class="ref-code">' + esc(e.ref) + "</span>" : "") +
+        ' · <span class="ref-code">' + esc(String(e.h || "").slice(0, 12)) + "</span></li>";
+    });
+    html += "</ul>";
+    card.innerHTML = html;
   }
   function renderStatusCard() {
     var b = selectedBriefing("statusSelect");
@@ -3036,7 +3137,7 @@
     var card = $("statusCard");
     var html = "<h3>" + selectionTitle(b) + "</h3>" +
       '<p><span class="ref-code">' + esc(p.ref || "") + "</span> " + esc(author.name) + stateSuffix(p) + langSuffix(p) + " \u00b7 " + esc(T("prior.status")) + ' <span class="status-pill">' + esc(Tstatus(b.trackerStatus)) + "</span>" +
-      (b.trackerStatus === "No Action" && b.officialReason ? " \u2014 " + esc(b.officialReason) : "") + "</p>" +
+      (b.trackerStatus === "No Action" && b.officialReason ? " \u2014 " + esc(b.officialReason) : "") + "</p>" + sealHtml(p) +
       "<h4>" + esc(T("status.dated")) + "</h4>" + '<ul class="updates">' +
       b.updates.map(function (u, i) { return "<li><span class=\"ref-code\">" + esc(updateCode(p, i)) + "</span> <strong>" + esc(u.date) + ":</strong> " + esc(u.text) + "</li>"; }).join("") +
       "</ul>";
@@ -3386,6 +3487,9 @@
       '<p><span class="ref-code">' + esc(p.ref || "") + "</span>" + langSuffix(p) + "</p>" +
       "<blockquote>" + esc(p.body) + "</blockquote>";
     frag.appendChild(z);
+    var zSeal = document.createElement("div");
+    zSeal.innerHTML = sealHtml(p);
+    frag.appendChild(zSeal);
     if (item.answer) {
       var za = document.createElement("div");
       za.className = "zone zone-answer";
@@ -3432,6 +3536,9 @@
       '<p><span class="ref-code">' + esc(first.ref || "") + "</span></p>" +
       "<blockquote>" + esc(first.body) + "</blockquote>";
     nr.appendChild(z);
+    var zSeal = document.createElement("div");
+    zSeal.innerHTML = sealHtml(first);
+    nr.appendChild(zSeal);
     nr.appendChild(fullRecordButton(first.id, Tf("feed.fullrecord.ref", { ref: first.ref || "" })));
     return nr;
   }
@@ -3842,6 +3949,11 @@
       li20.id = "fineLi20";
       fineUl.appendChild(li20);
     }
+    if (fineUl && !document.getElementById("fineLi21")) {
+      var li21 = document.createElement("li");
+      li21.id = "fineLi21";
+      fineUl.appendChild(li21);
+    }
     Array.prototype.forEach.call(document.querySelectorAll("#fineList li"), function (li, i) {
       li.textContent = T("fine.li" + (i + 1));
     });
@@ -3917,6 +4029,8 @@
     setText("footerAboutText", T("brand.sub"));
     setText("footerProcess", T("footer.process"));
     setText("footerProcessChain", T("footer.process.chain"));
+    setText("footerSecurity", T("footer.security"));
+    setText("footerSecurityNote", T("footer.security.note"));
     setText("footerNotices", T("footer.notices"));
     setHtml("footerDemoNotice", T("footer.demonotice"));
     setText("apiKeyLabel", T("footer.key"));
