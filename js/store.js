@@ -274,6 +274,7 @@ var PodiumStore = (function () {
       briefingItems: s.briefingItems,
       votes: {}, /* "voterId:postId" -> true */
       currentUserId: null,
+      demoVote: null, /* {cycleId, voterId, postId}: one vote per weekly cycle per browser (demo cap) */
       userSeq: 0,
       refSeq: seq,
       audit: []
@@ -403,6 +404,7 @@ var PodiumStore = (function () {
       }
     });
     if (!s.votes) { s.votes = {}; filled = true; }
+    if (!("demoVote" in s)) { s.demoVote = null; filled = true; }
     if (typeof s.refSeq !== "number" || !(s.refSeq >= 0)) {
       filled = true;
       var maxRef = needSeed().refSeq;
@@ -750,10 +752,16 @@ var PodiumStore = (function () {
     var p = postById(s, postId);
     if (!p) return null;
     if (!s.votes) s.votes = {};
+    /* Demo session cap (TY, Nov 3): one vote per weekly cycle per browser,
+       regardless of which demo citizen is picked. A different citizen voting
+       in a capped cycle is blocked ("capped", nothing recorded); the same
+       citizen keeps the normal vote/move/remove behavior. */
+    if (s.demoVote && s.demoVote.cycleId === p.cycleId && s.demoVote.voterId !== voterId) return "capped";
     var key = voterId + ":" + postId;
     if (s.votes[key]) {
       delete s.votes[key];
       p.votes = Math.max(0, p.votes - 1);
+      if (s.demoVote && s.demoVote.postId === postId && s.demoVote.cycleId === p.cycleId) s.demoVote = null;
       save(s);
       return "removed";
     }
@@ -770,6 +778,7 @@ var PodiumStore = (function () {
     });
     s.votes[key] = true; /* delete + set refreshes cast order */
     p.votes += 1;
+    s.demoVote = { cycleId: p.cycleId, voterId: voterId, postId: postId };
     save(s);
     return moved ? "moved" : "voted";
   }

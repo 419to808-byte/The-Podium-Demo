@@ -159,6 +159,7 @@ var PodiumStrings = (function () {
     "vote.upvoteit": { en: "Upvote it instead", es: "Vota por esta en su lugar" },
     "vote.upvoted.check": { en: "Upvoted \u2713", es: "Votado \u2713" },
     "vote.closedweek": { en: "Voting closed (past week)", es: "Votaci\u00f3n cerrada (semana pasada)" },
+    "vote.simulated": { en: " \u00b7 Simulated votes \u2014 demo only", es: " \u00b7 Votos simulados \u2014 solo demo" },
     "share.button": { en: "Share", es: "Compartir" },
     "share.copied": { en: "Link copied \u2713", es: "Enlace copiado \u2713" },
     "share.failed": { en: "Copy failed", es: "Error al copiar" },

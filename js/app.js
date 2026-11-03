@@ -226,6 +226,7 @@
     "vote.upvoteit": "Upvote it instead",
     "vote.upvoted.check": "Upvoted \u2713",
     "vote.closedweek": "Voting closed (past week)",
+    "vote.simulated": " \u00b7 Simulated votes \u2014 demo only",
     "share.button": "Share",
     "share.copied": "Link copied \u2713",
     "share.failed": "Copy failed",
@@ -1595,7 +1596,7 @@
     if (!pid) return;
     var p = findPostAny(pid);
     if (!p) return;
-    var voted = state.currentUserId ? PodiumStore.hasVoted(state, state.currentUserId, pid) : false;
+    var voted = browserHasVoted(pid);
     var open = p.cycleId === currentCycle();
     document.querySelectorAll('.vote-btn[data-post="' + pid + '"]').forEach(function (b) {
       b.setAttribute("aria-pressed", voted ? "true" : "false");
@@ -1604,7 +1605,7 @@
       var count = li ? li.querySelector(".vote-count") : null;
       if (count) {
         count.textContent = votesLabel(p.votes) + (voted ? T("vote.yours") : "") +
-          (open ? "" : T("vote.closed"));
+          (open ? "" : T("vote.closed")) + T("vote.simulated");
       }
     });
   }
@@ -1704,13 +1705,21 @@
     });
   }
 
+  /* Demo cap display: the browser's already-cast vote shows as voted even
+     after switching demo citizen, so the control reflects the cast vote. */
+  function browserHasVoted(pid) {
+    if (!state.currentUserId) return false;
+    if (PodiumStore.hasVoted(state, state.currentUserId, pid)) return true;
+    var p = findPostAny(pid), dv = state.demoVote;
+    return !!(p && dv && dv.cycleId === p.cycleId && dv.postId === pid);
+  }
   function postLi(p, linked) {
     var li = document.createElement("li");
     li.className = "post" + (linked ? " is-linked" : "");
     if (linked) li.id = "linkedPost";
     var author = PodiumStore.citizenById(state, p.authorId);
     var open = (p.cycleId === currentCycle());
-    var voted = state.currentUserId ? PodiumStore.hasVoted(state, state.currentUserId, p.id) : false;
+    var voted = browserHasVoted(p.id);
     var cycle = PodiumStore.cycleById(state, p.cycleId);
     var html = '<div class="post-meta"><span class="post-author">' + esc(p.author || author.name) +
       "</span>" + stateSuffix(p) + langSuffix(p) + '<span title="' + esc(T("citizen.verified.title")) + '">' + esc(T("citizen.verified.small")) + "</span>" +
@@ -1730,7 +1739,7 @@
     html += '<button type="button" class="share-btn" data-share="' + esc(p.id) + '">' + esc(T("share.button")) + "</button>";
     html += '<span class="vote-count">' + votesLabel(p.votes) +
       (voted ? T("vote.yours") : "") +
-      (open ? "" : T("vote.closed")) + "</span></div>";
+      (open ? "" : T("vote.closed")) + esc(T("vote.simulated")) + "</span></div>";
     li.innerHTML = html;
     return li;
   }
@@ -1744,7 +1753,8 @@
         var pid = btn.getAttribute("data-post");
         var prev = PodiumStore.userVoteInCycle(state, state.currentUserId, currentCycle());
         var vres = PodiumStore.castVote(state, state.currentUserId, pid);
-        if (vres) { var vp = findPostAny(pid); audit("vote", vp ? (vp.ref || pid) : pid, vres); }
+        if (vres && vres !== "capped") { var vp = findPostAny(pid); audit("vote", vp ? (vp.ref || pid) : pid, vres); }
+        if (vres === "capped" && state.demoVote) refreshVoteButtons(state.demoVote.postId);
         refreshVoteButtons(prev);
         refreshVoteButtons(pid);
       });
@@ -2608,7 +2618,7 @@
       if (!PodiumStore.hasVoted(state, state.currentUserId, match.id)) {
         PodiumStore.castVote(state, state.currentUserId, match.id);
       }
-      insteadBtn.textContent = T("vote.upvoted.check");
+      insteadBtn.textContent = PodiumStore.hasVoted(state, state.currentUserId, match.id) ? T("vote.upvoted.check") : T("voiced.instead");
       renderFeed();
     });
     var bothBtn = document.createElement("button");
@@ -2655,7 +2665,7 @@
       if (!PodiumStore.hasVoted(state, state.currentUserId, dup.id)) {
         PodiumStore.castVote(state, state.currentUserId, dup.id);
       }
-      vb.textContent = T("vote.upvoted.check");
+      vb.textContent = PodiumStore.hasVoted(state, state.currentUserId, dup.id) ? T("vote.upvoted.check") : T("vote.upvoteit");
       renderFeed();
     });
     d.appendChild(vb);
@@ -2792,7 +2802,7 @@
   function selectionBadge(cycle, item, p) {
     var poolLen = cycle.poolSize;
     if (item.selection === "top") {
-      return '<span class="badge-top">' + esc(T("selbadge.top")) + " \u00b7 " + esc(votesLabel(p.votes)) + "</span>";
+      return '<span class="badge-top">' + esc(T("selbadge.top")) + " \u00b7 " + esc(votesLabel(p.votes)) + esc(T("vote.simulated")) + "</span>";
     }
     return '<span class="badge-random">' + esc(T("selbadge.random")) + " \u00b7 " + esc(T("selbadge.position")) + " " + cycle.position + " " + esc(T("selbadge.of")) + " " + poolLen + "</span>";
   }
