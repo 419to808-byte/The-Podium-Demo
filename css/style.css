@@ -94,7 +94,7 @@ select, input[type="search"], input[type="text"], textarea {
   font: inherit; padding: .5rem .6rem; border: 1px solid #8d8d8d; border-radius: 3px; background: #fff; color: var(--ink); max-width: 100%;
 }
 .feed-note { color: var(--muted); font-size: .9rem; }
-.post-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.post-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
 .post { background: var(--card); }
 .post-meta { display: flex; gap: .5rem; flex-wrap: wrap; align-items: baseline; font-size: .85rem; color: var(--muted); }
 .post-author { font-weight: 700; color: var(--ink); }
@@ -105,7 +105,7 @@ select, input[type="search"], input[type="text"], textarea {
 .post-status.live { background: #fff; color: var(--navy); border: 1px dashed var(--accent); }
 .livefeed-row { margin-top: .5rem; }
 .livefeed-toggle { display: inline-flex; gap: .45rem; align-items: center; font-weight: 600; font-size: .9rem; cursor: pointer; }
-.post-body { margin: .5rem 0; white-space: pre-wrap; overflow-wrap: break-word; }
+.post-body { margin: .5rem 0; white-space: pre-wrap; overflow-wrap: break-word; font-size: 1.125rem; line-height: 1.6; }
 .post-actions { display: flex; gap: .6rem; align-items: center; margin-top: .4rem; flex-wrap: wrap; }
 .topic-list { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .6rem; }
 .topic-btn[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
@@ -222,9 +222,7 @@ select, input[type="search"], input[type="text"], textarea {
 }
 .brand-title, h1, h2, h3, h4 { font-family: Georgia, "Times New Roman", serif; }
 h2 { text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--line); padding-bottom: .3rem; }
-.post-list { gap: 0; }
-.post-list .post { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: .8rem .2rem; }
-.post-list .post:first-child { border-top: 1px solid var(--line); }
+.post-list .post { border: 1px solid var(--line); border-radius: 3px; padding: .8rem; }
 .post-list .post.is-linked { border: 2px solid var(--accent); background: #fffdf4; border-radius: 3px; }
 .updates li { border-bottom: 1px solid var(--line); padding: .3rem 0; }
 .footer-cols { display: grid; gap: 1rem; }
