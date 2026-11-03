@@ -119,9 +119,20 @@
     "committee.draw.pool": "Pool size",
     "committee.draw.pos": "Draw position",
     "committee.note": "One citizen cycles out and one new citizen joins every week, so the committee is always 12 people with a mix of experience.",
+    "committee.rules.summary": "Committee rules \u2014 selection, pay, structure & schedule",
+    "committee.rules.selection.heading": "How members are selected",
+    "committee.rules.selection.body": "Twelve ordinary verified citizens, chosen by random draw from a national pool using the NIST Randomness Beacon \u2014 the same rig-proof method as the post draw. Selection is a summons, not a draft: if your name comes up, you agree to serve or decline and the next citizen is drawn. To serve you must be a verified citizen, 18 or older, with no post in the current cycle, not a government employee, and not currently incarcerated or on parole or probation \u2014 a past felony does not exclude you; eligibility returns 5 years after the sentence is fully complete. Terms are 12 weeks, one new citizen joins every week, and after cycling out you sit out 12 weeks. No more than 2 terms per year.",
+    "committee.rules.pay.heading": "Pay",
+    "committee.rules.pay.body": "Members are paid $150 per day, once a week, for the Wednesday vote. Travel, hotel, and meals for the weekly in-person meeting are covered separately at government rates and booked directly \u2014 members never pay out of pocket \u2014 plus childcare support for in-person days and an optional top-up for shift workers who can show they lose more than the base stipend.",
+    "committee.rules.structure.heading": "Structure",
+    "committee.rules.structure.body": "Twelve members, each holding an equal share of the decision-making power. Government agency liaisons advise only and do not vote. Each week the committee receives the selected posts and the AI-drafted answers and votes on whether to follow the AI suggestions. A split vote means no action on that post this week and the post reverts to shine light \u2014 it is still read aloud and tracked, never buried. The narrator and the committee spokesperson are permanent salaried roles who present only: the narrator reads posts word-for-word and the spokesperson presents the committee's approved answers. Neither has any authority over posts or answers. If either quits or is fired, a selection, election, or hiring process replaces them.",
+    "committee.rules.schedule.heading": "Weekly schedule",
+    "committee.rules.schedule.body": "Members receive the selected posts as soon as they are selected and have 6 days on their own to think about them. They all meet in person on Wednesday morning to deliberate and vote. Then the narrator and the committee spokesperson make the script and record live at 1:00 PM ET. The Podium funds a round-trip ticket and a hotel for every member every week.",
     /* answer approver (answerer of record) */
     "approver.prefix": "Reviewed and approved by",
     "approver.suffix": "civilian committee member, Week {week} of 12",
+    "approver.bycommittee": "Reviewed and approved by the committee.",
+    "approver.committee": "the committee",
     "tab.watchlive.badge": "LIVE",
     "tab.watchlive.airing": "Watch Live, briefing on air now",
     "nav.primary": "Primary",
@@ -414,6 +425,23 @@
     "cite.source.ph": "Agency or authority\u2026",
     "cite.date": "Date",
     "cite.date.ph": "Date (e.g. Oct 28, 2026)",
+    "cite.via": "via",
+    "cite.liaison": "Liaison name + agency (optional)",
+    "cite.liaison.ph": "e.g. J. Rivera, FDA liaison",
+    "advice.legend": "Liaison advice shaping this answer",
+    "advice.liaison": "Liaison name + agency",
+    "advice.liaison.ph": "e.g. J. Rivera, FDA liaison",
+    "advice.claim": "The claim",
+    "advice.claim.ph": "Short text of the advice\u2026",
+    "advice.authority": "Authority cited",
+    "advice.authority.ph": "Regulation, statute, or policy + reference\u2026",
+    "advice.date": "Date",
+    "advice.date.ph": "Date (e.g. Oct 28, 2026)",
+    "advice.outcome": "What the committee did",
+    "advice.outcome.followed": "Followed",
+    "advice.outcome.second": "Second opinion requested",
+    "advice.outcome.notfollowed": "Not followed",
+    "advice.add": "Record advice",
     /* prior + status */
     "prior.aria": "Prior posts and answers archive",
     "prior.lede": "The archive of past briefing selections: each item shows the original post, verbatim, plus the committee\u2019s answer. Check anytime \u2014 this is not part of the live show.",
@@ -440,6 +468,7 @@
     "audit.ev.signin": "Sign-in",
     "audit.ev.signout": "Sign-out",
     "audit.ev.signup": "Mock sign-up",
+    "audit.ev.liaisonAdvice": "Liaison advice",
     "noaction.label": "We can't do this.",
     "noaction.authority": "Cited authority",
     "noaction.change": "What would need to change",
@@ -1763,6 +1792,7 @@
   function audit(ev, ref, detail) {
     try { PodiumStore.auditAppend(state, ev, ref || "", detail || "", etNow()); } catch (e) { /* log-only */ }
   }
+  function adviceOutcomeLabel(o) { var k = "advice.outcome." + (o || ""); try { var s = T(k); return (s === k || !s) ? String(o || "") : s; } catch (e) { return String(o || ""); } }
   function auditEvLabel(ev) {
     var k = "audit.ev." + ev, s = T(k);
     return (s === k || !s) ? ev : s;
@@ -2877,6 +2907,7 @@
   var wonderApproved = {}; /* postId -> true once approved in this session */
   var wonderCitations = {}; /* postId -> [{commitment, source, date}] recorded at approval, session-only */
   var wonderNoCommit = {}; /* postId -> true when the approver marked "no commitments" */
+  var wonderLiaisonAdvice = {}; /* postId -> [{liaison, claim, authority, date, outcome}] recorded in the draft zone, logged on approval, session-only */
   var wonderEdited = {};   /* postId -> true once the committee edited the draft */
   /* Committee-only visibility (TY, Oct 28): in the real product drafts
      and editing are committee-only; the demo shows them publicly for
@@ -2951,6 +2982,9 @@
         if (!wonderNoCommit[p.id] && !(wonderCitations[p.id] && wonderCitations[p.id].length)) { trackerMsg(box, "cite.required"); return; }
         wonderApproved[p.id] = true;
         audit("approve", p.ref + "-A", "");
+        (wonderLiaisonAdvice[p.id] || []).forEach(function (a) {
+          audit("liaisonAdvice", p.ref, JSON.stringify({ liaison: a.liaison, claim: a.claim, authority: a.authority, date: a.date, outcome: a.outcome }));
+        });
         renderBriefing();
       });
       var citeSection = document.createElement("div");
@@ -2958,11 +2992,12 @@
         var list = wonderCitations[p.id] || [];
         var h = '<p><span class="zone-label">' + esc(T("cite.legend")) + "</span></p>";
         for (var i = 0; i < list.length; i++) {
-          h += '<p class="hint">' + esc(T("cite.commitment")) + ": " + esc(list[i].commitment) + " \u2014 " + esc(T("cite.source")) + ": " + esc(list[i].source) + ", " + esc(list[i].date) + ' <button type="button" class="btn btn-small" data-cite-rm="' + i + '">' + esc(T("cite.remove")) + "</button></p>";
+          h += '<p class="hint">' + esc(T("cite.commitment")) + ": " + esc(list[i].commitment) + " \u2014 " + esc(T("cite.source")) + ": " + esc(list[i].source) + ", " + esc(list[i].date) + (list[i].liaison ? " \u2014 " + esc(T("cite.via")) + " " + esc(list[i].liaison) : "") + ' <button type="button" class="btn btn-small" data-cite-rm="' + i + '">' + esc(T("cite.remove")) + "</button></p>";
         }
         h += '<div class="field"><label>' + esc(T("cite.commitment")) + '</label><textarea data-cite="commitment" rows="2" placeholder="' + esc(T("cite.commitment.ph")) + '"></textarea></div>' +
           '<div class="field"><label>' + esc(T("cite.source")) + '</label><textarea data-cite="source" rows="2" placeholder="' + esc(T("cite.source.ph")) + '"></textarea></div>' +
           '<div class="field"><label>' + esc(T("cite.date")) + '</label><input type="text" data-cite="date" placeholder="' + esc(T("cite.date.ph")) + '"></div>' +
+          '<div class="field"><label>' + esc(T("cite.liaison")) + '</label><input type="text" data-cite="liaison" placeholder="' + esc(T("cite.liaison.ph")) + '"></div>' +
           '<div class="btn-row"><button type="button" class="btn btn-small" data-cite-add>' + esc(T("cite.add")) + "</button></div>" +
           '<div class="field"><label><input type="checkbox" data-cite-none> ' + esc(T("cite.nocommit")) + "</label></div>";
         citeSection.innerHTML = h;
@@ -2971,7 +3006,7 @@
         if (addBtn) addBtn.addEventListener("click", function () {
           if (!citeVal("commitment").trim() || !citeVal("source").trim() || !citeVal("date").trim()) { trackerMsg(box, "form.required"); return; }
           var l = wonderCitations[p.id] || (wonderCitations[p.id] = []);
-          l.push({ commitment: citeVal("commitment"), source: citeVal("source"), date: citeVal("date") });
+          l.push({ commitment: citeVal("commitment"), source: citeVal("source"), date: citeVal("date"), liaison: citeVal("liaison").trim() ? citeVal("liaison") : "" });
           delete wonderNoCommit[p.id];
           trackerMsg(box, null);
           renderCites();
@@ -2995,6 +3030,45 @@
       }
       renderCites();
       box.appendChild(citeSection);
+      var adviceSection = document.createElement("div");
+      var ADVICE_OUTCOMES = ["followed", "second", "notfollowed"];
+      function adviceVal(n) { var el = adviceSection.querySelector('[data-advice="' + n + '"]'); return el ? el.value : ""; }
+      function renderAdvice() {
+        var list = wonderLiaisonAdvice[p.id] || [];
+        var h = '<p><span class="zone-label">' + esc(T("advice.legend")) + "</span></p>";
+        for (var j = 0; j < list.length; j++) {
+          h += '<p class="hint">' + esc(list[j].liaison) + " \u2014 " + esc(list[j].claim) + " (" + esc(adviceOutcomeLabel(list[j].outcome)) + ")" +
+            ' <button type="button" class="btn btn-small" data-advice-rm="' + j + '">' + esc(T("cite.remove")) + "</button></p>";
+        }
+        h += '<div class="field"><label>' + esc(T("advice.liaison")) + '</label><input type="text" data-advice="liaison" placeholder="' + esc(T("advice.liaison.ph")) + '"></div>' +
+          '<div class="field"><label>' + esc(T("advice.claim")) + '</label><textarea data-advice="claim" rows="2" placeholder="' + esc(T("advice.claim.ph")) + '"></textarea></div>' +
+          '<div class="field"><label>' + esc(T("advice.authority")) + '</label><textarea data-advice="authority" rows="2" placeholder="' + esc(T("advice.authority.ph")) + '"></textarea></div>' +
+          '<div class="field"><label>' + esc(T("advice.date")) + '</label><input type="text" data-advice="date" placeholder="' + esc(T("advice.date.ph")) + '"></div>' +
+          '<div class="field"><label>' + esc(T("advice.outcome")) + '</label><select data-advice="outcome">' +
+          '<option value="followed">' + esc(T("advice.outcome.followed")) + "</option>" +
+          '<option value="second">' + esc(T("advice.outcome.second")) + "</option>" +
+          '<option value="notfollowed">' + esc(T("advice.outcome.notfollowed")) + "</option></select></div>" +
+          '<div class="btn-row"><button type="button" class="btn btn-small" data-advice-add>' + esc(T("advice.add")) + "</button></div>";
+        adviceSection.innerHTML = h;
+        var addBtn = adviceSection.querySelector("[data-advice-add]");
+        if (addBtn) addBtn.addEventListener("click", function () {
+          if (!adviceVal("liaison").trim() || !adviceVal("claim").trim() || !adviceVal("authority").trim() || !adviceVal("date").trim()) { trackerMsg(box, "form.required"); return; }
+          if (ADVICE_OUTCOMES.indexOf(adviceVal("outcome")) < 0) { trackerMsg(box, "form.required"); return; }
+          var l = wonderLiaisonAdvice[p.id] || (wonderLiaisonAdvice[p.id] = []);
+          l.push({ liaison: adviceVal("liaison"), claim: adviceVal("claim"), authority: adviceVal("authority"), date: adviceVal("date"), outcome: adviceVal("outcome") });
+          trackerMsg(box, null);
+          renderAdvice();
+        });
+        Array.prototype.forEach.call(adviceSection.querySelectorAll("[data-advice-rm]"), function (btn) {
+          btn.addEventListener("click", function () {
+            var l = wonderLiaisonAdvice[p.id] || [];
+            l.splice(Number(btn.getAttribute("data-advice-rm")), 1);
+            renderAdvice();
+          });
+        });
+      }
+      box.appendChild(adviceSection);
+      renderAdvice();
       box.appendChild(editBtn);
       box.appendChild(document.createTextNode(" "));
       box.appendChild(approveBtn);
@@ -3014,6 +3088,7 @@
         delete wonderEdited[p.id];
         delete wonderCitations[p.id];
         delete wonderNoCommit[p.id];
+        delete wonderLiaisonAdvice[p.id];
         wonderStatus.textContent = "";
         audit("draft", p.ref + "-A", "");
         showDraft();
@@ -3022,7 +3097,7 @@
     if (wonderApproved[p.id] && wonderDrafts[p.id]) {
       var done = document.createElement("div");
       done.innerHTML = '<p><span class="status-pill">' + esc(T("wonder.approved")) + "</span></p>" +
-        "<p>" + esc(wonderDrafts[p.id]) + "</p>" + citationsHtml(null, p);
+        "<p>" + esc(wonderDrafts[p.id]) + "</p>" + committeeLineHtml() + citationsHtml(null, p);
       wonderBox.appendChild(done);
     } else if (wonderDrafts[p.id]) {
       showDraft();
@@ -3444,7 +3519,13 @@
     (state.audit || []).slice().reverse().forEach(function (e) {
       html += "<li><strong>" + esc(e.t) + "</strong> · " + esc(auditEvLabel(e.ev)) +
         (e.ref ? ' · <span class="ref-code">' + esc(e.ref) + "</span>" : "") +
-        ' · <span class="ref-code">' + esc(String(e.h || "").slice(0, 12)) + "</span></li>";
+        ' · <span class="ref-code">' + esc(String(e.h || "").slice(0, 12)) + "</span>";
+      if (e.ev === "liaisonAdvice") {
+        var adv = null;
+        try { adv = JSON.parse(e.d || ""); } catch (err) { adv = null; }
+        if (adv) html += ' <span class="hint">' + esc(adv.liaison || "") + " \u2014 " + esc(adv.claim || "") + " (" + esc(adviceOutcomeLabel(adv.outcome)) + ")</span>";
+      }
+      html += "</li>";
     });
     html += "</ul>";
     card.innerHTML = html;
@@ -3494,15 +3575,20 @@
   function citationsHtml(b, p) {
     var c = citationsFor(b, p), out = "";
     for (var i = 0; i < c.length; i++) {
-      out += '<p class="hint">' + esc(T("cite.commitment")) + ": " + esc(c[i].commitment) + " \u2014 " + esc(T("cite.source")) + ": " + esc(c[i].source) + ", " + esc(c[i].date) + ".</p>";
+      out += '<p class="hint">' + esc(T("cite.commitment")) + ": " + esc(c[i].commitment) + " \u2014 " + esc(T("cite.source")) + ": " + esc(c[i].source) + ", " + esc(c[i].date) + "." + (c[i].liaison ? " \u2014 " + esc(T("cite.via")) + " " + esc(c[i].liaison) : "") + "</p>";
     }
     return out;
+  }
+  function committeeLineHtml() {
+    var full = T("approver.bycommittee"), name = T("approver.committee"), i = full.indexOf(name), html;
+    if (i < 0) html = esc(full);
+    else html = esc(full.slice(0, i)) + '<button type="button" class="btn btn-small approver-link">' + esc(name) + "</button>" + esc(full.slice(i + name.length));
+    return '<p class="hint">' + html + "</p>";
   }
   function approverHtml(b) {
     var m = approverFor(b && b.postId);
     if (!m) return "";
-    return '<p class="hint">' + esc(T("approver.prefix")) + ' <button type="button" class="btn btn-small approver-link">' + esc(m.name) + "</button>, " + esc(m.state || "") +
-      " \u2014 " + esc(Tf("approver.suffix", { week: m.termWeek })) + "</p>";
+    return committeeLineHtml();
   }
   function wireApproverLinks(root) {
     if (!root || !root.querySelectorAll) return;
@@ -3527,6 +3613,15 @@
     setText("committeeHeading", T("tab.committee"));
     setText("committeeLede", T("committee.lede"));
     setText("committeeNote", T("committee.note"));
+    setText("committeeRulesSummary", T("committee.rules.summary"));
+    setText("committeeRulesSelectionH", T("committee.rules.selection.heading"));
+    setText("committeeRulesSelectionB", T("committee.rules.selection.body"));
+    setText("committeeRulesPayH", T("committee.rules.pay.heading"));
+    setText("committeeRulesPayB", T("committee.rules.pay.body"));
+    setText("committeeRulesStructureH", T("committee.rules.structure.heading"));
+    setText("committeeRulesStructureB", T("committee.rules.structure.body"));
+    setText("committeeRulesScheduleH", T("committee.rules.schedule.heading"));
+    setText("committeeRulesScheduleB", T("committee.rules.schedule.body"));
     var list = $("committeeList");
     if (!list) return;
     var members = (state.citizens || []).filter(function (c) { return c && c.committeeMember; })
