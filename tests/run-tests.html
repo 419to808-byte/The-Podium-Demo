@@ -35,6 +35,7 @@
     <button type="button" class="tab" data-view="prior">Prior Posts &amp; Answers</button>
     <button type="button" class="tab" data-view="status">Status Updates</button>
     <button type="button" class="tab" data-view="watch">Watch Live <span class="tab-live" id="watchTabLive" hidden>LIVE</span></button>
+    <button type="button" class="tab" data-view="committee">Committee</button>
     <button type="button" class="tab" data-view="post">Submit Post</button>
   </nav>
 </header>
@@ -197,6 +198,14 @@
     </section>
     <p><button type="button" class="btn btn-small" id="backToBriefingBtn">&#8592; Briefing record</button></p>
     <p class="hint">Demo simulation: the player stands in for the real briefing stream. Broadcast logic (schedule, autoplay, sound) is real.</p>
+  </section>
+
+  <!-- ============ COMMITTEE ============ -->
+  <section id="view-committee" class="view" hidden aria-label="Citizen committee roster">
+    <h2 id="committeeHeading">Committee</h2>
+    <p class="lede" id="committeeLede">The committee is 12 ordinary verified citizens, chosen by random draw, serving 12-week terms, with one new citizen joining every week. The committee works for the citizen whose post was selected &mdash; it reviews and approves the answers, and follows through until the issue is resolved. It does not fund; it asks for and allocates funds.</p>
+    <ul id="committeeList" class="post-list"></ul>
+    <p class="hint" id="committeeNote">One citizen cycles out and one new citizen joins every week, so the committee is always 12 people with a mix of experience.</p>
   </section>
 
   <!-- ============ PRIOR POSTS & ANSWERS ============ -->

@@ -105,6 +105,23 @@
     "tab.status": "Status Updates",
     "tab.watch": "Watch Live",
     "tab.post": "Submit Post",
+    "tab.committee": "Committee",
+    /* committee roster */
+    "committee.aria": "Citizen committee roster",
+    "committee.lede": "The committee is 12 ordinary verified citizens, chosen by random draw, serving 12-week terms, with one new citizen joining every week. The committee works for the citizen whose post was selected \u2014 it reviews and approves the answers, and follows through until the issue is resolved. It does not fund; it asks for and allocates funds.",
+    "committee.week": "Week {n} of 12",
+    "committee.terms": "Term start: {start} \u00b7 Cycles out: {out}",
+    "committee.joined": "Joined this week",
+    "committee.cycling": "Cycles out next week",
+    "committee.draw": "Selected by random draw",
+    "committee.draw.beacon": "Beacon timestamp",
+    "committee.draw.value": "Beacon value",
+    "committee.draw.pool": "Pool size",
+    "committee.draw.pos": "Draw position",
+    "committee.note": "One citizen cycles out and one new citizen joins every week, so the committee is always 12 people with a mix of experience.",
+    /* answer approver (answerer of record) */
+    "approver.prefix": "Reviewed and approved by",
+    "approver.suffix": "civilian committee member, Week {week} of 12",
     "tab.watchlive.badge": "LIVE",
     "tab.watchlive.airing": "Watch Live, briefing on air now",
     "nav.primary": "Primary",
@@ -114,6 +131,7 @@
     "rule.p1": "By the rules of this portal, the highest-voted post <strong>MUST</strong> be read aloud \u2014 word for word, exactly as its author wrote it \u2014 and discussed, by a representative of the United States, in front of the entire country. Another post, drawn at random, must be read and discussed the same way.",
     "rule.p2": "AI will be used to detect profanity and errors, correct grammar, and suggest clearer formatting. It will never steer you: your topic, your position, or your meaning. And once your post is published, it is final.",
     "rule.p3": "Keep in mind that your post may be read in front of the entire nation. Write in your most professional manner. Profanity, slang, and ridicule will not post. State your idea or concern plainly and professionally. You are not posting a comment. You are addressing the nation \u2014 speaking to and for every American. Give it the seriousness it deserves.",
+    "rule.p4": "Even if the committee cannot resolve an issue, it has at least brought light to the concern. That is the bare essential of this platform: to shine a light on concerns and ideas, and to try to resolve them or implement helpful changes.",
     "rule.readfull": "Read the full rule",
     /* fine print */
     "fine.summary": "Fine print (official register)",
@@ -385,6 +403,17 @@
     "wonder.drafting": "Drafting with Muse Wonder ({model})...",
     "wonder.unavailable": "Muse Wonder is unavailable (no session key, or the call failed) \u2014 the seeded answer above stands. Answers are never drafted by Spark.",
     "wonder.approved": "Approved by committee (demo)",
+    "cite.legend": "Citations",
+    "cite.commitment": "Commitment",
+    "cite.source": "Source",
+    "cite.add": "Add citation",
+    "cite.remove": "Remove",
+    "cite.nocommit": "No commitments in this answer",
+    "cite.required": "Citations are required \u2014 add one citation per commitment, or mark \u201cNo commitments in this answer\u201d.",
+    "cite.commitment.ph": "Short quote of the commitment\u2026",
+    "cite.source.ph": "Agency or authority\u2026",
+    "cite.date": "Date",
+    "cite.date.ph": "Date (e.g. Oct 28, 2026)",
     /* prior + status */
     "prior.aria": "Prior posts and answers archive",
     "prior.lede": "The archive of past briefing selections: each item shows the original post, verbatim, plus the committee\u2019s answer. Check anytime \u2014 this is not part of the live show.",
@@ -411,6 +440,42 @@
     "audit.ev.signin": "Sign-in",
     "audit.ev.signout": "Sign-out",
     "audit.ev.signup": "Mock sign-up",
+    "noaction.label": "We can't do this.",
+    "noaction.authority": "Cited authority",
+    "noaction.change": "What would need to change",
+    "noaction.redirect": "Who can do it instead",
+    "noaction.vote": "Decided by committee vote",
+    "noaction.authority.required": "A cited authority is required — name the regulation, statute, budget line, or jurisdiction.",
+    "form.required": "This field is required.",
+    "appeal.button": "I don't think this is right — appeal.",
+    "appeal.by": "Appeal by {name} on {date}",
+    "appeal.awaiting": "Awaiting committee re-review",
+    "rereview.legend": "Committee re-review",
+    "rereview.uphold": "Uphold appeal — back under review",
+    "rereview.reject": "Reject appeal — determination stands",
+    "rereview.outcome.upheld": "Appeal upheld — back under review",
+    "rereview.outcome.rejected": "Appeal rejected — determination stands",
+    "rereview.note.ph": "Re-review note (optional)",
+    "challenge.legend": "Why can't we do this? — committee challenges",
+    "challenge.name": "Why can't we do this?",
+    "challenge.raise": "Raise challenge",
+    "challenge.solution.label": "Solution already mapped out",
+    "challenge.solution.ph": "Summarize the mapped-out solution…",
+    "challenge.by": "Challenged by {name} on {date}",
+    "challenge.awaiting": "Awaiting government answer",
+    "challenge.answer.legend": "Government answer",
+    "challenge.answer.ph": "The government's specific answer…",
+    "challenge.answer.submit": "Record government answer",
+    "response.legend": "Citizen response",
+    "response.submit": "Respond",
+    "response.ph": "Write your response…",
+    "response.done": "You already responded here.",
+    "demo.tracker.note": "Demo: committee and government responses are entered here for evaluation.",
+    "audit.ev.appeal": "Appeal filed",
+    "audit.ev.rereview": "Re-review recorded",
+    "audit.ev.challenge": "Challenge raised",
+    "audit.ev.challengeanswer": "Government answer recorded",
+    "audit.ev.response": "Citizen response posted",
     /* watch */
     "watch.aria": "Watch live broadcast",
     "watch.lede": "Attend the weekly briefing broadcast. The Weekly Briefing tab holds the record of what was and will be discussed; this tab is the airing itself.",
@@ -511,7 +576,7 @@
      (a fresh tab has empty sessionStorage and boots to Live Feed as
      before). Deep links win over the saved tab; see init. */
   var TAB_KEY = "podium.v1.tab";
-  var VALID_VIEWS = { feed: 1, post: 1, briefing: 1, watch: 1, prior: 1, status: 1 };
+  var VALID_VIEWS = { feed: 1, post: 1, briefing: 1, watch: 1, prior: 1, status: 1, committee: 1 };
   function saveView(name) {
     try { window.sessionStorage.setItem(TAB_KEY, name); } catch (e) { /* session-only */ }
   }
@@ -530,13 +595,14 @@
     });
     currentView = name;
     saveView(name);
-    ["feed", "post", "briefing", "watch", "prior", "status"].forEach(function (v) {
+    ["feed", "post", "briefing", "watch", "prior", "status", "committee"].forEach(function (v) {
       $("view-" + v).hidden = (v !== name);
     });
     if (name === "feed") renderFeed();
     if (name === "briefing") renderBriefing();
     if (name === "prior") renderPrior();
     if (name === "status") renderStatus();
+    if (name === "committee") renderCommittee();
     if (name === "watch") { renderWatch(); } else { stopWatchPlayback(); }
     if (name === "post") renderComposerGate();
     window.scrollTo(0, 0);
@@ -2758,6 +2824,13 @@
     mountTranslateSlots(li);
     li.appendChild(zoneExpander("zone-answer", T("zone.answer.excerpt"), T("zone.answer.full"),
       esc(briefExcerpt(displayAnswer(item.answer))), esc(displayAnswer(item.answer)), T("zone.answer.read")));
+    var apw = document.createElement("div");
+    apw.innerHTML = approverHtml(item);
+    wireApproverLinks(apw);
+    while (apw.firstChild) li.appendChild(apw.firstChild);
+    var citeDiv = document.createElement("div");
+    citeDiv.innerHTML = citationsHtml(item, p);
+    while (citeDiv.firstChild) li.appendChild(citeDiv.firstChild);
     var row = document.createElement("div");
     row.className = "btn-row";
     var record = document.createElement("button");
@@ -2802,6 +2875,8 @@
      committee drafts during committee week, before the briefing airs. */
   var wonderDrafts = {};   /* postId -> draft text */
   var wonderApproved = {}; /* postId -> true once approved in this session */
+  var wonderCitations = {}; /* postId -> [{commitment, source, date}] recorded at approval, session-only */
+  var wonderNoCommit = {}; /* postId -> true when the approver marked "no commitments" */
   var wonderEdited = {};   /* postId -> true once the committee edited the draft */
   /* Committee-only visibility (TY, Oct 28): in the real product drafts
      and editing are committee-only; the demo shows them publicly for
@@ -2873,10 +2948,53 @@
       approveBtn.className = "btn btn-small";
       approveBtn.textContent = T("wonder.approve");
       approveBtn.addEventListener("click", function () {
+        if (!wonderNoCommit[p.id] && !(wonderCitations[p.id] && wonderCitations[p.id].length)) { trackerMsg(box, "cite.required"); return; }
         wonderApproved[p.id] = true;
         audit("approve", p.ref + "-A", "");
         renderBriefing();
       });
+      var citeSection = document.createElement("div");
+      function renderCites() {
+        var list = wonderCitations[p.id] || [];
+        var h = '<p><span class="zone-label">' + esc(T("cite.legend")) + "</span></p>";
+        for (var i = 0; i < list.length; i++) {
+          h += '<p class="hint">' + esc(T("cite.commitment")) + ": " + esc(list[i].commitment) + " \u2014 " + esc(T("cite.source")) + ": " + esc(list[i].source) + ", " + esc(list[i].date) + ' <button type="button" class="btn btn-small" data-cite-rm="' + i + '">' + esc(T("cite.remove")) + "</button></p>";
+        }
+        h += '<div class="field"><label>' + esc(T("cite.commitment")) + '</label><textarea data-cite="commitment" rows="2" placeholder="' + esc(T("cite.commitment.ph")) + '"></textarea></div>' +
+          '<div class="field"><label>' + esc(T("cite.source")) + '</label><textarea data-cite="source" rows="2" placeholder="' + esc(T("cite.source.ph")) + '"></textarea></div>' +
+          '<div class="field"><label>' + esc(T("cite.date")) + '</label><input type="text" data-cite="date" placeholder="' + esc(T("cite.date.ph")) + '"></div>' +
+          '<div class="btn-row"><button type="button" class="btn btn-small" data-cite-add>' + esc(T("cite.add")) + "</button></div>" +
+          '<div class="field"><label><input type="checkbox" data-cite-none> ' + esc(T("cite.nocommit")) + "</label></div>";
+        citeSection.innerHTML = h;
+        function citeVal(n) { var el = citeSection.querySelector('[data-cite="' + n + '"]'); return el ? el.value : ""; }
+        var addBtn = citeSection.querySelector("[data-cite-add]");
+        if (addBtn) addBtn.addEventListener("click", function () {
+          if (!citeVal("commitment").trim() || !citeVal("source").trim() || !citeVal("date").trim()) { trackerMsg(box, "form.required"); return; }
+          var l = wonderCitations[p.id] || (wonderCitations[p.id] = []);
+          l.push({ commitment: citeVal("commitment"), source: citeVal("source"), date: citeVal("date") });
+          delete wonderNoCommit[p.id];
+          trackerMsg(box, null);
+          renderCites();
+        });
+        Array.prototype.forEach.call(citeSection.querySelectorAll("[data-cite-rm]"), function (btn) {
+          btn.addEventListener("click", function () {
+            var l = wonderCitations[p.id] || [];
+            l.splice(Number(btn.getAttribute("data-cite-rm")), 1);
+            renderCites();
+          });
+        });
+        var none = citeSection.querySelector("[data-cite-none]");
+        if (none) {
+          none.checked = !!wonderNoCommit[p.id];
+          none.addEventListener("change", function () {
+            if (none.checked) { wonderNoCommit[p.id] = true; wonderCitations[p.id] = []; }
+            else delete wonderNoCommit[p.id];
+            renderCites();
+          });
+        }
+      }
+      renderCites();
+      box.appendChild(citeSection);
       box.appendChild(editBtn);
       box.appendChild(document.createTextNode(" "));
       box.appendChild(approveBtn);
@@ -2894,6 +3012,8 @@
         wonderDrafts[p.id] = draft;
         delete wonderApproved[p.id];
         delete wonderEdited[p.id];
+        delete wonderCitations[p.id];
+        delete wonderNoCommit[p.id];
         wonderStatus.textContent = "";
         audit("draft", p.ref + "-A", "");
         showDraft();
@@ -2902,7 +3022,7 @@
     if (wonderApproved[p.id] && wonderDrafts[p.id]) {
       var done = document.createElement("div");
       done.innerHTML = '<p><span class="status-pill">' + esc(T("wonder.approved")) + "</span></p>" +
-        "<p>" + esc(wonderDrafts[p.id]) + "</p>";
+        "<p>" + esc(wonderDrafts[p.id]) + "</p>" + citationsHtml(null, p);
       wonderBox.appendChild(done);
     } else if (wonderDrafts[p.id]) {
       showDraft();
@@ -3081,6 +3201,188 @@
     var c = PodiumStore.cycleById(state, b.cycleId);
     return esc(cycleLabel(c)) + " \u00b7 " + (b.selection === "top" ? T("seltitle.top") : T("seltitle.random"));
   }
+  /* Tracker: "We can't do this" + "Why can't we do this?" (TY).
+     Display + record only. Stored status stays "No Action"; Tstatus renders
+     it as "We can't do this." in both languages. All mutations go through the
+     PodiumStore validators, persist via save, and append audit entries. */
+  function todayShort() {
+    try { return new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "America/New_York" }); }
+    catch (e) { return new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
+  }
+  function isAuthor(p) { return !!(state.currentUserId && p && state.currentUserId === p.authorId); }
+  function respondedBy(b, by, kind, id) {
+    var rs = (b && b.responses) || [];
+    for (var i = 0; i < rs.length; i++) {
+      if (rs[i] && rs[i].by === by && rs[i].kind === kind && String(rs[i].id) === String(id)) return true;
+    }
+    return false;
+  }
+  function noActionHtml(b) {
+    if (!b || b.trackerStatus !== "No Action") return "";
+    return '<div class="zone zone-answer"><span class="zone-label">' + esc(T("noaction.label")) + "</span>" +
+      "<p><strong>" + esc(T("noaction.authority")) + ":</strong> " + esc(b.citedAuthority || "") + "</p>" +
+      "<p><strong>" + esc(T("noaction.change")) + ":</strong> " + esc(b.whatWouldChange || "") + "</p>" +
+      "<p><strong>" + esc(T("noaction.redirect")) + ":</strong> " + esc(b.redirectTo || "") + "</p>" +
+      (b.committeeVote ? '<p class="hint">' + esc(T("noaction.vote")) + "</p>" : "") + "</div>";
+  }
+  function appealsHtml(b, p) {
+    var ap = (b && b.appeals) || [], out = "", i;
+    for (i = 0; i < ap.length; i++) {
+      var a = ap[i];
+      out += '<div class="zone zone-answer"><span class="zone-label">' + esc(Tf("appeal.by", { name: a.name, date: a.date })) + "</span>";
+      out += a.outcome
+        ? "<p>" + esc(a.outcome.decision === "upheld" ? T("rereview.outcome.upheld") : T("rereview.outcome.rejected")) + (a.outcome.note ? " \u2014 " + esc(a.outcome.note) : "") + (a.outcome.date ? " (" + esc(a.outcome.date) + ")" : "") + "</p>"
+        : '<p class="hint">' + esc(T("appeal.awaiting")) + "</p>" +
+          '<div class="field"><label>' + esc(T("rereview.legend")) + "</label>" +
+          '<textarea data-rr-note rows="2" placeholder="' + esc(T("rereview.note.ph")) + '"></textarea></div>' +
+          '<div class="btn-row"><button type="button" class="btn btn-small" data-act="rereview-uphold">' + esc(T("rereview.uphold")) + "</button>" +
+          '<button type="button" class="btn btn-small" data-act="rereview-reject">' + esc(T("rereview.reject")) + "</button></div>";
+      out += "</div>";
+    }
+    if (b && b.trackerStatus === "No Action" && isAuthor(p) && !PodiumStore.appealFor(b, b.determinationId || 0)) {
+      out += '<div class="btn-row"><button type="button" class="btn btn-small" data-act="appeal">' + esc(T("appeal.button")) + "</button></div>";
+    }
+    return out;
+  }
+  function responsesHtml(b, p, kind, id) {
+    var rs = ((b && b.responses) || []).filter(function (r) { return r && r.kind === kind && String(r.id) === String(id); });
+    var out = "";
+    for (var i = 0; i < rs.length; i++) {
+      out += '<p class="hint">' + esc(T("response.legend")) + " \u2014 " + esc(rs[i].name) + ", " + esc(rs[i].date) + ": " + esc(rs[i].text) + "</p>";
+    }
+    if (isAuthor(p)) {
+      if (respondedBy(b, state.currentUserId, kind, id)) {
+        out += '<p class="hint">' + esc(T("response.done")) + "</p>";
+      } else {
+        out += '<div class="field"><label>' + esc(T("response.legend")) + "</label>" +
+          '<textarea data-field="response-text" data-kind="' + esc(kind) + '" data-id="' + esc(String(id)) + '" rows="2" placeholder="' + esc(T("response.ph")) + '"></textarea></div>' +
+          '<div class="btn-row"><button type="button" class="btn btn-small" data-act="respond" data-kind="' + esc(kind) + '" data-id="' + esc(String(id)) + '">' + esc(T("response.submit")) + "</button></div>";
+      }
+    }
+    return out;
+  }
+  function challengeHtml(b, p, ch) {
+    var out = '<div class="zone zone-answer"><span class="zone-label">' + esc(T("challenge.name")) + "</span>" +
+      "<p><strong>" + esc(T("challenge.solution.label")) + ":</strong> " + esc(ch.solution) + "</p>" +
+      '<p class="hint">' + esc(Tf("challenge.by", { name: ch.raisedName, date: ch.date })) + "</p>";
+    if (ch.status === "answered" && ch.answer) {
+      out += '<p><span class="zone-label">' + esc(T("challenge.answer.legend")) + "</span></p>" +
+        "<p>" + esc(ch.answer.text) + (ch.answer.date ? " (" + esc(ch.answer.date) + ")" : "") + "</p>" +
+        "<p><strong>" + esc(T("noaction.authority")) + ":</strong> " + esc(ch.answer.citedAuthority || "") + "</p>" +
+        "<p><strong>" + esc(T("noaction.change")) + ":</strong> " + esc(ch.answer.whatWouldChange || "") + "</p>" +
+        "<p><strong>" + esc(T("noaction.redirect")) + ":</strong> " + esc(ch.answer.redirectTo || "") + "</p>";
+    } else {
+      out += '<p class="hint">' + esc(T("challenge.awaiting")) + "</p>" +
+        '<div class="field"><label>' + esc(T("challenge.answer.legend")) + "</label>" +
+        '<textarea data-ans="text" data-id="' + esc(ch.id) + '" rows="2" placeholder="' + esc(T("challenge.answer.ph")) + '"></textarea></div>' +
+        '<div class="field"><label>' + esc(T("noaction.authority")) + "</label>" +
+        '<textarea data-ans="citedAuthority" data-id="' + esc(ch.id) + '" rows="2"></textarea></div>' +
+        '<div class="field"><label>' + esc(T("noaction.change")) + "</label>" +
+        '<textarea data-ans="whatWouldChange" data-id="' + esc(ch.id) + '" rows="2"></textarea></div>' +
+        '<div class="field"><label>' + esc(T("noaction.redirect")) + "</label>" +
+        '<textarea data-ans="redirectTo" data-id="' + esc(ch.id) + '" rows="2"></textarea></div>' +
+        '<div class="btn-row"><button type="button" class="btn btn-small" data-act="challenge-answer" data-id="' + esc(ch.id) + '">' + esc(T("challenge.answer.submit")) + "</button></div>";
+    }
+    out += responsesHtml(b, p, "challenge", ch.id) + "</div>";
+    return out;
+  }
+  function challengesHtml(b, p) {
+    var ch = (b && b.challenges) || [], out = "";
+    out += '<p><span class="zone-label">' + esc(T("challenge.legend")) + "</span></p>";
+    for (var i = 0; i < ch.length; i++) out += challengeHtml(b, p, ch[i]);
+    out += '<div class="field"><label>' + esc(T("challenge.solution.label")) + "</label>" +
+      '<textarea data-field="challenge-solution" rows="2" placeholder="' + esc(T("challenge.solution.ph")) + '"></textarea></div>' +
+      '<div class="btn-row"><button type="button" class="btn btn-small" data-act="challenge-raise">' + esc(T("challenge.raise")) + "</button></div>";
+    return out;
+  }
+  function trackerHtml(b, p) {
+    if (!b || !p) return "";
+    return '<p class="hint">' + esc(T("demo.tracker.note")) + "</p>" +
+      noActionHtml(b) + appealsHtml(b, p) + challengesHtml(b, p) +
+      responsesHtml(b, p, "record", "record");
+  }
+  function trackerMsg(root, key) {
+    var m = root.querySelector(".tracker-msg");
+    if (!m) {
+      m = document.createElement("p");
+      m.className = "hint tracker-msg";
+      root.appendChild(m);
+    }
+    m.textContent = key ? T(key) : "";
+  }
+  function trackerVal(root, sel, idAttr, idVal) {
+    var q = idVal == null ? sel : sel + '[' + idAttr + '="' + idVal + '"]';
+    var el = root.querySelector(q);
+    return el ? el.value : "";
+  }
+  function wireTracker(root, b, p, rerender) {
+    if (!root || !b || !p) return;
+    function fail(key) { trackerMsg(root, key); }
+    function ok(rerun) {
+      try { PodiumStore.save(state); } catch (e) { /* session-only fallback */ }
+      trackerMsg(root, null);
+      rerun();
+    }
+    var ap = root.querySelector('[data-act="appeal"]');
+    if (ap) ap.addEventListener("click", function () {
+      var me = PodiumStore.citizenById(state, state.currentUserId);
+      var r = PodiumStore.fileAppeal(b, { by: state.currentUserId, name: me ? me.name : "", date: todayShort() });
+      if (!r.ok) { fail("form.required"); return; }
+      audit("appeal", p.ref || "", me ? me.name : "");
+      ok(rerender);
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-act="rereview-uphold"], [data-act="rereview-reject"]'), function (btn) {
+      btn.addEventListener("click", function () {
+        var note = trackerVal(root, "[data-rr-note]");
+        var r = PodiumStore.reviewAppeal(b, { decision: btn.getAttribute("data-act") === "rereview-uphold" ? "upheld" : "reinstated", note: note, date: todayShort() });
+        if (!r.ok) { fail("form.required"); return; }
+        audit("rereview", p.ref || "", r.appeal.outcome.decision);
+        ok(rerender);
+      });
+    });
+    var raise = root.querySelector('[data-act="challenge-raise"]');
+    if (raise) raise.addEventListener("click", function () {
+      var me = PodiumStore.citizenById(state, state.currentUserId);
+      var sol = trackerVal(root, '[data-field="challenge-solution"]');
+      if (!sol.trim()) { fail("form.required"); return; }
+      var r = PodiumStore.raiseChallenge(b, { by: state.currentUserId, name: me ? me.name : "", date: todayShort(), solution: sol });
+      if (!r.ok) { fail("form.required"); return; }
+      audit("challenge", p.ref || "", r.challenge.id);
+      ok(rerender);
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-act="challenge-answer"]'), function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-id");
+        var f = {
+          text: trackerVal(root, '[data-ans="text"]', "data-id", id),
+          citedAuthority: trackerVal(root, '[data-ans="citedAuthority"]', "data-id", id),
+          whatWouldChange: trackerVal(root, '[data-ans="whatWouldChange"]', "data-id", id),
+          redirectTo: trackerVal(root, '[data-ans="redirectTo"]', "data-id", id),
+          date: todayShort()
+        };
+        if (!f.citedAuthority.trim()) { fail("noaction.authority.required"); return; }
+        if (!f.text.trim() || !f.whatWouldChange.trim() || !f.redirectTo.trim()) { fail("form.required"); return; }
+        var r = PodiumStore.answerChallenge(b, id, f);
+        if (!r.ok) { fail("form.required"); return; }
+        audit("challenge-answer", p.ref || "", id);
+        ok(rerender);
+      });
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-act="respond"]'), function (btn) {
+      btn.addEventListener("click", function () {
+        var me = PodiumStore.citizenById(state, state.currentUserId);
+        var kind = btn.getAttribute("data-kind"), id = btn.getAttribute("data-id");
+        var ta = root.querySelector('[data-field="response-text"][data-kind="' + kind + '"][data-id="' + id + '"]');
+        var text = ta ? ta.value : "";
+        if (!text.trim()) { fail("form.required"); return; }
+        var r = PodiumStore.addResponse(b, { by: state.currentUserId, name: me ? me.name : "", date: todayShort(), text: text, kind: kind, id: id });
+        if (!r.ok) { fail(r.reason === "already-responded" ? "response.done" : "form.required"); return; }
+        audit("response", p.ref || "", kind + ":" + id);
+        ok(rerender);
+      });
+    });
+  }
+
   function renderPrior() {
     threadSelect($("priorSelect"), renderPriorCard);
     renderPriorCard();
@@ -3099,17 +3401,20 @@
       translateSlotHtml(p) +
       '<div class="zone zone-answer"><span class="zone-label">' + esc(T("thread.answer")) + "</span>" +
       '<p><span class="ref-code">' + esc(answerCode(p)) + "</span></p>" +
-      "<p>" + esc(displayAnswer(b.answer)) + "</p></div>";
+      "<p>" + esc(displayAnswer(b.answer)) + "</p>" + approverHtml(b) + citationsHtml(b, p) + "</div>";
     var last = b.updates[b.updates.length - 1];
     if (last) {
       html += '<div class="zone zone-answer"><span class="zone-label">' + esc(T("prior.updatelatest")) + "</span>" +
         '<p><span class="ref-code">' + esc(updateCode(p, b.updates.length - 1)) + "</span> <strong>" + esc(last.date) + "</strong></p>" +
         "<p>" + esc(last.text) + "</p>" +
         '<p>' + esc(T("prior.status")) + ' <span class="status-pill">' + esc(Tstatus(b.trackerStatus)) + "</span>" +
-        (b.trackerStatus === "No Action" && b.officialReason ? " \u2014 " + esc(b.officialReason) : "") + "</p></div>";
+        (b.trackerStatus === "No Action" && b.officialReason ? " \u2014 " + esc(b.officialReason) : "") + "</p>" + responsesHtml(b, p, "update", b.updates.length - 1) + "</div>";
     }
+    html += trackerHtml(b, p);
     card.innerHTML = html;
+    wireTracker(card, b, p, renderPriorCard);
     mountTranslateSlots(card);
+    wireApproverLinks(card);
     var link = document.createElement("button");
     link.type = "button";
     link.className = "btn btn-small";
@@ -3152,11 +3457,14 @@
     var html = "<h3>" + selectionTitle(b) + "</h3>" +
       '<p><span class="ref-code">' + esc(p.ref || "") + "</span> " + esc(author.name) + stateSuffix(p) + langSuffix(p) + " \u00b7 " + esc(T("prior.status")) + ' <span class="status-pill">' + esc(Tstatus(b.trackerStatus)) + "</span>" +
       (b.trackerStatus === "No Action" && b.officialReason ? " \u2014 " + esc(b.officialReason) : "") + "</p>" + sealHtml(p) +
+      approverHtml(b) + citationsHtml(b, p) +
       "<h4>" + esc(T("status.dated")) + "</h4>" + '<ul class="updates">' +
-      b.updates.map(function (u, i) { return "<li><span class=\"ref-code\">" + esc(updateCode(p, i)) + "</span> <strong>" + esc(u.date) + ":</strong> " + esc(u.text) + "</li>"; }).join("") +
-      "</ul>";
+      b.updates.map(function (u, i) { return "<li><span class=\"ref-code\">" + esc(updateCode(p, i)) + "</span> <strong>" + esc(u.date) + ":</strong> " + esc(u.text) + responsesHtml(b, p, "update", i) + "</li>"; }).join("") +
+      "</ul>" + trackerHtml(b, p);
     card.innerHTML = html;
+    wireTracker(card, b, p, renderStatusCard);
     var back = document.createElement("button");
+    wireApproverLinks(card);
     back.type = "button";
     back.className = "btn btn-small";
     back.textContent = Tf("status.toprior", { ref: p.ref || T("thread.thispost") });
@@ -3165,6 +3473,85 @@
       showView("prior");
     });
     card.appendChild(back);
+  }
+
+  /* Committee roster (TY): 12 seeded civilian committee members (committeeMember),
+     rendered term-week order. Display only; no vote/draw/answer logic here. */
+  /* Answer approver (TY): which seeded committee member reviewed and approved
+     each seeded answer (the answerer of record). Display only — answer text,
+     votes, and draws are untouched. Names/states/weeks resolve live from the
+     seeded citizens, so the roster stays the single source of truth. */
+  var APPROVER_BY_POST = { "p-w1-16": "c-cm12", "p-w1-05": "c-cm11", "p-w2-01": "c-cm10",
+    "p-w2-06": "c-cm09", "p-w3-01": "c-cm08", "p-w3-09": "c-cm07" };
+  function approverFor(postId) {
+    var m = PodiumStore.citizenById(state, APPROVER_BY_POST[postId || ""] || "");
+    return (m && m.committeeMember) ? m : null;
+  }
+  function citationsFor(b, p) {
+    if (p && wonderCitations[p.id] && wonderCitations[p.id].length) return wonderCitations[p.id];
+    return (b && b.citations) || [];
+  }
+  function citationsHtml(b, p) {
+    var c = citationsFor(b, p), out = "";
+    for (var i = 0; i < c.length; i++) {
+      out += '<p class="hint">' + esc(T("cite.commitment")) + ": " + esc(c[i].commitment) + " \u2014 " + esc(T("cite.source")) + ": " + esc(c[i].source) + ", " + esc(c[i].date) + ".</p>";
+    }
+    return out;
+  }
+  function approverHtml(b) {
+    var m = approverFor(b && b.postId);
+    if (!m) return "";
+    return '<p class="hint">' + esc(T("approver.prefix")) + ' <button type="button" class="btn btn-small approver-link">' + esc(m.name) + "</button>, " + esc(m.state || "") +
+      " \u2014 " + esc(Tf("approver.suffix", { week: m.termWeek })) + "</p>";
+  }
+  function wireApproverLinks(root) {
+    if (!root || !root.querySelectorAll) return;
+    Array.prototype.forEach.call(root.querySelectorAll("button.approver-link"), function (btn) {
+      btn.addEventListener("click", function () { showView("committee"); });
+    });
+  }
+  var CM_WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var CM_MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  /* Cycle-out date: term start + 12 weeks (84 days), same weekday. UTC math
+     so the date never shifts across time zones; stored dates stay untouched. */
+  function committeeCycleOut(termStart) {
+    var m = /^[A-Za-z]{3} ([A-Za-z]{3}) (\d{1,2}), (\d{4})$/.exec(termStart || "");
+    if (!m) return "";
+    var mi = CM_MO.indexOf(m[1]);
+    if (mi < 0) return "";
+    var d = new Date(Date.UTC(Number(m[3]), mi, Number(m[2]), 12) + 84 * 864e5);
+    return CM_WD[d.getUTCDay()] + " " + CM_MO[d.getUTCMonth()] + " " + d.getUTCDate() + ", " + d.getUTCFullYear();
+  }
+  function renderCommittee() {
+    setAttr("view-committee", "aria-label", T("committee.aria"));
+    setText("committeeHeading", T("tab.committee"));
+    setText("committeeLede", T("committee.lede"));
+    setText("committeeNote", T("committee.note"));
+    var list = $("committeeList");
+    if (!list) return;
+    var members = (state.citizens || []).filter(function (c) { return c && c.committeeMember; })
+      .sort(function (a, b) { return (a.termWeek || 99) - (b.termWeek || 99); });
+    var html = "";
+    members.forEach(function (c) {
+      var dr = c.selectionDraw || {};
+      var val = String(dr.beaconValue || "");
+      var short = val.length > 12 ? val.slice(0, 12) + "\u2026" : val;
+      var badge = "";
+      if (c.termWeek === 1) badge = ' <span class="post-topic">' + esc(T("committee.joined")) + "</span>";
+      if (c.termWeek === 12) badge = ' <span class="post-topic">' + esc(T("committee.cycling")) + "</span>";
+      html += '<li class="card"><p class="post-meta"><span class="post-author">' + esc(c.name) + "</span>" +
+        (c.state ? "<span>" + esc(c.state) + "</span>" : "") +
+        ' <span class="post-topic">' + esc(Tf("committee.week", { n: c.termWeek })) + "</span>" + badge + "</p>" +
+        "<p class=\"hint\">" + esc(Tf("committee.terms", { start: c.termStart || "", out: committeeCycleOut(c.termStart) })) + "</p>" +
+        '<p><span class="zone-label">' + esc(T("committee.draw")) + "</span></p>" +
+        '<dl class="draw-facts">' +
+        "<dt>" + esc(T("committee.draw.beacon")) + "</dt><dd>" + esc(dr.beaconTimestamp || "") + "</dd>" +
+        "<dt>" + esc(T("committee.draw.value")) + '</dt><dd><span class="ref-code">' + esc(short) + "</span></dd>" +
+        "<dt>" + esc(T("committee.draw.pool")) + "</dt><dd>" + esc(String(dr.poolSize == null ? "" : dr.poolSize)) + "</dd>" +
+        "<dt>" + esc(T("committee.draw.pos")) + "</dt><dd>" + esc(String(dr.position == null ? "" : dr.position)) + "</dd>" +
+        "</dl></li>";
+    });
+    list.innerHTML = html;
   }
 
   /* ---------- share + deep links ---------- */
@@ -3896,7 +4283,7 @@
   function setAttr(id, a, v) { var el = $(id); if (el) el.setAttribute(a, v); }
   function setPh(id, v) { var el = $(id); if (el) el.setAttribute("placeholder", v); }
   /* Verbatim Rule minimize: one button after the last rule paragraph
-     collapses the three rule paragraphs AND the Fine print <details>;
+     collapses the four rule paragraphs AND the Fine print <details>;
      heading + button stay. The card is a single shared node, so one toggle
      covers every tab. Session-only state ("1" = minimized); fresh sessions
      start expanded. Hiding uses hidden, never the open attribute, so the
@@ -3905,7 +4292,7 @@
   var ruleCollapsed = false;
   try { ruleCollapsed = sessionStorage.getItem(RULE_KEY) === "1"; } catch (e) {}
   function syncRuleToggle() {
-    ["ruleP1", "ruleP2", "ruleP3"].forEach(function (id) {
+    ["ruleP1", "ruleP2", "ruleP3", "ruleP4"].forEach(function (id) {
       var p = $(id);
       if (p) p.hidden = ruleCollapsed;
     });
@@ -3939,6 +4326,7 @@
     setHtml("ruleP1", T("rule.p1"));
     setText("ruleP2", T("rule.p2"));
     setText("ruleP3", T("rule.p3"));
+    setText("ruleP4", T("rule.p4"));
     syncRuleToggle(); /* re-labels the button, keeps the collapsed state */
     setText("readFullRule", T("rule.readfull"));
     setText("fineSummary", T("fine.summary"));
@@ -4069,6 +4457,7 @@
     else if (currentView === "prior") renderPrior();
     else if (currentView === "status") renderStatus();
     else if (currentView === "watch") renderWatch();
+    else if (currentView === "committee") renderCommittee();
     else if (currentView === "post") { updateOnePostNotice(); renderComposerGate(); }
   }
   function applyLanguage(l) {

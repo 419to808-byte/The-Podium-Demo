@@ -331,6 +331,17 @@ var PodiumStore = (function () {
         if (b && OLD_W3[b.postId] && b.answer === OLD_W3[b.postId] && seedW3[b.postId]) { b.answer = seedW3[b.postId].answer; filled = true; }
       });
     }
+    /* Citations backfill: saved items predate the citations lists, so copy
+       the seed citations where the save has none yet. Never overwritten
+       where present. */
+    var needsCite = (s.briefingItems || []).some(function (b) { return b && b.citations === undefined; });
+    if (needsCite) {
+      var seedCite = {};
+      needSeed().briefingItems.forEach(function (b) { if (b && b.postId) seedCite[b.postId] = b.citations; });
+      (s.briefingItems || []).forEach(function (b) {
+        if (b && b.citations === undefined && seedCite[b.postId]) { b.citations = deepCopy(seedCite[b.postId]); filled = true; }
+      });
+    }
     /* Backfill voting windows onto saved cycles (the rollover needs them).
        Seed values only, never overwritten where present. */
     var needsWindows = (s.cycles || []).some(function (c) { return !c.votingStart || !c.votingEnd; });
@@ -816,6 +827,110 @@ var PodiumStore = (function () {
     return post;
   }
 
+  /* "We can't do this" determinations and "Why can't we do this?" challenges.
+     All records live on the briefing item and persist with the normal state
+     save. No post or answer text is ever modified here. Every mutator returns
+     {ok:true,...} or {ok:false,reason:...} and leaves the item untouched on
+     failure. A determination is identified by determinationId, bumped each
+     time a "We can't do this" verdict is newly recorded, so one appeal per
+     determination is enforceable. */
+  function setNoAction(item, f) {
+    f = f || {};
+    if (!item) return { ok: false, reason: "no-item" };
+    if (!String(f.citedAuthority || "").trim()) return { ok: false, reason: "need-authority" };
+    if (!String(f.whatWouldChange || "").trim()) return { ok: false, reason: "need-path" };
+    if (!String(f.redirectTo || "").trim()) return { ok: false, reason: "need-redirect" };
+    if (f.committeeVote !== true) return { ok: false, reason: "need-vote" };
+    item.trackerStatus = "No Action";
+    item.citedAuthority = String(f.citedAuthority);
+    item.whatWouldChange = String(f.whatWouldChange);
+    item.redirectTo = String(f.redirectTo);
+    item.committeeVote = true;
+    item.determinationId = (item.determinationId || 0) + 1;
+    return { ok: true, determinationId: item.determinationId };
+  }
+  function openAppeal(item) {
+    if (!item) return null;
+    var det = item.determinationId || 0;
+    var ap = item.appeals || [];
+    for (var i = 0; i < ap.length; i++) {
+      if (ap[i] && ap[i].determinationId === det && !ap[i].outcome) return ap[i];
+    }
+    return null;
+  }
+  function appealFor(item, det) {
+    var ap = (item && item.appeals) || [];
+    for (var i = 0; i < ap.length; i++) {
+      if (ap[i] && ap[i].determinationId === det) return ap[i];
+    }
+    return null;
+  }
+  function fileAppeal(item, f) {
+    if (!item) return { ok: false, reason: "no-item" };
+    if (item.trackerStatus !== "No Action") return { ok: false, reason: "not-noaction" };
+    if (!f || !f.by) return { ok: false, reason: "need-citizen" };
+    var det = item.determinationId || 0;
+    var ap = item.appeals || (item.appeals = []);
+    if (appealFor(item, det)) return { ok: false, reason: "already-appealed" };
+    var a = { determinationId: det, by: f.by, name: f.name || "", date: f.date || "", text: String(f.text || ""), outcome: null };
+    ap.push(a);
+    item.trackerStatus = "In Progress";
+    return { ok: true, appeal: a };
+  }
+  function reviewAppeal(item, outcome) {
+    if (!item) return { ok: false, reason: "no-item" };
+    var a = openAppeal(item);
+    if (!a) return { ok: false, reason: "no-open-appeal" };
+    var d = (outcome && outcome.decision) || "";
+    if (d !== "upheld" && d !== "reinstated") return { ok: false, reason: "need-decision" };
+    a.outcome = { decision: d, note: String((outcome && outcome.note) || ""), date: (outcome && outcome.date) || "" };
+    if (d === "reinstated") {
+      item.trackerStatus = "No Action";
+      item.determinationId = (item.determinationId || 0) + 1;
+    }
+    return { ok: true, appeal: a };
+  }
+  function raiseChallenge(item, f) {
+    if (!item) return { ok: false, reason: "no-item" };
+    if (!f || !f.by) return { ok: false, reason: "need-citizen" };
+    if (!String(f.solution || "").trim()) return { ok: false, reason: "need-solution" };
+    var ch = item.challenges || (item.challenges = []);
+    var c = { id: "ch" + (ch.length + 1), raisedBy: f.by, raisedName: f.name || "", date: f.date || "",
+      solution: String(f.solution), status: "open", answer: null };
+    ch.push(c);
+    return { ok: true, challenge: c };
+  }
+  function answerChallenge(item, challengeId, f) {
+    if (!item) return { ok: false, reason: "no-item" };
+    var ch = item.challenges || [], c = null, i;
+    for (i = 0; i < ch.length; i++) { if (ch[i] && ch[i].id === challengeId) { c = ch[i]; break; } }
+    if (!c) return { ok: false, reason: "no-challenge" };
+    if (c.status !== "open") return { ok: false, reason: "already-answered" };
+    if (!String(f.text || "").trim()) return { ok: false, reason: "need-answer" };
+    if (!String(f.citedAuthority || "").trim()) return { ok: false, reason: "need-authority" };
+    if (!String(f.whatWouldChange || "").trim()) return { ok: false, reason: "need-path" };
+    if (!String(f.redirectTo || "").trim()) return { ok: false, reason: "need-redirect" };
+    c.answer = { text: String(f.text), citedAuthority: String(f.citedAuthority),
+      whatWouldChange: String(f.whatWouldChange), redirectTo: String(f.redirectTo), date: f.date || "" };
+    c.status = "answered";
+    return { ok: true, challenge: c };
+  }
+  function addResponse(item, f) {
+    if (!item) return { ok: false, reason: "no-item" };
+    if (!f || !f.by) return { ok: false, reason: "need-citizen" };
+    if (!String(f.text || "").trim()) return { ok: false, reason: "need-text" };
+    if (["record", "challenge", "update"].indexOf(f.kind) < 0) return { ok: false, reason: "need-target" };
+    var rs = item.responses || (item.responses = []);
+    for (var i = 0; i < rs.length; i++) {
+      if (rs[i] && rs[i].by === f.by && rs[i].kind === f.kind && String(rs[i].id) === String(f.id)) {
+        return { ok: false, reason: "already-responded" };
+      }
+    }
+    var r = { by: f.by, name: f.name || "", date: f.date || "", text: String(f.text), kind: f.kind, id: String(f.id) };
+    rs.push(r);
+    return { ok: true, response: r };
+  }
+
   return {
     currentCycleId: currentCycleId,
     load: load,
@@ -841,6 +956,14 @@ var PodiumStore = (function () {
     sha256: sha256Hex,
     hashPost: hashPost,
     auditAppend: auditAppend,
+    setNoAction: setNoAction,
+    openAppeal: openAppeal,
+    appealFor: appealFor,
+    fileAppeal: fileAppeal,
+    reviewAppeal: reviewAppeal,
+    raiseChallenge: raiseChallenge,
+    answerChallenge: answerChallenge,
+    addResponse: addResponse,
     verifyAudit: verifyAudit
   };
 })();

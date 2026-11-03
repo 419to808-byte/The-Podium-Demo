@@ -3,7 +3,7 @@
    pool (publication order, top-voted winner excluded). One post per citizen
    per cycle holds for every seeded post. */
 var PODIUM_SEED = {
-  version: 11,
+  version: 13,
   citizens: [
     { id: "c-lisa", name: "Lisa S.", state: "New York" },
     { id: "c-daniel", name: "Jeff M.", state: "California" },
@@ -121,7 +121,19 @@ var PODIUM_SEED = {
     { id: "c-n99", name: "David W.", state: "Washington" },
     { id: "c-n100", name: "Lucy W.", state: "West Virginia" },
     { id: "c-es01", name: "Sofía M.", state: "Texas" },
-    { id: "c-es02", name: "Carlos R.", state: "California" }
+    { id: "c-es02", name: "Carlos R.", state: "California" },
+    { id: "c-cm01", name: "Nadia R.", state: "California", verified: true, committeeMember: true, demoCopy: true, termWeek: 1, termStart: "Mon Nov 2, 2026", selectionDraw: { beaconTimestamp: "Mon Nov 2, 12:00 PM ET", beaconValue: "e4b1…5316", poolSize: 117, position: 52 } },
+    { id: "c-cm02", name: "James T.", state: "Texas", verified: true, committeeMember: true, demoCopy: true, termWeek: 2, termStart: "Mon Oct 26, 2026", selectionDraw: { beaconTimestamp: "Mon Oct 26, 12:00 PM ET", beaconValue: "3f8a…4815", poolSize: 117, position: 19 } },
+    { id: "c-cm03", name: "Sofia L.", state: "Florida", verified: true, committeeMember: true, demoCopy: true, termWeek: 3, termStart: "Mon Oct 19, 2026", selectionDraw: { beaconTimestamp: "Mon Oct 19, 12:00 PM ET", beaconValue: "a7c2…5820", poolSize: 117, position: 88 } },
+    { id: "c-cm04", name: "David K.", state: "Ohio", verified: true, committeeMember: true, demoCopy: true, termWeek: 4, termStart: "Mon Oct 12, 2026", selectionDraw: { beaconTimestamp: "Mon Oct 12, 12:00 PM ET", beaconValue: "61de…5064", poolSize: 117, position: 34 } },
+    { id: "c-cm05", name: "Aisha B.", state: "Georgia", verified: true, committeeMember: true, demoCopy: true, termWeek: 5, termStart: "Mon Oct 5, 2026", selectionDraw: { beaconTimestamp: "Mon Oct 5, 12:00 PM ET", beaconValue: "c50f…5569", poolSize: 117, position: 71 } },
+    { id: "c-cm06", name: "Robert M.", state: "Michigan", verified: true, committeeMember: true, demoCopy: true, termWeek: 6, termStart: "Mon Sep 28, 2026", selectionDraw: { beaconTimestamp: "Mon Sep 28, 12:00 PM ET", beaconValue: "2b94…4686", poolSize: 117, position: 7 } },
+    { id: "c-cm07", name: "Elena V.", state: "Arizona", verified: true, committeeMember: true, demoCopy: true, termWeek: 7, termStart: "Mon Sep 21, 2026", selectionDraw: { beaconTimestamp: "Mon Sep 21, 12:00 PM ET", beaconValue: "d873…5945", poolSize: 117, position: 96 } },
+    { id: "c-cm08", name: "Nathan W.", state: "North Carolina", verified: true, committeeMember: true, demoCopy: true, termWeek: 8, termStart: "Mon Sep 14, 2026", selectionDraw: { beaconTimestamp: "Mon Sep 14, 12:00 PM ET", beaconValue: "8a1c…5188", poolSize: 117, position: 41 } },
+    { id: "c-cm09", name: "Hannah H.", state: "Washington", verified: true, committeeMember: true, demoCopy: true, termWeek: 9, termStart: "Mon Sep 7, 2026", selectionDraw: { beaconTimestamp: "Mon Sep 7, 12:00 PM ET", beaconValue: "f6e0…6075", poolSize: 117, position: 109 } },
+    { id: "c-cm10", name: "Daniel P.", state: "Colorado", verified: true, committeeMember: true, demoCopy: true, termWeek: 10, termStart: "Mon Aug 31, 2026", selectionDraw: { beaconTimestamp: "Mon Aug 31, 12:00 PM ET", beaconValue: "4d3b…4936", poolSize: 117, position: 23 } },
+    { id: "c-cm11", name: "Fatima S.", state: "Illinois", verified: true, committeeMember: true, demoCopy: true, termWeek: 11, termStart: "Mon Aug 24, 2026", selectionDraw: { beaconTimestamp: "Mon Aug 24, 12:00 PM ET", beaconValue: "b926…5695", poolSize: 117, position: 80 } },
+    { id: "c-cm12", name: "Thomas G.", state: "Pennsylvania", verified: true, committeeMember: true, demoCopy: true, termWeek: 12, termStart: "Mon Aug 17, 2026", selectionDraw: { beaconTimestamp: "Mon Aug 17, 12:00 PM ET", beaconValue: "75af…5444", poolSize: 117, position: 63 } }
   ],
   topics: ["Infrastructure", "Healthcare", "Public Health", "Education", "Environment", "Economy", "Public Safety", "Transportation", "Housing", "Technology", "Civic Process"],
   cycles: [
@@ -414,6 +426,10 @@ var PODIUM_SEED = {
   briefingItems: [
     { cycleId: "w1", postId: "p-w1-16", selection: "top", pipeline: "briefed",
       answer: "Sample committee response: the committee will direct the Food and Drug Administration to issue guidance encouraging potassium bicarbonate over sodium bicarbonate, and require clear labeling of sodium added when water is alkalized, routed through the Department of Health and Human Services and the Food and Drug Administration.",
+      citations: [
+        { commitment: "issue guidance encouraging potassium bicarbonate over sodium bicarbonate", source: "U.S. Food and Drug Administration", date: "Oct 21, 2026" },
+        { commitment: "require clear labeling of sodium added when water is alkalized", source: "U.S. Food and Drug Administration", date: "Oct 21, 2026" },
+      ],
       trackerStatus: "Resolved", officialReason: "",
       updates: [
         { date: "Oct 21", text: "Read aloud verbatim and discussed in the weekly briefing." },
@@ -423,6 +439,11 @@ var PODIUM_SEED = {
       ] },
     { cycleId: "w1", postId: "p-w1-05", selection: "random", pipeline: "briefed",
       answer: "Sample committee response: the committee will ask for funds for a two-year pilot of quarterly mobile cardiac screening in twelve rural counties, allocate the funds across the twelve counties, with schedules published one year ahead, routed through the Department of Health and Human Services and state health departments.",
+      citations: [
+        { commitment: "a two-year pilot of quarterly mobile cardiac screening in twelve rural counties", source: "U.S. Department of Health and Human Services", date: "Oct 21, 2026" },
+        { commitment: "allocate the funds across the twelve counties", source: "U.S. Department of Health and Human Services", date: "Oct 21, 2026" },
+        { commitment: "schedules published one year ahead", source: "state health departments", date: "Oct 21, 2026" },
+      ],
       trackerStatus: "In Progress", officialReason: "",
       updates: [
         { date: "Oct 21", text: "Read aloud verbatim and discussed in the weekly briefing." },
@@ -432,6 +453,10 @@ var PODIUM_SEED = {
       ] },
     { cycleId: "w2", postId: "p-w2-01", selection: "top", pipeline: "committee",
       answer: "Sample committee response (briefing Oct 28): the committee will require monthly cash-price posting for the fifty most prescribed drugs at every licensed pharmacy, with a public price-comparison file, routed through the Department of Health and Human Services.",
+      citations: [
+        { commitment: "require monthly cash-price posting for the fifty most prescribed drugs at every licensed pharmacy", source: "U.S. Department of Health and Human Services", date: "Oct 28, 2026" },
+        { commitment: "a public price-comparison file", source: "U.S. Department of Health and Human Services", date: "Oct 28, 2026" },
+      ],
       trackerStatus: "In Progress", officialReason: "",
       updates: [
         { date: "Oct 19", text: "Selected as top-voted post; referred to committee for answer." },
@@ -440,6 +465,10 @@ var PODIUM_SEED = {
       ] },
     { cycleId: "w2", postId: "p-w2-06", selection: "random", pipeline: "committee",
       answer: "Sample committee response (briefing Oct 28): the committee will establish a twenty-year published schedule to replace the oldest urban water mains, beginning with a national pipe-age survey, routed through the Environmental Protection Agency and municipal water authorities.",
+      citations: [
+        { commitment: "establish a twenty-year published schedule to replace the oldest urban water mains", source: "U.S. Environmental Protection Agency", date: "Oct 28, 2026" },
+        { commitment: "a national pipe-age survey", source: "U.S. Environmental Protection Agency", date: "Oct 28, 2026" },
+      ],
       trackerStatus: "In Progress", officialReason: "",
       updates: [
         { date: "Oct 19", text: "Selected by random draw (position 4 of 12); referred to committee for answer." },
@@ -448,6 +477,11 @@ var PODIUM_SEED = {
       ] },
     { cycleId: "w3", postId: "p-w3-01", selection: "top", pipeline: "committee",
       answer: "The committee will ask for funds for a three-year phase-in of the twenty-five-student classroom maximum in publicly funded schools, allocate the funds across school districts by enrollment and current class size, and require districts to publish annual class-size figures, routed through the Department of Education and state education agencies.",
+      citations: [
+        { commitment: "ask for funds for a three-year phase-in of the twenty-five-student classroom maximum in publicly funded schools", source: "U.S. Department of Education", date: "Nov 4, 2026" },
+        { commitment: "allocate the funds across school districts by enrollment and current class size", source: "U.S. Department of Education", date: "Nov 4, 2026" },
+        { commitment: "require districts to publish annual class-size figures", source: "state education agencies", date: "Nov 4, 2026" },
+      ],
       trackerStatus: "Answered", officialReason: "",
       updates: [
         { date: "Oct 26", text: "Selected as top-voted post; referred to committee for answer." },
@@ -456,6 +490,9 @@ var PODIUM_SEED = {
       ] },
     { cycleId: "w3", postId: "p-w3-09", selection: "random", pipeline: "committee",
       answer: "The committee will require a plain-language juror guide mailed with every jury summons nationwide, covering pay, parking, and deferrals, routed through the Administrative Office of the Courts and state court administrators.",
+      citations: [
+        { commitment: "require a plain-language juror guide mailed with every jury summons nationwide", source: "Administrative Office of the Courts", date: "Nov 4, 2026" },
+      ],
       trackerStatus: "Answered", officialReason: "",
       updates: [
         { date: "Oct 26", text: "Selected by random draw (position 8 of 10); referred to committee for answer." },
