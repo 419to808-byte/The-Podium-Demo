@@ -481,6 +481,10 @@ var PodiumStore = (function () {
        from the merged state (includes the visitor's own posts). Saves that
        already carry a log keep their chain untouched. */
     if (!s.audit) { s.audit = buildAudit(s.posts, s.cycles, s.briefingItems); filled = true; }
+    /* Committee help-box system issues (TY, Nov 4): tracked reports from
+       serving members live beside the audit log. Default only; existing
+       issues are never touched. */
+    if (!s.systemIssues) { s.systemIssues = []; filled = true; }
     /* One-time stamp migration: user posts saved with ISO-UTC createdAt
        predate the naive ET-wall format. Convert in place so string ordering
        matches seed posts; the instant is preserved. */
@@ -1067,6 +1071,7 @@ var PodiumStore = (function () {
     publishPost: publishPost,
     sha256: sha256Hex,
     hashPost: hashPost,
+    etStamp: etStamp,
     auditAppend: auditAppend,
     setNoAction: setNoAction,
     openAppeal: openAppeal,

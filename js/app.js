@@ -413,6 +413,19 @@
     "wonder.draft": "Draft answer with Wonder",
     "wonder.visibility": "Drafts are public: the public sees the drafts and the vote, not only approved answers. Drafts are never edited: the committee votes on each draft as written and approves as the committee, with no individual member named.",
     "wonder.simulated": "In this demonstration, approval is simulated: it changes only what is displayed. In the real product, the committee reviews and approves drafts the same way.",
+    "help.title": "Committee help",
+    "help.placeholder": "Describe what is broken or what you need help with.",
+    "help.category.label": "What kind of problem is this?",
+    "help.cat.broken": "Something doesn't load or work",
+    "help.cat.data": "Wrong information shown",
+    "help.cat.howto": "I don't know how to do something",
+    "help.cat.other": "Something else",
+    "help.submit": "Ask Wonder for help",
+    "help.response.label": "Wonder's help",
+    "help.tracked": "Recorded as a system issue \u2014 the committee can track it on Status Updates.",
+    "help.answered": "Answered here \u2014 no further action needed.",
+    "help.issues": "System issues",
+    "help.unavailable": "Muse Wonder is unavailable (no session key, or the call failed) \u2014 no help answer was recorded.",
     "wonder.pending": "AI-drafted by Muse Wonder \u2014 pending committee review",
     "wonder.approve": "Approve draft",
     "wonder.decline": "Decline draft",
@@ -486,6 +499,7 @@
     "audit.ev.signout": "Sign-out",
     "audit.ev.signup": "Mock sign-up",
     "audit.ev.liaisonAdvice": "Liaison advice",
+    "audit.ev.help": "Help request",
     "noaction.label": "We can't do this.",
     "noaction.authority": "Cited authority",
     "noaction.change": "What would need to change",
@@ -725,7 +739,7 @@
         state.currentUserId = c.id;
         PodiumStore.save(state);
         audit("signin", c.name, "");
-        renderCitizen(); renderFeed(); updateOnePostNotice();
+        renderCitizen(); renderFeed(); renderCommittee(); updateOnePostNotice();
         closeModal($("citizenModal"));
       });
       li.appendChild(b);
@@ -788,7 +802,7 @@
     state.currentUserId = p.id;
     PodiumStore.save(state);
     audit("signin", p.name, "");
-    renderCitizen(); renderFeed(); updateOnePostNotice();
+    renderCitizen(); renderFeed(); renderCommittee(); updateOnePostNotice();
     closeModal($("citizenModal"));
   }
   function renderMockBox() {
@@ -915,7 +929,7 @@
       state.currentUserId = null;
       PodiumStore.save(state);
       audit("signout", (soUser && soUser.name) ? soUser.name : "", "");
-      renderCitizen(); renderFeed(); updateOnePostNotice();
+      renderCitizen(); renderFeed(); renderCommittee(); updateOnePostNotice();
       closeModal($("citizenModal"));
     });
   }
@@ -3541,6 +3555,7 @@
     threadSelect($("statusSelect"), renderStatusCard);
     renderStatusCard();
     renderAudit();
+    renderSystemIssues();
   }
   /* Audit-log section (TY, Nov 3): newest entries first, each with its
      timestamp, event, ref, and short hash, plus the chain-integrity line.
@@ -3725,6 +3740,106 @@
         "</dl></li>";
     });
     list.innerHTML = html;
+    renderCommitteeHelp();
+  }
+
+  /* Committee help box (TY, Nov 4): Wonder-powered operational help for
+     serving committee members only. No serving-member gate existed in the
+     app (the draft-zone vote is public by design); the gate here is the
+     existing roster flag — the signed-in citizen carries committeeMember.
+     Hidden from everyone else: no label, no public trace. Display +
+     Wonder-call + logging only: no draft, no vote, no citation, no agency
+     request, no post touched. */
+  var HELP_CATS = ["broken", "data", "howto", "other"];
+  var helpLast = null; /* last completed exchange, kept so re-renders (language switch, tab show) keep the answer */
+  function isServingMember() {
+    var me = currentUser();
+    return !!(me && me.committeeMember);
+  }
+  function renderCommitteeHelp() {
+    var view = $("view-committee");
+    if (!view) return;
+    var old = $("committeeHelpBox");
+    if (old) old.remove();
+    if (!isServingMember()) return;
+    var box = document.createElement("div");
+    box.id = "committeeHelpBox";
+    box.className = "card zone zone-answer";
+    box.innerHTML = "<h3>" + esc(T("help.title")) + "</h3>" +
+      '<div class="field"><label>' + esc(T("help.category.label")) + "</label>" +
+      '<select data-help="cat">' + HELP_CATS.map(function (c) {
+        return '<option value="' + c + '">' + esc(T("help.cat." + c)) + "</option>";
+      }).join("") + "</select></div>" +
+      '<div class="field"><textarea data-help="text" rows="3" aria-label="' + esc(T("help.placeholder")) + '" placeholder="' + esc(T("help.placeholder")) + '"></textarea></div>' +
+      '<div class="btn-row"><button type="button" class="btn btn-small" data-help-submit>' + esc(T("help.submit")) + "</button></div>";
+    var sel = box.querySelector('[data-help="cat"]');
+    var ta = box.querySelector('[data-help="text"]');
+    var btn = box.querySelector("[data-help-submit]");
+    btn.addEventListener("click", function () {
+      var cat = sel ? sel.value : "";
+      var text = ta ? ta.value.trim() : "";
+      if (HELP_CATS.indexOf(cat) < 0 || !text) { trackerMsg(box, "form.required"); return; }
+      trackerMsg(box, null);
+      btn.disabled = true;
+      /* Same transport, footer key, timeout and retry as drafts (fix 17) —
+         never a second client. helpAnswer returns null on no-key/failure. */
+      PodiumAI.helpAnswer(text).then(function (answer) {
+        btn.disabled = false;
+        if (!answer) { trackerMsg(box, "help.unavailable"); return; }
+        var tracked = (cat !== "howto");
+        /* Tracked categories are ALSO listed as a system issue; how-to is
+           answered in the box only (the audit entry preserves the record). */
+        if (tracked) {
+          if (!state.systemIssues) state.systemIssues = [];
+          state.systemIssues.push({ t: PodiumStore.etStamp(etNow()), cat: cat, text: text, answer: answer, tracked: tracked });
+        }
+        /* Every request + response is audit-logged; the log save persists
+           the issue too. A failed call logs nothing — there is no response. */
+        audit("help", "", JSON.stringify({ cat: cat, text: text, answer: answer }));
+        try { PodiumStore.save(state); } catch (e) { /* session-only fallback */ }
+        helpLast = { answer: answer, tracked: tracked };
+        ta.value = "";
+        renderCommitteeHelp();
+      });
+    });
+    view.appendChild(box);
+    renderHelpResult(box);
+  }
+  function renderHelpResult(box) {
+    var prior = box.querySelector("[data-help-result]");
+    if (prior) prior.remove();
+    if (!helpLast) return;
+    var r = document.createElement("div");
+    r.setAttribute("data-help-result", "1");
+    /* Member text and Wonder text alike are escaped (security audit). */
+    r.innerHTML = '<p><span class="zone-label">' + esc(T("help.response.label")) + "</span></p>" +
+      "<p>" + esc(helpLast.answer) + "</p>" +
+      '<p class="hint">' + esc(T(helpLast.tracked ? "help.tracked" : "help.answered")) + "</p>";
+    box.appendChild(r);
+  }
+  /* Committee system issues (TY, Nov 4): tracked help-box reports (bug /
+     wrong-data / other — never how-to) listed on Status Updates so the
+     committee can track follow-through the same way it tracks agency
+     follow-through. Display-only; the record lives in state.systemIssues
+     beside the audit log. No member name is shown (committee-only
+     attribution: only "the committee", never an individual). */
+  function renderSystemIssues() {
+    var head = $("auditHeading");
+    if (!head || !head.parentNode) return;
+    var old = $("systemIssuesBlock");
+    if (old) old.remove();
+    var issues = (state.systemIssues || []).filter(function (x) { return x && x.tracked; });
+    if (!issues.length) return;
+    var block = document.createElement("div");
+    block.id = "systemIssuesBlock";
+    var h = "<h3>" + esc(T("help.issues")) + "</h3>" + '<ul class="updates">';
+    issues.slice().reverse().forEach(function (x) {
+      h += "<li><p><span class=\"zone-label\">" + esc(T("help.cat." + x.cat)) + "</span> &middot; <strong>" + esc(x.t || "") + "</strong></p>" +
+        "<p>" + esc(x.text || "") + "</p>" +
+        '<p class="hint">' + esc(T("help.response.label")) + ": " + esc(x.answer || "") + "</p></li>";
+    });
+    block.innerHTML = h + "</ul>";
+    head.parentNode.insertBefore(block, head);
   }
 
   /* ---------- share + deep links ---------- */

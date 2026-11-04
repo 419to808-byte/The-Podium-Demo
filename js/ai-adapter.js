@@ -936,6 +936,17 @@ var PodiumAI = (function () {
       return d ? d.text : null;
     });
   }
+  /* Committee help (TY, Nov 4): operational help for serving committee
+     members only. Reuses wonderChat (same transport, footer key, timeout
+     and retry) — never a second client. Returns the raw help text, or null
+     when Wonder is unavailable. No draft, no envelope, no stored draft,
+     no post touched. */
+  var HELP_SYSTEM = "You are helping a committee member with the Podium system. Answer their question about how the system works, or explain what to do about the problem they describe. Keep the answer short and practical. You do not draft committee answers, you do not touch citizen posts, and you do not speak for the government.";
+  function helpAnswer(question) {
+    var q = String(question == null ? "" : question).trim();
+    if (!q) return Promise.resolve(null);
+    return wonderChat(HELP_SYSTEM, q, undefined, "help");
+  }
   /* Draft envelope (TY, Nov 3): a draft arrives complete — the answer text
      plus its citations, so the committee votes on it as written and never
      attaches citations itself. The model ends every draft with either a
@@ -1058,6 +1069,7 @@ var PodiumAI = (function () {
     wonderRetryingFor: wonderRetryingFor,
     draftCommitteeAnswer: draftCommitteeAnswer,
     draftCommitteeEnvelope: draftCommitteeEnvelope,
+    helpAnswer: helpAnswer,
     generateDemoPost: generateDemoPost,
     translatePost: translatePost,
     WONDER_MODEL: WONDER_TRANSPORT.model,
