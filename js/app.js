@@ -2890,6 +2890,8 @@
     });
     row.appendChild(record);
     li.appendChild(row);
+    /* TEMP fix 19: This Week draft buttons — remove with fix 20 after seed replacement */
+    li.appendChild(buildWonderZone(p));
     return li;
   }
   function briefingWednesday(cycle) {
