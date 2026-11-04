@@ -578,6 +578,7 @@
     "watch.library.aired": "aired",
     "watch.play.video": "Play video",
     "watch.play.screening": "Play this briefing",
+    "video.disclaimer": "These videos are AI-generated demonstrations, produced solely to illustrate the format of a weekly Podium briefing. The Podium will never use AI-generated video; all briefings will feature real people.",
     "watch.processing": "Replay processing, available soon",
     "watch.processing.full": "Replay processing, available soon \u2014 {cycle} aired {date}.",
     "watch.stop": "Stop replay",
@@ -4791,6 +4792,7 @@
     setText("watchLibraryHeading", T("watch.library"));
     setText("backToBriefingBtn", T("watch.back"));
     setText("watchSimNote", T("watch.simnote"));
+    setText("videoDisclaimerWatch", T("video.disclaimer"));
     setAttr("view-prior", "aria-label", T("prior.aria"));
     setText("priorHeading", T("tab.prior"));
     setText("priorLede", T("prior.lede"));
@@ -4799,6 +4801,7 @@
     setText("statusHeading", T("tab.status"));
     setText("statusLede", T("status.lede"));
     setText("statusSelectedLabel", T("thread.selected"));
+    setText("videoDisclaimerStatus", T("video.disclaimer"));
     setText("footerAbout", T("footer.about"));
     setText("footerAboutText", T("brand.sub"));
     setText("footerProcess", T("footer.process"));

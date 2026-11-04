@@ -510,6 +510,7 @@ var PodiumStrings = (function () {
     "watch.library.aired": { en: "aired", es: "emitida" },
     "watch.play.video": { en: "Play video", es: "Reproducir video" },
     "watch.play.screening": { en: "Play this briefing", es: "Reproducir esta sesi\u00f3n informativa" },
+    "video.disclaimer": { en: "These videos are AI-generated demonstrations, produced solely to illustrate the format of a weekly Podium briefing. The Podium will never use AI-generated video; all briefings will feature real people.", es: "Estos videos son demostraciones generadas por inteligencia artificial, producidas \u00fanicamente para ilustrar el formato de una sesi\u00f3n informativa semanal de The Podium. The Podium nunca utilizar\u00e1 video generado por inteligencia artificial; todas las sesiones contar\u00e1n con personas reales." },
     "watch.processing": { en: "Replay processing, available soon", es: "Repetici\u00f3n en proceso, disponible pronto" },
     "watch.processing.full": { en: "Replay processing, available soon \u2014 {cycle} aired {date}.", es: "Repetici\u00f3n en proceso, disponible pronto \u2014 {cycle} emitida el {date}." },
     "watch.stop": { en: "Stop replay", es: "Detener repetici\u00f3n" },
