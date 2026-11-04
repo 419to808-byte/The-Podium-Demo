@@ -137,7 +137,7 @@
       var h = document.querySelector("#watchMain h3").textContent;
       var t = watchMainText();
       ok("R16 Oct 28 12:59 Upcoming shows Oct 28 cycle",
-        /Oct 28/.test(h) && /On the air bill/.test(t) &&
+        /Oct 28/.test(h) && /On the agenda/.test(t) &&
         t.indexOf("B-0014") !== -1 && t.indexOf("A-0015") !== -1);
     });
     tcase("R17 Oct 28 13:15 Live shows Oct 28 cycle, single item", "2026-10-28T13:15:00-04:00", function () {

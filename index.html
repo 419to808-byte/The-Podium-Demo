@@ -46,8 +46,8 @@
   <section class="rule-card" id="ruleCard" aria-labelledby="ruleHeading">
     <h2 id="ruleHeading">The Verbatim Rule</h2>
     <p id="ruleP1">By the rules of this portal, the highest-voted post <strong>MUST</strong> be read aloud &mdash; word for word, exactly as its author wrote it &mdash; and discussed, by a representative of the United States, in front of the entire country. Another post, drawn at random, must be read and discussed the same way.</p>
-    <p id="ruleP2">AI will be used to detect profanity and errors, correct grammar, and suggest clearer formatting. It will never steer you: your topic, your position, or your meaning. And once your post is published, it is final.</p>
-    <p id="ruleP3">Keep in mind that your post may be read in front of the entire nation. Write in your most professional manner. Profanity, slang, and ridicule will not post. State your idea or concern plainly and professionally. You are not posting a comment. You are addressing the nation &mdash; speaking to and for every American. Treat it with the seriousness it deserves.</p>
+    <p id="ruleP2">AI will be used to detect profanity and errors and to suggest corrections to grammar and clearer formatting. It will never steer you: your topic, your position, or your meaning. And once your post is published, it is final.</p>
+    <p id="ruleP3">Keep in mind that your post may be read in front of the entire nation. Write in your most professional manner. Profanity, slurs, and personal attacks will not post. State your idea or concern plainly and professionally. You are not posting a comment. You are addressing the nation &mdash; speaking to and for every American. Treat it with the seriousness it deserves.</p>
     <p id="ruleP4">Even if the committee cannot resolve an issue, it has at least brought light to the concern. That is the fundamental purpose of this platform: to shine a light on concerns and ideas, and to seek to resolve them or implement helpful changes.</p>
     <details class="fine-print">
       <summary id="fineSummary">Fine print (official register)</summary>
@@ -62,11 +62,11 @@
         <li>Voting is upvote-only. Each citizen casts one vote per weekly cycle, switchable until voting closes Sunday at 11:59 PM ET.</li>
         <li>Each citizen may submit one post per weekly cycle.</li>
         <li>Posts are limited to 630 words.</li>
-        <li>The random draw is proof against rigging: the eligible pool is frozen in a fixed published order at the cutoff, and the position is the NIST Randomness Beacon value modulo the pool size, plus one. The draw is internal only, with no button, replay, or re-roll.</li>
+        <li>The random draw is tamper-proof: the eligible pool is frozen in a fixed published order at the cutoff, and the position is the NIST Randomness Beacon value modulo the pool size, plus one. The draw is internal only, with no button, replay, or re-roll.</li>
         <li>The committee prepares answers only. It never alters, substitutes, delays, or declines a selection. It reviews selections one week in advance and routes each answer to the correct branch and level.</li>
         <li>The committee does not fund. It asks for funds and allocates funds.</li>
         <li>Committee answers begin as AI drafts that the committee votes on as written &mdash; never edited &mdash; and approves as the committee, the answerer of record; no individual member is named. AI never delivers a final answer alone and never touches a citizen post. The drafts are public: the public sees the drafts and the vote, not only approved answers.</li>
-        <li>An exact-duplicate post in the same cycle does not create a new post; the citizen is offered an upvote on the existing post, with no option to post it anyway. The draw pool excludes the winner and any post exactly matching the winner. Similar-but-distinct posts are advisory only.</li>
+        <li>An exact-duplicate post in the same cycle does not create a new post; the citizen is offered an upvote on the existing post, with no option to post it anyway. The draw pool excludes the winner and any post exactly matching the winner. Posts that are similar but not identical receive only an advisory note.</li>
         <li>The Live Feed shows the current cycle only. Posts from past cycles that were never selected are deleted; selected posts are kept as the briefing record.</li>
         <li>Posting and voting run from Monday 12:00 AM to Sunday 11:59 PM ET. The pool freezes at the Sunday cutoff, the draw is Monday at 12:00 PM ET, the committee has the week plus a Monday&ndash;Tuesday buffer, and the briefing airs Wednesdays at 1:00 PM ET as the fixed opening segment.</li>
         <li>This Week shows only the most recently aired briefing. Next Week shows the next briefing's selections. A briefing's replay is published when that briefing airs. Prior Posts &amp; Answers and Status Updates list aired selections only.</li>
@@ -158,8 +158,8 @@
   <!-- ============ BRIEFING ============ -->
   <section id="view-briefing" class="view" hidden aria-label="Weekly briefing">
     <h2 id="briefingTitle">This week&rsquo;s briefing</h2>
-    <p class="lede" id="briefingLede1">Two posts take the majority of the segment: the highest-voted post and one post drawn at random. Both are read aloud verbatim and answered. Follow-ups on earlier posts get only a brief live mention; the full record lives under Prior Posts &amp; Answers and Status Updates.</p>
-    <p class="lede" id="briefingLede2">The locked weekly schedule (all times ET): posting and voting week Monday 00:00 &#8594; Sunday 23:59; cutoff Sunday 23:59, when the eligible pool is frozen and published; draw Monday 12:00, pre-announced; committee week Monday &#8594; Sunday to evaluate both selected posts and formulate both answers — answers ONLY, it can never alter, substitute, delay, or decline a selection; briefing Wednesday 1:00 PM. The Podium segment is the fixed opening segment of the Wednesday briefing: if no regular briefing is scheduled that Wednesday, the segment still runs standalone at the same time, same room, same cameras.</p>
+    <p class="lede" id="briefingLede1">Two posts take up most of the segment: the highest-voted post and one post drawn at random. Both are read aloud verbatim and answered. Follow-ups on earlier posts get only a brief live mention; the full record lives under Prior Posts &amp; Answers and Status Updates.</p>
+    <p class="lede" id="briefingLede2">The weekly schedule (all times ET): posting and voting week Monday 00:00 &#8594; Sunday 23:59; cutoff Sunday 23:59, when the eligible pool is frozen and published; draw Monday 12:00, pre-announced; committee week Monday &#8594; Sunday to evaluate both selected posts and formulate both answers — answers ONLY, it can never alter, substitute, delay, or decline a selection; briefing Wednesday 1:00 PM. The Podium segment is the fixed opening segment of the Wednesday briefing: if no regular briefing is scheduled that Wednesday, the segment still runs on its own at the same time.</p>
     <p><button type="button" class="btn btn-small" id="gotoWatchBtn">Watch Live &#8594;</button> <span class="hint" id="gotoWatchHint">Attend the airing of this briefing.</span></p>
 
     <ol class="pipeline" id="pipelineList"></ol>
@@ -173,11 +173,11 @@
 
     <section class="card" aria-labelledby="drawHeading">
       <h3 id="drawHeading">The random draw &mdash; verifiably fair</h3>
-      <p id="drawLede">The eligible pool is frozen and published <em>first</em> (all gate-passed posts since the last draw, minus the top-voted winner). The system runs the draw at the pre-announced time: <code>position = beacon value modulo the pool size + 1</code>. Random selection is conducted using the NIST Randomness Beacon.</p>
+      <p id="drawLede">The eligible pool is frozen and published <em>first</em> (all posts that passed the wording check since the last draw, minus the top-voted winner). The system runs the draw at the pre-announced time: <code>position = beacon value modulo the pool size + 1</code>. Random selection is conducted using the NIST Randomness Beacon.</p>
       <dl class="draw-facts" id="drawFacts"></dl>
       <h4 id="excludedHeading">Excluded from the pool</h4>
       <ul id="excludedList" class="excluded-list"></ul>
-      <p class="hint" id="drawReadonly">Read-only record: pool size, beacon timestamp and value, computed position, and the drawn post. The draw is an internal system function — nothing here re-runs it.</p>
+      <p class="hint" id="drawReadonly">Record of the draw: pool size, beacon timestamp and value, computed position, and the drawn post. The draw runs once, internally — nothing here re-runs it.</p>
       <h4 id="workedHeading">Worked example</h4>
       <p class="worked" id="workedBody">Pool of 12, beacon value ending &hellip;4839 &rarr; 4839 mod 12 = 3 &rarr; +1 = <strong>post #4</strong>.</p>
       <p class="hint" id="committeeRule">Committee rule: the committee prepares answers ONLY. It can never alter, substitute, delay, or decline a selected post. It has one week to formulate an answer and route the topic to the right branch or level of government.</p>
@@ -190,7 +190,7 @@
     <h2 id="watchHeading">Watch Live</h2>
     <p class="lede" id="watchLede">Attend the weekly briefing broadcast. The Weekly Briefing tab holds the record of what was and will be discussed; this tab is the airing itself.</p>
     <div class="demo-bar" id="watchDemoBar">
-      <span class="hint" id="demoBarHint"><strong>Demo only:</strong> preview states on demand. The real product follows the clock.</span>
+      <span class="hint" id="demoBarHint"><strong>Demo only:</strong> broadcast states (Upcoming, Live, Replay) can be previewed on demand. The real product follows the clock.</span>
       <div class="btn-row" role="group" aria-label="Preview broadcast state" id="demoBarGroup">
         <button type="button" class="btn btn-small" data-watch-state="auto" aria-pressed="true">Auto (clock)</button>
         <button type="button" class="btn btn-small" data-watch-state="upcoming" aria-pressed="false">Upcoming</button>
@@ -210,7 +210,7 @@
   <!-- ============ COMMITTEE ============ -->
   <section id="view-committee" class="view" hidden aria-label="Citizen committee roster">
     <h2 id="committeeHeading">Committee</h2>
-    <p class="lede" id="committeeLede">The committee is 12 ordinary verified citizens, chosen by random draw, serving 12-week terms, with one new citizen joining every week. The committee works for the citizen whose post was selected &mdash; it reviews and approves the answers, and follows through until the issue is resolved. It does not fund; it asks for and allocates funds.</p>
+    <p class="lede" id="committeeLede">The committee is 12 ordinary verified citizens, chosen by random draw, serving 12-week terms, with one new citizen joining every week. The committee works for the citizen whose post was selected &mdash; it reviews and approves the answers, and tracks each one until it is resolved or formally closed with no action. It does not fund; it asks for and allocates funds.</p>
     <details class="fine-print" id="committeeRules">
       <summary id="committeeRulesSummary">Committee rules &mdash; selection, pay, structure &amp; schedule</summary>
       <h3 class="statements-heading" id="committeeRulesSelectionH">How members are selected</h3>
@@ -218,9 +218,9 @@
       <h3 class="statements-heading" id="committeeRulesPayH">Pay</h3>
       <p id="committeeRulesPayB">Members are paid $150 per day, for Friday and Saturday ($300 a week). The solo thinking days are not separately paid. Travel, hotel, and meals for the weekly in-person meeting are covered separately at government rates and booked directly &mdash; members never pay out of pocket &mdash; plus childcare support for in-person days. The pay is $150 flat, no top-up. The plan isn't for committee members to get rich off this &mdash; it's more of a public service.</p>
       <h3 class="statements-heading" id="committeeRulesStructureH">Structure</h3>
-      <p id="committeeRulesStructureB">Twelve members, each holding an equal share of the decision-making power. Government agency liaisons advise only and do not vote. Each week the committee receives the selected posts and the AI-drafted answers and votes on whether to follow the AI suggestions. A split vote means no action on that post this week and the post reverts to shine light &mdash; it is still read aloud and tracked, never buried. The narrator and the committee spokesperson are permanent salaried roles who present only: the narrator reads posts word-for-word and the spokesperson presents the committee's approved answers. Neither has any authority over posts or answers. If either quits or is fired, the committee hires a replacement &mdash; hired by the committee, fired by the committee by vote, against public criteria.</p>
+      <p id="committeeRulesStructureB">Twelve members, each holding an equal share of the decision-making power. Government agency liaisons advise only and do not vote. Each week the committee receives the selected posts and the AI-drafted answers and votes on whether to follow the AI suggestions. A split vote means no action on that post this week and the post reverts to shine light &mdash; it is still read aloud and tracked, never buried. The narrator and the committee spokesperson are permanent salaried roles who present only: the narrator reads posts word-for-word and the spokesperson presents the committee's approved answers. Neither has any authority over posts or answers. If either quits or is fired, the committee hires a replacement. Hiring and dismissal are by committee vote, against public criteria.</p>
       <h3 class="statements-heading" id="committeeRulesScheduleH">Weekly schedule</h3>
-      <p id="committeeRulesScheduleB">Members receive the selected posts as soon as they are selected and have 3 days on their own to think about them. They all meet in person on Friday to deliberate and vote, and on Saturday to send the agency requests and set tracking in motion. The agency's response arrives Wednesday morning by video call, and the narrator and the committee spokesperson make the script and record live at 1:00 PM ET. The Podium funds a round-trip ticket and a hotel for every member every week.</p>
+      <p id="committeeRulesScheduleB">Members receive the selected posts as soon as they are selected and have 3 days on their own to think about them. They all meet in person on Friday to deliberate and vote, and on Saturday to send the agency requests and set tracking in motion. The agency's response arrives Wednesday morning by video call, and the narrator and the committee spokesperson make the script and record live at 1:00 PM ET. Travel and lodging for every member every week are covered at government rates and booked directly.</p>
     </details>
     <ul id="committeeList" class="post-list"></ul>
     <p class="hint" id="committeeNote">One citizen cycles out and one new citizen joins every week, so the committee is always 12 people with a mix of experience.</p>
@@ -229,7 +229,7 @@
   <!-- ============ PRIOR POSTS & ANSWERS ============ -->
   <section id="view-prior" class="view" hidden aria-label="Prior posts and answers archive">
     <h2 id="priorHeading">Prior Posts &amp; Answers</h2>
-    <p class="lede" id="priorLede">The archive of past briefing selections: each item shows the original post, verbatim, plus the committee&rsquo;s answer. Check anytime &mdash; this is not part of the live show.</p>
+    <p class="lede" id="priorLede">The archive of past briefing selections: each item shows the original post, verbatim, plus the committee&rsquo;s answer. Check anytime &mdash; this is the permanent record, not the live broadcast.</p>
     <label class="filter-label"><span id="priorSelectedLabel">Selected post</span>
       <select id="priorSelect"></select>
     </label>
@@ -239,7 +239,7 @@
   <!-- ============ STATUS UPDATES ============ -->
   <section id="view-status" class="view" hidden aria-label="Status updates follow-through record">
     <h2 id="statusHeading">Status Updates</h2>
-    <p class="lede" id="statusLede">The follow-through record: each item shows the dated progress updates plus the current status. Check anytime &mdash; this is not part of the live show.</p>
+    <p class="lede" id="statusLede">The follow-through record: each item shows the dated progress updates plus the current status. Check anytime &mdash; this is the permanent record, not the live broadcast.</p>
     <label class="filter-label"><span id="statusSelectedLabel">Selected post</span>
       <select id="statusSelect"></select>
     </label>
@@ -258,7 +258,7 @@
     </div>
     <div class="footer-col">
       <h2 id="footerProcess">The Process</h2>
-      <p id="footerProcessChain">1. A citizen posts an idea or concern &#8212; 630 words max, gate-checked, final once published. 2. The community votes &#8212; each citizen casts one vote per weekly cycle, switchable until voting closes Sunday at 11:59 PM ET. 3. At the cutoff the pool freezes; Monday at 12:00 PM ET the NIST Randomness Beacon draw picks one post at random. 4. The committee prepares answers and routes each selection to the correct branch and level. 5. Wednesday at 1:00 PM ET the briefing airs &#8212; the highest-voted post and the drawn post are read aloud word-for-word and discussed. 6. Approved answers are published, and follow-through is tracked in Status Updates until Answered, Action Promised, In Progress, Resolved &#8212; or No Action, with an official reason.</p>
+      <p id="footerProcessChain">1. A citizen posts an idea or concern &#8212; 630 words max, gate-checked, final once published. 2. The community votes &#8212; each citizen casts one vote per weekly cycle, switchable until voting closes Sunday at 11:59 PM ET. 3. At the cutoff the pool freezes; Monday at 12:00 PM ET the NIST Randomness Beacon draw picks one post at random. 4. The committee prepares answers and routes each selection to the correct branch and level. 5. Wednesday at 1:00 PM ET the briefing airs &#8212; the highest-voted post and the drawn post are read aloud word-for-word and discussed. 6. Approved answers are published, and follow-through is tracked in Status Updates, with each item marked Answered, Action Promised, In Progress, Resolved &#8212; or No Action, with an official reason.</p>
     </div>
     <div class="footer-col">
       <h2 id="footerSecurity">Security</h2>
