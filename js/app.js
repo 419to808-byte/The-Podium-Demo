@@ -420,6 +420,9 @@
     "wonder.request": "Agency request \u2014 ready to send.",
     "wonder.copy": "Copy request",
     "wonder.notapproval": "An AI suggestion is not a government approval.",
+    "frame.suggest": "Part 1 \u2014 AI suggestion: what was suggested",
+    "frame.decide": "Part 2 \u2014 Committee decision: what was decided",
+    "frame.commit": "Part 3 \u2014 Government commitments: what has been done or will be done",
     "cite.legend": "Citations",
     "cite.commitment": "Commitment",
     "cite.source": "Source",
@@ -2869,14 +2872,18 @@
     translateSlot.setAttribute("data-post", p.id);
     li.appendChild(translateSlot);
     mountTranslateSlots(li);
+    var frameS = document.createElement("div");
+    frameS.innerHTML = frameLabelHtml("frame.suggest");
+    li.appendChild(frameS);
     li.appendChild(zoneExpander("zone-answer", T("zone.answer.excerpt"), T("zone.answer.full"),
       esc(briefExcerpt(displayAnswer(item.answer))), esc(displayAnswer(item.answer)), T("zone.answer.read")));
+    var apHtml = approverHtml(item);
     var apw = document.createElement("div");
-    apw.innerHTML = approverHtml(item);
+    apw.innerHTML = apHtml ? frameLabelHtml("frame.decide") + apHtml : "";
     wireApproverLinks(apw);
     while (apw.firstChild) li.appendChild(apw.firstChild);
     var citeDiv = document.createElement("div");
-    citeDiv.innerHTML = citationsHtml(item, p) + standingLabelHtml();
+    citeDiv.innerHTML = (citationsFor(item, p).length ? frameLabelHtml("frame.commit") : "") + citationsHtml(item, p) + standingLabelHtml();
     while (citeDiv.firstChild) li.appendChild(citeDiv.firstChild);
     var seedReqB = seedAgencyBlock(item);
     if (seedReqB) li.appendChild(seedReqB);
@@ -3105,7 +3112,7 @@
     } else if (wonderApproved[p.id] && draftEnvelope()) {
       var done = document.createElement("div");
       done.innerHTML = '<p><span class="status-pill">' + esc(T("wonder.approved")) + "</span></p>" +
-        "<p>" + esc(draftEnvelope().text) + "</p>" + committeeLineHtml() + citationsHtml(null, p) + standingLabelHtml();
+        frameLabelHtml("frame.suggest") + "<p>" + esc(draftEnvelope().text) + "</p>" + frameLabelHtml("frame.decide") + committeeLineHtml() + (citationsFor(null, p).length ? frameLabelHtml("frame.commit") : "") + citationsHtml(null, p) + standingLabelHtml();
       var reqDone = agencyRequestBlock(draftEnvelope());
       if (reqDone) done.appendChild(reqDone);
       wonderBox.appendChild(done);
@@ -3486,7 +3493,7 @@
       translateSlotHtml(p) +
       '<div class="zone zone-answer"><span class="zone-label">' + esc(T("thread.answer")) + "</span>" +
       '<p><span class="ref-code">' + esc(answerCode(p)) + "</span></p>" +
-      "<p>" + esc(displayAnswer(b.answer)) + "</p>" + approverHtml(b) + citationsHtml(b, p) + standingLabelHtml() + "</div>";
+      frameLabelHtml("frame.suggest") + "<p>" + esc(displayAnswer(b.answer)) + "</p>" + (approverHtml(b) ? frameLabelHtml("frame.decide") + approverHtml(b) : "") + (citationsFor(b, p).length ? frameLabelHtml("frame.commit") : "") + citationsHtml(b, p) + standingLabelHtml() + "</div>";
     var last = b.updates[b.updates.length - 1];
     if (last) {
       html += '<div class="zone zone-answer"><span class="zone-label">' + esc(T("prior.updatelatest")) + "</span>" +
@@ -3550,7 +3557,7 @@
     var html = "<h3>" + selectionTitle(b) + "</h3>" +
       '<p><span class="ref-code">' + esc(p.ref || "") + "</span> " + esc(author.name) + stateSuffix(p) + langSuffix(p) + " \u00b7 " + esc(T("prior.status")) + ' <span class="status-pill">' + esc(Tstatus(b.trackerStatus)) + "</span>" +
       (b.trackerStatus === "No Action" && b.officialReason ? " \u2014 " + esc(b.officialReason) : "") + "</p>" + sealHtml(p) +
-      approverHtml(b) + citationsHtml(b, p) + standingLabelHtml() +
+      frameLabelHtml("frame.suggest") + "<p>" + esc(displayAnswer(b.answer)) + "</p>" + (approverHtml(b) ? frameLabelHtml("frame.decide") + approverHtml(b) : "") + (citationsFor(b, p).length ? frameLabelHtml("frame.commit") : "") + citationsHtml(b, p) + standingLabelHtml() +
       "<h4>" + esc(T("status.dated")) + "</h4>" + '<ul class="updates">' +
       b.updates.map(function (u, i) { return "<li><span class=\"ref-code\">" + esc(updateCode(p, i)) + "</span> <strong>" + esc(u.date) + ":</strong> " + esc(u.text) + responsesHtml(b, p, "update", i) + "</li>"; }).join("") +
       "</ul>" + trackerHtml(b, p);
@@ -3624,6 +3631,12 @@
   }
   function standingLabelHtml() {
     return '<p class="hint">' + esc(T("wonder.notapproval")) + '</p>';
+  }
+  /* Three-part answer framing (TY, Nov 3): every answer display labels
+     part 1 (AI suggestion), part 2 (committee decision), part 3 (cited
+     government commitments). Display-only; the standing label is separate. */
+  function frameLabelHtml(key) {
+    return '<p><span class="zone-label">' + esc(T(key)) + "</span></p>";
   }
   function approverHtml(b) {
     var m = approverFor(b && b.postId);
