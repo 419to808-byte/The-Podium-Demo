@@ -418,6 +418,8 @@
     "next.selectedfor": "\u2014 {name} \u00b7 selected for next week\u2019s briefing",
     "next.answercoming": "Approved answers are published as soon as the committee approves them.",
     "wonder.draft": "Draft answer with Wonder",
+    "test.draft.heading": "Test: Draft with Wonder \u2014 Jeff B-0014",
+    "test.draft.lede": "Demo test control. Drafts a fresh answer for Jeff B-0014 (Week 2, briefed Oct 28) alongside the original record, for comparison only. The original answer is unchanged.",
     "wonder.visibility": "Drafts are public: the public sees the drafts and the vote, not only approved answers. Drafts are never edited: the committee votes on each draft as written and approves as the committee, with no individual member named.",
     "wonder.simulated": "In this demonstration, approval is simulated: it changes only what is displayed. In the real product, the committee reviews and approves drafts the same way.",
     "help.title": "Committee help",
@@ -3289,6 +3291,26 @@
           ex.appendChild(li);
         });
     }
+
+    /* TEST control (demo-only, option B): a visible Draft-with-Wonder button
+       for Jeff B-0014, alongside the seeded record, for comparison only.
+       Jeff is briefed (Prior), never Next Week — so the zone is rendered
+       here directly via buildWonderZone, not via nextWeekItem. The seeded
+       answer is unchanged; the fresh draft never replaces it here. */
+    (function () {
+      var host = $("testDraftZone");
+      if (!host) return;
+      host.innerHTML = "";
+      var jp = PodiumStore.postById(state, "p-w2-01");
+      if (!jp) return;
+      var jauthor = PodiumStore.citizenById(state, jp.authorId);
+      var meta = document.createElement("p");
+      meta.innerHTML = '<span class="ref-code">' + esc(jp.ref || "") + "</span> <strong>" +
+        esc(jauthor ? jauthor.name : "") + "</strong>" + stateSuffix(jp) + " \u00b7 " + esc(Ttopic(jp.topic));
+      host.appendChild(meta);
+      host.appendChild(fullRecordButton(jp.id, Tf("feed.fullrecord.ref", { ref: jp.ref || "" })));
+      host.appendChild(buildWonderZone(jp));
+    })();
   }
 
   /* ---------- prior posts & answers / status updates ---------- */
@@ -4773,6 +4795,8 @@
     setHtml("briefingLede2", T("briefing.lede2"));
     setText("gotoWatchBtn", T("briefing.watch"));
     setText("gotoWatchHint", T("briefing.watch.hint"));
+    setText("testDraftHeading", T("test.draft.heading"));
+    setText("testDraftLede", T("test.draft.lede"));
     setText("nextHeading", T("briefing.next"));
     setText("nextHint", T("briefing.next.hint"));
     setText("drawHeading", T("briefing.draw"));
