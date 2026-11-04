@@ -120,6 +120,13 @@
     "committee.draw.pool": "Pool size",
     "committee.draw.pos": "Draw position",
     "committee.note": "One citizen cycles out and one new citizen joins every week, so the committee is always 12 people with a mix of experience.",
+    "authority.term.title": "Your committee term",
+    "authority.term.week": "Term week {week} of 12",
+    "authority.term.exit": "Exit week {week}",
+    "authority.term.pay": "Pay: $300 per week ($3,600 for a full 12-week term)",
+    "authority.roster.term": "Term week",
+    "authority.roster.exit": "Exit week",
+    "authority.character.label": "(committee member)",
     "committee.rules.summary": "Committee rules \u2014 selection, pay, structure & schedule",
     "committee.rules.selection.heading": "How members are selected",
     "committee.rules.selection.body": "Twelve ordinary verified citizens, chosen by random draw from a national pool using the NIST Randomness Beacon \u2014 the same method as the post draw, proof against rigging. Selection is a summons, not a draft: if your name comes up, you agree to serve or decline and the next citizen is drawn. To serve you must be a verified citizen, 18 or older, with no post in the current cycle, not a government employee, and not currently incarcerated or on parole or probation \u2014 a past felony does not exclude you; eligibility returns 5 years after the sentence is fully complete. Terms are 12 weeks, one new citizen joins every week, and after cycling out you sit out 12 weeks. No more than 2 terms per year. No committee member can submit a post while serving on the committee, for the whole 12-week term.",
@@ -500,6 +507,8 @@
     "audit.ev.signup": "Mock sign-up",
     "audit.ev.liaisonAdvice": "Liaison advice",
     "audit.ev.help": "Help request",
+    "audit.ev.authorityGranted": "Authority granted",
+    "audit.ev.authorityRevoked": "Authority revoked",
     "noaction.label": "We can't do this.",
     "noaction.authority": "Cited authority",
     "noaction.change": "What would need to change",
@@ -734,7 +743,7 @@
       var li = document.createElement("li");
       var b = document.createElement("button");
       b.type = "button";
-      b.textContent = c.name + (c.state ? " \u00b7 " + c.state : "") + (c.id === state.currentUserId ? T("citizen.current") : "") + "  " + T("citizen.verified");
+      b.textContent = c.name + (c.state ? " \u00b7 " + c.state : "") + (c.committeeMember ? " " + T("authority.character.label") : "") + (c.id === state.currentUserId ? T("citizen.current") : "") + "  " + T("citizen.verified");
       b.addEventListener("click", function () {
         state.currentUserId = c.id;
         PodiumStore.save(state);
@@ -3034,6 +3043,7 @@
       approveBtn.className = "btn btn-small";
       approveBtn.textContent = T("wonder.approve");
       approveBtn.addEventListener("click", function () {
+        if (!hasCommitteeAuthority()) return; /* stale box: authority lost after render */
         if (!draftGate(draftEnvelope())) { trackerMsg(box, "wonder.nocites"); return; }
         wonderApproved[p.id] = true;
         audit("approve", p.ref + "-A", "");
@@ -3047,6 +3057,7 @@
       declineBtn.className = "btn btn-small";
       declineBtn.textContent = T("wonder.decline");
       declineBtn.addEventListener("click", function () {
+        if (!hasCommitteeAuthority()) return; /* stale box: authority lost after render */
         wonderDeclined[p.id] = true;
         audit("decline", p.ref + "-A", "");
         renderBriefing();
@@ -3099,9 +3110,14 @@
       }
       box.appendChild(adviceSection);
       renderAdvice();
-      box.appendChild(approveBtn);
-      box.appendChild(document.createTextNode(" "));
-      box.appendChild(declineBtn);
+      /* Vote controls render ONLY for the authority holder; for everyone else
+         they are absent from the DOM (same pattern as the help box). The
+         draft text, citations, and agency request above stay public. */
+      if (hasCommitteeAuthority()) {
+        box.appendChild(approveBtn);
+        box.appendChild(document.createTextNode(" "));
+        box.appendChild(declineBtn);
+      }
       wonderBox.appendChild(box);
     }
     draftBtn.addEventListener("click", function () {
@@ -3721,6 +3737,13 @@
       .sort(function (a, b) { return (a.termWeek || 99) - (b.termWeek || 99); });
     var html = "";
     members.forEach(function (c) {
+      /* Civilian view: roster by name + state only, exactly as the public
+         site shows it. Committee view adds term week + exit week below. */
+      if (!hasCommitteeAuthority()) {
+        html += '<li class="card"><p class="post-meta"><span class="post-author">' + esc(c.name) + "</span>" +
+          (c.state ? "<span>" + esc(c.state) + "</span>" : "") + "</p></li>";
+        return;
+      }
       var dr = c.selectionDraw || {};
       var val = String(dr.beaconValue || "");
       var short = val.length > 12 ? val.slice(0, 12) + "\u2026" : val;
@@ -3731,6 +3754,8 @@
         (c.state ? "<span>" + esc(c.state) + "</span>" : "") +
         ' <span class="post-topic">' + esc(Tf("committee.week", { n: c.termWeek })) + "</span>" + badge + "</p>" +
         "<p class=\"hint\">" + esc(Tf("committee.terms", { start: c.termStart || "", out: committeeCycleOut(c.termStart) })) + "</p>" +
+        '<p><span class="zone-label">' + esc(T("authority.roster.term")) + "</span> " + esc(String(c.termWeek)) + " \u00b7 " +
+        '<span class="zone-label">' + esc(T("authority.roster.exit")) + "</span> " + esc(String(authorityExitWeek(c))) + "</p>" +
         '<p><span class="zone-label">' + esc(T("committee.draw")) + "</span></p>" +
         '<dl class="draw-facts">' +
         "<dt>" + esc(T("committee.draw.beacon")) + "</dt><dd>" + esc(dr.beaconTimestamp || "") + "</dd>" +
@@ -3740,6 +3765,7 @@
         "</dl></li>";
     });
     list.innerHTML = html;
+    renderAuthorityTermCard();
     renderCommitteeHelp();
   }
 
@@ -3756,12 +3782,48 @@
     var me = currentUser();
     return !!(me && me.committeeMember);
   }
+  /* Committee authority (TY, Nov 4, option A): roster-derived, no grant or
+     strip step in the demo — a serving member carries the authority because
+     the seeded flag says so, for term weeks 1-12. One check, used by the
+     vote, the help box, the term card, and the roster. */
+  function hasCommitteeAuthority() {
+    var me = currentUser();
+    return !!(me && me.committeeMember && me.termWeek >= 1 && me.termWeek <= 12);
+  }
+  /* Exit-week number: the member exits in the Nth week counting the current
+     week as week 1 (a week-12 member exits this coming Monday) — the
+     startup "exit week, 1 through 12" semantics. committeeCycleOut() gives
+     the calendar date; this gives the week number. */
+  function authorityExitWeek(me) {
+    return (me && me.termWeek >= 1 && me.termWeek <= 12) ? (13 - me.termWeek) : 0;
+  }
+  /* Member's own term card (TY, Nov 4): committee view only. Term week and
+     exit week from the roster; pay is the rate + full-term figure only, no
+     accrual math. */
+  function renderAuthorityTermCard() {
+    var view = $("view-committee");
+    if (!view) return;
+    var old = $("authorityTermCard");
+    if (old) old.remove();
+    if (!hasCommitteeAuthority()) return;
+    var me = currentUser();
+    var card = document.createElement("div");
+    card.id = "authorityTermCard";
+    card.className = "card zone zone-answer";
+    card.innerHTML = "<h3>" + esc(T("authority.term.title")) + "</h3>" +
+      "<p>" + esc(Tf("authority.term.week", { week: me.termWeek })) + "</p>" +
+      "<p>" + esc(Tf("authority.term.exit", { week: authorityExitWeek(me) })) + "</p>" +
+      '<p class="hint">' + esc(T("authority.term.pay")) + "</p>";
+    var list = $("committeeList");
+    if (list && list.parentNode) list.parentNode.insertBefore(card, list);
+    else view.appendChild(card);
+  }
   function renderCommitteeHelp() {
     var view = $("view-committee");
     if (!view) return;
     var old = $("committeeHelpBox");
     if (old) old.remove();
-    if (!isServingMember()) return;
+    if (!hasCommitteeAuthority()) return;
     var box = document.createElement("div");
     box.id = "committeeHelpBox";
     box.className = "card zone zone-answer";
@@ -3778,6 +3840,7 @@
     btn.addEventListener("click", function () {
       var cat = sel ? sel.value : "";
       var text = ta ? ta.value.trim() : "";
+      if (!hasCommitteeAuthority()) return; /* stale box: authority lost after render */
       if (HELP_CATS.indexOf(cat) < 0 || !text) { trackerMsg(box, "form.required"); return; }
       trackerMsg(box, null);
       btn.disabled = true;
