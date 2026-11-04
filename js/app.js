@@ -279,7 +279,7 @@
     "ai.stub": "AI: local fallback",
     "gate.overlimit": "Too long for the national reading: {n} of 630 words maximum. Shorten your post to fit the 4:30 read-aloud slot.",
     "gate.hard": "<strong>Cannot publish:</strong> this draft contains {spans}, which counts as profanity, a slur, or a personal attack. Such posts are never published. Remove it and keep your address professional.",
-    "gate.soft": "<strong>Held for your correction:</strong> {n} wording issue(s) would embarrass you before a national audience. Accept a suggestion or retype the word yourself \u2014 nothing changes without your action.",
+    "gate.soft": "<strong>Held for your correction:</strong> {n} wording issue(s) do not meet the formal standard for a national address. Accept a suggestion or retype the word yourself \u2014 nothing changes without your action.",
     "chip.use": "Use \u201c{sug}\u201d",
     "chip.remove": "Remove it",
     "chip.aria.replace": "Replace {w} with {s}",
@@ -403,7 +403,7 @@
     "next.selectedfor": "\u2014 {name} \u00b7 selected for next week\u2019s briefing",
     "next.answercoming": "Answer coming {date}. The committee is still formulating it.",
     "wonder.draft": "Draft answer with Wonder",
-    "wonder.visibility": "Demo only: drafts are public and shown here for evaluation. The public sees the drafts and the vote, not only approved answers. Drafts are never edited: the committee votes on each draft as written and approves as the committee, with no individual member named.",
+    "wonder.visibility": "Drafts are public: the public sees the drafts and the vote, not only approved answers. Drafts are never edited: the committee votes on each draft as written and approves as the committee, with no individual member named.",
     "wonder.simulated": "Demo only: in the real product the committee reviews and approves drafts; approval here is simulated and changes only what is displayed.",
     "wonder.pending": "AI-drafted by Muse Wonder \u2014 pending committee review",
     "wonder.approve": "Approve draft",
@@ -558,8 +558,8 @@
     "footer.process.chain": "1. A citizen posts an idea or concern \u2014 630 words max, gate-checked, final once published. 2. The community votes \u2014 one vote per citizen per weekly cycle, switchable until Sunday 11:59 PM ET. 3. At the cutoff the pool freezes; Monday at 12:00 PM ET the NIST Randomness Beacon draw picks one post at random. 4. The committee prepares answers and routes each selection to the correct branch and level. 5. Wednesday at 1:00 PM ET the briefing airs \u2014 the highest-voted post and the drawn post are read aloud word-for-word and discussed. 6. Approved answers are published, and follow-through is tracked in Status Updates until Answered, Action Promised, In Progress, Resolved \u2014 or No Action, with an official reason.",
     "footer.notices": "Notices",
     "footer.security": "Security",
-    "footer.security.note": "Demo: every post carries a SHA-256 hash, and every action is recorded in a hash-chained audit log. The real product verifies identity through Login.gov, uses phishing-resistant sign-in, and meets federal security standards. The backend items are not built yet.",
-    "footer.demonotice": "<strong>Demo notice:</strong> sign-in is simulated; no real personal data is collected, requested, or stored. AI checks run locally until a Model API key is provided for the session. Committee answers shown are seeded sample responses.",
+    "footer.security.note": "Demo: every post carries a SHA-256 hash, and every action is recorded in a hash-chained audit log. The real product is planned to verify identity through Login.gov and use phishing-resistant sign-in, designed to meet federal security standards. The backend items are not built yet.",
+    "footer.demonotice": "<strong>Demo notice:</strong> sign-in is simulated; no real personal data is collected, requested, or stored. AI checks run locally until a Model API key is provided for the session. Answers shown are demonstration content \u2014 seeded sample responses and live Muse Wonder drafts.",
     "footer.key": "Model API key",
     "footer.key.hint": "(demo session only \u2014 kept in sessionStorage, cleared when the tab closes; never committed)",
     "footer.key.ph": "Paste key for this session",
@@ -2922,7 +2922,17 @@
      then does the DISPLAYED text change (approved pill). The seeded
      record is never mutated. The zone lives under Next Week posts: the
      committee drafts during committee week, before the briefing airs. */
-  var wonderDrafts = {};   /* postId -> draft envelope { text, citations, noCommitments }, session-only */
+  var wonderDrafts = {};   /* postId -> draft envelope; persisted (podium.v1.wonderDrafts) so one draft per post holds across reloads and tabs */
+  /* Preload stored drafts before the first render: a stored draft renders exactly like a live one, with no API call. */
+  (function preloadWonderDrafts() {
+    try {
+      var saved = (typeof PodiumAI.loadStoredDrafts === "function") ? PodiumAI.loadStoredDrafts() : {};
+      Object.keys(saved).forEach(function (ref) {
+        var sp = PodiumStore.postByRef(state, ref);
+        if (sp && !wonderDrafts[sp.id]) wonderDrafts[sp.id] = saved[ref];
+      });
+    } catch (e) {}
+  })();
   var wonderApproved = {}; /* postId -> true once approved in this session */
   var wonderDeclined = {}; /* postId -> true once declined in this session (post reverts to shine light) */
   var wonderRetryTimer = null; /* interval id showing the "Retrying..." state while a Wonder retry loop runs */

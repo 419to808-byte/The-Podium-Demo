@@ -704,6 +704,66 @@ var PodiumAI = (function () {
   var wonderRetryActive = false; /* true while a retry attempt is pending (drives the "Retrying..." UI state) */
   function wonderCancel() { wonderCancelFlag = true; wonderRetryActive = false; }
   function wonderRetrying() { return wonderRetryActive; }
+  var WONDER_DRAFTS_KEY = "podium.v1.wonderDrafts"; /* ref -> draft envelope; exact across reloads and tabs */
+  var WONDER_COMPAT_KEY = "podium.v1.wonderCompat"; /* {omitTempSeed:true} once a 400 proves the API rejects them */
+  var wonderInflight = {}; /* ref -> in-flight draftCommitteeEnvelope promise: exactly one request per post */
+  /* Deterministic per-post seed (djb2, 31-bit positive int): no Math.random, no Date.now, no per-call randomness. */
+  function seedFromRef(ref) {
+    var h = 5381, s = String(ref || ""), i;
+    for (i = 0; i < s.length; i++) { h = ((h << 5) + h + s.charCodeAt(i)) | 0; }
+    return (h >>> 0) % 2147483647;
+  }
+  function wonderCompatOmit() {
+    try {
+      if (typeof localStorage === "undefined") return false;
+      var o = JSON.parse(localStorage.getItem(WONDER_COMPAT_KEY) || "null");
+      return !!(o && o.omitTempSeed);
+    } catch (e) { return false; }
+  }
+  function wonderCompatRemember() {
+    try { if (typeof localStorage !== "undefined") localStorage.setItem(WONDER_COMPAT_KEY, JSON.stringify({ omitTempSeed: true })); } catch (e) {}
+  }
+  function validEnvelope(d) { return !!(d && typeof d === "object" && typeof d.text === "string" && d.text); }
+  function readDraftStore() {
+    try {
+      if (typeof localStorage === "undefined") return {};
+      var raw = localStorage.getItem(WONDER_DRAFTS_KEY);
+      if (!raw) return {};
+      var o = JSON.parse(raw);
+      return (o && typeof o === "object") ? o : {};
+    } catch (e) {
+      wonderWarn({ kind: "storage", name: "SyntaxError", message: "stored drafts unreadable; regenerating" });
+      return {};
+    }
+  }
+  /* One stored entry, validated: a bad entry for THIS ref regenerates while other refs are untouched. A wholly corrupt store parses to {} above. */
+  function readStoredDraft(ref) {
+    if (!ref) return null;
+    var d = readDraftStore()[String(ref)];
+    if (validEnvelope(d)) return d;
+    if (d !== undefined && d !== null) wonderWarn({ kind: "storage", name: "EntryError", message: "stored draft invalid; regenerating" });
+    return null;
+  }
+  function loadStoredDrafts() {
+    var all = readDraftStore(), out = {}, k;
+    for (k in all) { if (Object.prototype.hasOwnProperty.call(all, k) && validEnvelope(all[k])) out[k] = all[k]; }
+    return out;
+  }
+  /* Save the full envelope the moment it arrives. A write failure keeps the in-memory draft working and is reported through wonderLastError. */
+  function writeStoredDraft(ref, env) {
+    if (!ref || !env) return false;
+    try {
+      if (typeof localStorage === "undefined") throw new Error("no localStorage");
+      var all = readDraftStore();
+      all[String(ref)] = env;
+      localStorage.setItem(WONDER_DRAFTS_KEY, JSON.stringify(all));
+      return true;
+    } catch (e) {
+      wonderLastError = { kind: "storage", name: (e && e.name) || "Error", message: "draft kept for this session only" };
+      wonderWarn(wonderLastError);
+      return false;
+    }
+  }
   var wonderLastError = null; /* {kind:"no-key"|"http"|"network"|"timeout"|"empty", ...} — console + UI only, never the key */
   function wonderWarn(f) {
     try {
@@ -722,7 +782,7 @@ var PodiumAI = (function () {
     "Add a 'Citations:' section listing one line per commitment in the exact form '- COMMITMENT | SOURCE | DATE' (commitment quote, agency or authority, date), or — if the answer makes no commitments — a line reading exactly 'No commitments in this answer.'. " +
     "Then end your reply with its agency request: a final 'Agency request:' section of three lines in the exact form 'To: AGENCY' (the agency the answer asks something of), 'Ask: SPECIFIC ASK' (what the committee asks that agency to do, including asking the agency to report back in the first status-updates broadcast on or after the due date: name 'the status-updates broadcast', its date, and its slot time 'Wednesdays at 2:00 PM ET'), 'Post: REF' (this post's reference code) — or, if the answer asks nothing of any agency, a final line reading exactly 'No agency request.'" +
     "The draft is a suggestion for the committee to vote on as written: Wonder does not decide, the draft text is never final, and Wonder is never the face of an answer.";
-  function wonderChat(systemText, userText) {
+  function wonderChat(systemText, userText, seed) {
     var t = WONDER_TRANSPORT;
     var key = getKey();
     if (!t.endpoint || !t.model || !key) {
@@ -738,6 +798,34 @@ var PodiumAI = (function () {
        until a draft exists. Retries on network failure and per-attempt
        timeout only, never on HTTP status, never past the 5-minute budget.
        Each iteration gets a fresh AbortController, so no signal is reused. */
+    /* Guarantee, stated honestly: temperature 0 + a per-post seed makes a
+       regeneration near-deterministic, but the model alone is never claimed
+       to return byte-identical text — persistence (stored drafts) is what
+       makes one draft per post exact. */
+    function postBody(withParams) {
+      var b = { model: t.model, messages: [{ role: "user", content: content }] };
+      if (withParams && (typeof seed === "number") && !wonderCompatOmit()) { b.temperature = 0; b.seed = seed; }
+      return JSON.stringify(b);
+    }
+    function compatRetryOrThrow(resp, signal) {
+      /* Parameter-compatibility retry, once, inside this same single draft
+         creation: if the API rejects temperature/seed with 400, remember it
+         (later calls skip them) and retry once without. */
+      if (resp.status === 400 && !wonderCompatOmit()) {
+        wonderCompatRemember();
+        var plain = {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+          body: postBody(false)
+        };
+        if (signal) plain.signal = signal;
+        return fetch(t.endpoint, plain).then(function (r2) {
+          if (!r2.ok) { var e2 = new Error("model api " + r2.status); e2.httpStatus = r2.status; throw e2; }
+          return r2.json();
+        });
+      }
+      var e = new Error("model api " + resp.status); e.httpStatus = resp.status; throw e;
+    }
     function singleAttempt(signal) {
       var opts = {
         method: "POST",
@@ -748,8 +836,9 @@ var PodiumAI = (function () {
       /* Never reject: withTimeout resolves null on its OWN timer, so a single
          attempt reports its outcome as a value to stay distinguishable from
          a per-attempt timeout. */
+      opts.body = postBody(true); /* temperature 0 + per-post seed; skipped on later calls if the API 400s them once */
       return fetch(t.endpoint, opts).then(function (resp) {
-        if (!resp.ok) { var e = new Error("model api " + resp.status); e.httpStatus = resp.status; throw e; }
+        if (!resp.ok) { return compatRetryOrThrow(resp, signal); }
         return resp.json();
       }).then(function (data) {
         var msg = data && data.choices && data.choices[0] && data.choices[0].message;
@@ -799,16 +888,26 @@ var PodiumAI = (function () {
      as a draft), or null when Wonder is unavailable. */
   function draftCommitteeEnvelope(post) {
     if (!post || !getKey()) { wonderLastError = { kind: (!getKey()) ? "no-key" : "config" }; wonderWarn(wonderLastError); return Promise.resolve(null); }
+    var ref = post.ref || post.id;
+    /* Stored draft first: no API call when one exists — same tab, new tab, after reload. */
+    var stored = readStoredDraft(ref);
+    if (stored) { wonderLastError = null; return Promise.resolve(stored); }
+    /* In-flight guard: a second call while generation runs shares the one request. */
+    if (wonderInflight[ref]) return wonderInflight[ref];
     var user = "Reference code: " + (post.ref || "") + "\n" +
       "Topic: " + (post.topic || "") + "\n" +
       "Author state: " + (post.authorState || "not stated") + "\n" +
       "Citizen post (verbatim):\n" + String(post.body || "");
-    return wonderChat(ANSWER_SYSTEM, user).then(function (text) {
+    var pr = wonderChat(ANSWER_SYSTEM, user, seedFromRef(ref)).then(function (text) {
+      delete wonderInflight[ref];
       if (!text) return null;
       var d = parseDraftEnvelope(text.replace(/^Sample committee response:\s*/i, ""));
       if (!d.text) return null;
+      writeStoredDraft(ref, d); /* persist the moment it arrives; the session still works if storage fails */
       return d;
-    });
+    }, function () { delete wonderInflight[ref]; return null; });
+    wonderInflight[ref] = pr;
+    return pr;
   }
   /* String form (existing contract — the gate suite asserts indexOf on the
      result): the envelope text only, or null. */
@@ -928,6 +1027,7 @@ var PodiumAI = (function () {
     suggestTopicLive: suggestTopicLive,
     topicLabels: TOPIC_KEYWORDS.map(function (pair) { return pair[0]; }),
     wonderFailure: function () { return wonderLastError; },
+    loadStoredDrafts: loadStoredDrafts,
     wonderCancel: wonderCancel,
     wonderRetrying: wonderRetrying,
     draftCommitteeAnswer: draftCommitteeAnswer,
