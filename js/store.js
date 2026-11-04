@@ -371,6 +371,29 @@ var PodiumStore = (function () {
       return b.answer === sd.answer &&
         (JSON.stringify(b.citations) !== JSON.stringify(sd.citations) || b.agencyRequest !== sd.agencyRequest);
     }
+    /* Updates refresh (TY, Nov 4): the seed replacement swapped answers but left
+       updates describing the old answers. A save holding the NEW answer
+       (migrated earlier, or created after the replacement) still carries the
+       old updates — and so does a save still holding an old answer. When a
+       briefing item's stored updates contain its old-update substring, replace
+       that item's updates AND trackerStatus verbatim from the current seed.
+       Same-version saves flow through normalizeState on every load, exactly
+       like the answer migration; votes, refs, other statuses, the draw, and
+       the seed version (stays 13) are untouched. */
+    var OLD_UPDATE_MARK = {
+      "p-w1-16": "Final guidance issued to bottled-water producers",
+      "p-w1-05": "two-year pilot",
+      "p-w2-01": "cash-price posting rule in drafting",
+      "p-w2-06": "replacement-schedule framework published",
+      "p-w3-01": "Funding request prepared for the three-year phase-in",
+      "p-w3-09": "Juror guide draft completed"
+    };
+    function staleSeedUpdates(b) {
+      var sd = (b && OLD_UPDATE_MARK[b.postId]) ? seedAns[b.postId] : null;
+      if (!b || !sd) return false;
+      var mark = OLD_UPDATE_MARK[b.postId];
+      return (b.updates || []).some(function (u) { return u && typeof u.text === "string" && u.text.indexOf(mark) !== -1; });
+    }
     var needsAns = (s.briefingItems || []).some(staleSeedAnswer);
     if (needsAns) {
       (s.briefingItems || []).forEach(function (b) {
@@ -379,6 +402,17 @@ var PodiumStore = (function () {
           b.answer = sd.answer;
           b.citations = deepCopy(sd.citations);
           b.agencyRequest = sd.agencyRequest;
+          filled = true;
+        }
+      });
+    }
+    var needsUpd = (s.briefingItems || []).some(staleSeedUpdates);
+    if (needsUpd) {
+      (s.briefingItems || []).forEach(function (b) {
+        var sd2 = (b && OLD_UPDATE_MARK[b.postId]) ? seedAns[b.postId] : null;
+        if (b && sd2 && staleSeedUpdates(b)) {
+          b.updates = deepCopy(sd2.updates);
+          b.trackerStatus = sd2.trackerStatus;
           filled = true;
         }
       });
@@ -694,6 +728,14 @@ var PodiumStore = (function () {
     }
     return null;
   }
+/* Voting/posting window (TY, Nov 4): a cycle stays open through its votingEnd
+     day (Sunday 11:59 PM ET). Missing cycle, window, or clock means open —
+     never block blindly; display callers decide what to show. */
+  function cycleVotingOpen(s, cycleId, nowEt) {
+    var c = cycleById(s, cycleId);
+    if (!c || !c.votingEnd || !nowEt) return true;
+    return !(c.votingEnd < etDay(nowEt));
+  }
   function briefingItemFor(s, postId) {
     for (var i = 0; i < s.briefingItems.length; i++) {
       if (s.briefingItems[i].postId === postId) return s.briefingItems[i];
@@ -788,7 +830,7 @@ var PodiumStore = (function () {
     });
     return found;
   }
-  function castVote(s, voterId, postId) {
+  function castVote(s, voterId, postId, nowEt) {
     var p = postById(s, postId);
     if (!p) return null;
     if (!s.votes) s.votes = {};
@@ -796,6 +838,8 @@ var PodiumStore = (function () {
        regardless of which demo citizen is picked. A different citizen voting
        in a capped cycle is blocked ("capped", nothing recorded); the same
        citizen keeps the normal vote/move/remove behavior. */
+    /* Sunday 11:59 PM ET cutoff (TY, Nov 4): a past-votingEnd cycle is closed — the vote is rejected and nothing is recorded. Callers pass the app ET now; a missing clock fails open. */
+    if (!cycleVotingOpen(s, p.cycleId, nowEt || null)) return "closed";
     if (s.demoVote && s.demoVote.cycleId === p.cycleId && s.demoVote.voterId !== voterId) return "capped";
     var key = voterId + ":" + postId;
     if (s.votes[key]) {
@@ -854,6 +898,8 @@ var PodiumStore = (function () {
 
   function publishPost(s, userId, cycleId, topic, body, nowEt, lang) {
     if (userPostInCycle(s, userId, cycleId)) return null;
+    /* Sunday 11:59 PM ET cutoff (TY, Nov 4): posting into a past-votingEnd cycle is rejected, same as voting. */
+    if (!cycleVotingOpen(s, cycleId, nowEt || null)) return null;
     s.userSeq += 1;
     s.refSeq += 1;
     var now = new Date();
@@ -995,6 +1041,7 @@ var PodiumStore = (function () {
     userPostInCycle: userPostInCycle,
     hasVoted: hasVoted,
     userVoteInCycle: userVoteInCycle,
+    cycleVotingOpen: cycleVotingOpen,
     castVote: castVote,
     cycleDateTime: cycleDateTime,
     cycleYear: cycleYear,

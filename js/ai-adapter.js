@@ -903,6 +903,16 @@ var PodiumAI = (function () {
       if (!text) return null;
       var d = parseDraftEnvelope(text.replace(/^Sample committee response:\s*/i, ""));
       if (!d.text) return null;
+      /* Unapprovable envelope: zero valid citations and no no-commitments
+         declaration. Do NOT persist it — a stored unapprovable draft could
+         never be approved, and there is no re-draft and no edit. The envelope
+         is still returned so the pending box renders with Approve disabled;
+         the failure is surfaced through wonderLastError, never silently. */
+      if (!d.noCommitments && (!d.citations || !d.citations.length)) {
+        wonderLastError = { kind: "unapprovable", name: "UnapprovableDraft", message: "draft has no valid citations" };
+        wonderWarn(wonderLastError);
+        return d;
+      }
       writeStoredDraft(ref, d); /* persist the moment it arrives; the session still works if storage fails */
       return d;
     }, function () { delete wonderInflight[ref]; return null; });
@@ -933,7 +943,7 @@ var PodiumAI = (function () {
   var NO_REQUEST_LINE = "No agency request.";
   function parseDraftEnvelope(text) {
     var lines = String(text == null ? "" : text).replace(/\s+$/, "").split("\n");
-    var cites = [], noCommit = false, agencyRequest = null, end = lines.length, i, t;
+    var cites = [], noCommit = false, agencyRequest = null, end = lines.length, i, t, dropped = {};
     var req = [];
     for (i = end - 1; i >= 0; i--) {
       t = lines[i].trim();
@@ -953,13 +963,17 @@ var PodiumAI = (function () {
           var cm = parts[0].trim().replace(/^["\u201c\u201d]+|["\u201c\u201d]+$/g, ""), sc = parts[1].trim(), dt = parts.slice(2).join("|").trim();
           if (cm && sc && dt) { cites.unshift({ commitment: cm, source: sc, date: dt, liaison: "" }); end = i; continue; }
         }
-        break;
+        /* Malformed citation line: drop it (exclude from the answer text) and
+           keep scanning — valid citations around it still parse. */
+        dropped[i] = true;
+        continue;
       }
       if (t.toLowerCase() === "citations:") { end = i; continue; }
       break;
     }
     if (cites.length) noCommit = false;
-    return { text: lines.slice(0, end).join("\n").replace(/\s+$/, ""), citations: cites, noCommitments: cites.length ? false : noCommit, agencyRequest: agencyRequest };
+    var kept = lines.filter(function (ln, j) { return j < end && !dropped[j]; });
+    return { text: kept.join("\n").replace(/\s+$/, ""), citations: cites, noCommitments: cites.length ? false : noCommit, agencyRequest: agencyRequest };
   }
   /* ---------- on-demand post translation (multilingual slice, step 4) ----
      Reader aid only: the original post is ALWAYS the official record and is

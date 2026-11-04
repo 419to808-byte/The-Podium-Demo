@@ -68,6 +68,11 @@
     var reply;
     if (body.model.indexOf("wonder") !== -1) {
       reply = "The committee will direct the Food and Drug Administration to issue guidance on alkalized bottled water within 90 days, coordinated through the Department of Health and Human Services.";
+      if (content.indexOf("CITATION-ROBUSTNESS-PROBE") !== -1) {
+        reply = "The committee will review crosswalk safety near schools and publish findings.\nCitations:\n- review crosswalk safety near schools | City Transportation Department | November 15, 2026\n- MALFORMED LINE WITHOUT DELIMITERS\n- publish findings on school crosswalks | City Transportation Department | December 1, 2026";
+      } else if (content.indexOf("ZERO-VALID-PROBE") !== -1) {
+        reply = "The committee will review crosswalk safety near schools.\nCitations:\n- MALFORMED ONLY LINE";
+      }
     } else if (content.indexOf("clarity reviewer") !== -1) {
       reply = JSON.stringify({ unclear: true, proposal: null });
     } else if (content.indexOf("farm fresh daily") !== -1) {
@@ -115,6 +120,19 @@
     return PodiumAI.draftCommitteeAnswer(PODIUM_SEED.posts[0]);
   }).then(function (draft) {
     ok("L5 Wonder draft via muse-wonder-1.0", !!draft && draft.indexOf("Food and Drug Administration") !== -1 && seenModels.indexOf("muse-wonder-1.0") !== -1);
+    return PodiumAI.draftCommitteeEnvelope({ ref: "T-0001", topic: "Health", authorState: "Test State", body: "CITATION-ROBUSTNESS-PROBE civic post about crosswalks near schools." });
+  }).then(function (env1) {
+    var mixedOk = !!env1 && env1.citations && env1.citations.length === 2 &&
+      env1.text.indexOf("MALFORMED") === -1 && env1.text.indexOf("review crosswalk safety") !== -1;
+    return PodiumAI.draftCommitteeEnvelope({ ref: "T-0002", topic: "Health", authorState: "Test State", body: "ZERO-VALID-PROBE civic post about crosswalks near schools." }).then(function (env2) {
+      var stored = {};
+      try { stored = JSON.parse(localStorage.getItem("podium.v1.wonderDrafts") || "{}"); } catch (e) {}
+      var zeroOk = !!env2 && (!env2.citations || env2.citations.length === 0) && !env2.noCommitments &&
+        env2.text.indexOf("MALFORMED") === -1 && !stored["T-0002"];
+      return mixedOk && zeroOk;
+    });
+  }).then(function (citeOk) {
+    ok("L9 malformed citation line dropped; zero-valid envelope not persisted", citeOk === true);
     try { sessionStorage.removeItem("podium.modelKey"); } catch (e) {}
     return PodiumAI.draftCommitteeAnswer(PODIUM_SEED.posts[0]);
   }).then(function (none) {

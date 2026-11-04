@@ -431,39 +431,39 @@ var PODIUM_SEED = {
         { commitment: "review the applicable bottled water standards and ingredient provisions concerning sodium bicarbonate and potassium bicarbonate and provide a status report", source: "U.S. Food and Drug Administration", date: "December 1, 2026" },
       ],
       agencyRequest: "To: U.S. Food and Drug Administration, Center for Food Safety and Applied Nutrition.\nAsk: Review the applicable bottled water standards and ingredient provisions concerning the use of sodium bicarbonate and potassium bicarbonate, determine the regulatory steps that would be required for any change, provide a status report by December 1, 2026, and report back in the status-update broadcast on December 2, 2026, Wednesdays at 2:00 PM ET.\nPost: C-0046.",
-      trackerStatus: "Resolved", officialReason: "",
-      updates: [
-        { date: "Oct 21", text: "Read aloud verbatim and discussed in the weekly briefing." },
-        { date: "Oct 23", text: "Draft guidance circulated to bottled-water producers; sodium labeling proposal opened for public comment." },
-        { date: "Oct 27", status: "In Progress", text: "Final guidance issued to bottled-water producers encouraging potassium bicarbonate; sodium labeling rule advances to final review." },
-        { date: "Oct 30", status: "Resolved", text: "First producers confirm the switch to potassium bicarbonate, and revised labels disclose added sodium." }
-      ] },
-    { cycleId: "w1", postId: "p-w1-05", selection: "random", pipeline: "briefed",
-      answer: "Thank you for your submission. You wrote: 'I propose mobile cardiac screening units for rural counties, scheduled quarterly and published a year ahead.' The Committee will transmit your proposal to the Michigan Department of Health and Human Services by June 12, 2026. The Committee asks the agency to review existing rural mobile health and cardiology screening capacity in Michigan, assess the feasibility of quarterly scheduling with schedules published a year in advance, and provide a status response by June 30, 2026.",
-      citations: [
-        { commitment: "transmit your proposal to the Michigan Department of Health and Human Services", source: "Michigan Department of Health and Human Services", date: "June 12, 2026" },
-        { commitment: "review existing rural mobile health and cardiology screening capacity in Michigan, assess the feasibility of quarterly scheduling with schedules published a year in advance, and provide a status response", source: "Michigan Department of Health and Human Services", date: "June 30, 2026" },
-      ],
-      agencyRequest: "To: Michigan Department of Health and Human Services.\nAsk: Review the transmitted proposal for quarterly mobile cardiac screening units in rural Michigan counties with schedules published a year in advance, assess existing capacity and feasibility, provide a status response by June 30, 2026, and report back in the status updates broadcast on July 1, 2026, the first broadcast on or after due date, Wednesdays at 2:00 PM ET.\nPost: B-0005.",
       trackerStatus: "In Progress", officialReason: "",
       updates: [
         { date: "Oct 21", text: "Read aloud verbatim and discussed in the weekly briefing." },
-        { date: "Oct 24", text: "Pilot counties announced; first quarterly schedule due Nov 15." },
-        { date: "Oct 27", status: "In Progress", text: "Funding request transmitted for the two-year pilot; allocations published across the twelve counties." },
-        { date: "Oct 31", status: "In Progress", text: "First quarterly schedules published one year ahead; screening units assigned to participating counties." }
+        { date: "Oct 23", text: "Proposal prepared for transmittal to the FDA Center for Food Safety and Applied Nutrition." },
+        { date: "Oct 27", status: "In Progress", text: "Transmittal to the FDA in preparation; review of applicable bottled-water standards underway." },
+        { date: "Oct 30", status: "In Progress", text: "Transmittal to the FDA on schedule for November 18; status report requested by December 1." }
+      ] },
+    { cycleId: "w1", postId: "p-w1-05", selection: "random", pipeline: "briefed",
+      answer: "Thank you for your submission. You wrote: 'I propose mobile cardiac screening units for rural counties, scheduled quarterly and published a year ahead.' The Committee will transmit your proposal to the Michigan Department of Health and Human Services by October 23, 2026. The Committee asks the agency to review existing rural mobile health and cardiology screening capacity in Michigan, assess the feasibility of quarterly scheduling with schedules published a year in advance, and provide a status response by November 10, 2026.",
+      citations: [
+        { commitment: "transmit your proposal to the Michigan Department of Health and Human Services", source: "Michigan Department of Health and Human Services", date: "October 23, 2026" },
+        { commitment: "review existing rural mobile health and cardiology screening capacity in Michigan, assess the feasibility of quarterly scheduling with schedules published a year in advance, and provide a status response", source: "Michigan Department of Health and Human Services", date: "November 10, 2026" },
+      ],
+      agencyRequest: "To: Michigan Department of Health and Human Services.\nAsk: Review the transmitted proposal for quarterly mobile cardiac screening units in rural Michigan counties with schedules published a year in advance, assess existing capacity and feasibility, provide a status response by November 10, 2026, and report back in the status updates broadcast on November 11, 2026, the first broadcast on or after due date, Wednesdays at 2:00 PM ET.\nPost: B-0005.",
+      trackerStatus: "In Progress", officialReason: "",
+      updates: [
+        { date: "Oct 21", text: "Read aloud verbatim and discussed in the weekly briefing." },
+        { date: "Oct 24", text: "Proposal transmitted to the Michigan Department of Health and Human Services on October 23; capacity review and feasibility assessment requested." },
+        { date: "Oct 27", status: "In Progress", text: "Michigan DHHS capacity review underway; feasibility assessment of quarterly scheduling in progress." },
+        { date: "Oct 31", status: "In Progress", text: "Awaiting the Michigan DHHS status response, due November 10." }
       ] },
     { cycleId: "w2", postId: "p-w2-01", selection: "top", pipeline: "committee",
-      answer: "Thank you for your submission to the civic portal. You stated: 'I propose a national requirement that pharmacies post the cash price of the fifty most prescribed drugs, updated monthly.' The Committee will transmit your proposal, reference B-0014, to the U.S. Department of Health and Human Services by August 19, 2026. The Committee will request that the Department provide a status report by September 1, 2026, for the status-updates broadcast on September 2, 2026 (Wednesdays at 2:00 PM ET). The requested status report is to identify existing federal authority and current price-transparency requirements applicable to pharmacies and the steps and authority that would be required to implement the proposal quoted above.",
+      answer: "Thank you for your submission to the civic portal. You stated: 'I propose a national requirement that pharmacies post the cash price of the fifty most prescribed drugs, updated monthly.' The Committee will transmit your proposal, reference B-0014, to the U.S. Department of Health and Human Services by November 4, 2026. The Committee will request that the Department provide a status report by November 17, 2026, for the status-updates broadcast on November 18, 2026 (Wednesdays at 2:00 PM ET). The requested status report is to identify existing federal authority and current price-transparency requirements applicable to pharmacies and the steps and authority that would be required to implement the proposal quoted above.",
       citations: [
-        { commitment: "transmit your proposal, reference B-0014, to the U.S. Department of Health and Human Services", source: "U.S. Department of Health and Human Services", date: "August 19, 2026" },
-        { commitment: "request that the Department provide a status report by September 1, 2026, for the status-updates broadcast on September 2, 2026", source: "U.S. Department of Health and Human Services", date: "September 1, 2026" },
+        { commitment: "transmit your proposal, reference B-0014, to the U.S. Department of Health and Human Services", source: "U.S. Department of Health and Human Services", date: "November 4, 2026" },
+        { commitment: "request that the Department provide a status report by November 17, 2026, for the status-updates broadcast on November 18, 2026", source: "U.S. Department of Health and Human Services", date: "November 17, 2026" },
       ],
-      agencyRequest: "To: U.S. Department of Health and Human Services.\nAsk: Identify existing federal authority and current price-transparency requirements applicable to pharmacies and the steps and authority that would be required to implement the proposal in post B-0014, provide a status report by September 1, 2026, and report back in the status updates broadcast on September 2, 2026, Wednesdays at 2:00 PM ET.\nPost: B-0014.",
+      agencyRequest: "To: U.S. Department of Health and Human Services.\nAsk: Identify existing federal authority and current price-transparency requirements applicable to pharmacies and the steps and authority that would be required to implement the proposal in post B-0014, provide a status report by November 17, 2026, and report back in the status updates broadcast on November 18, 2026, Wednesdays at 2:00 PM ET.\nPost: B-0014.",
       trackerStatus: "In Progress", officialReason: "",
       updates: [
         { date: "Oct 19", text: "Selected as top-voted post; referred to committee for answer." },
-        { date: "Oct 29", status: "Action Promised", text: "Answer delivered at the briefing; cash-price posting rule in drafting for the fifty most prescribed drugs." },
-        { date: "Nov 1", status: "In Progress", text: "Draft posting rule shared with pharmacy associations; price-comparison file format published for comment." }
+        { date: "Oct 29", status: "Action Promised", text: "Answer delivered at the briefing; proposal referred to the U.S. Department of Health and Human Services for review of existing authority." },
+        { date: "Nov 1", status: "In Progress", text: "Transmittal to HHS prepared for November 4; status report requested by November 17." }
       ] },
     { cycleId: "w2", postId: "p-w2-06", selection: "random", pipeline: "committee",
       answer: "Thank you for your submission. You wrote: 'I propose a dedicated federal program to replace the oldest urban water mains on a published twenty-year schedule.' By June 4, 2027, the Committee will transmit your proposal to the U.S. Environmental Protection Agency, Office of Water. The Committee asks the Agency to review existing federal drinking water infrastructure assistance, identify the congressional authorization and appropriations that a new dedicated program would require, and provide a response by June 8, 2027. The Committee will report the Agency's response in the status updates broadcast on June 9, 2027.",
@@ -476,8 +476,8 @@ var PODIUM_SEED = {
       trackerStatus: "In Progress", officialReason: "",
       updates: [
         { date: "Oct 19", text: "Selected by random draw (position 4 of 12); referred to committee for answer." },
-        { date: "Oct 29", status: "Action Promised", text: "Answer delivered at the briefing; national pipe-age survey in scoping with municipal water authorities." },
-        { date: "Nov 2", status: "In Progress", text: "Survey design underway; replacement-schedule framework published for the twenty-year program." }
+        { date: "Oct 29", status: "Action Promised", text: "Answer delivered at the briefing; transmittal to the EPA Office of Water scheduled for June 4, 2027." },
+        { date: "Nov 2", status: "In Progress", text: "Transmittal to the EPA Office of Water in preparation; review of existing drinking-water infrastructure assistance requested." }
       ] },
     { cycleId: "w3", postId: "p-w3-01", selection: "top", pipeline: "committee",
       answer: "Thank you for your submission. You stated: 'I propose a national maximum of twenty-five students per classroom in publicly funded schools, phased in over three years.' Class-size standards for publicly funded schools are primarily set by states and local school districts, and a national maximum would require action by Congress. The Committee will transmit your proposal to the U.S. Department of Education by November 11, 2026. The Department is requested to review current federal authority, existing state standards including Alaska, and options that would require congressional action, and to report its findings by December 2, 2026.",
@@ -489,21 +489,21 @@ var PODIUM_SEED = {
       trackerStatus: "Answered", officialReason: "",
       updates: [
         { date: "Oct 26", text: "Selected as top-voted post; referred to committee for answer." },
-        { date: "Oct 28", status: "Answered", text: "Funding request prepared for the three-year phase-in; district allocations compiled by enrollment and class size." },
-        { date: "Nov 1", status: "Answered", text: "Annual class-size reporting format shared with state education agencies ahead of the briefing." }
+        { date: "Oct 28", status: "Answered", text: "Answer approved; proposal prepared for transmittal to the U.S. Department of Education." },
+        { date: "Nov 1", status: "Answered", text: "Transmittal to the Department of Education prepared for November 11; review of current federal authority and state standards requested." }
       ] },
     { cycleId: "w3", postId: "p-w3-09", selection: "random", pipeline: "committee",
-      answer: "Thank you for your submission. You wrote: 'Jury duty summons in my county arrive with no information about pay, parking, or deferrals. I propose a plain-language juror guide mailed with every summons nationwide.' Jury duty summons in New York are administered within the judicial branch by the New York State Unified Court System, Office of Court Administration, through county Commissioners of Jurors; federal and other states' summonses are administered by their respective court systems. The Committee will transmit your proposal to the New York State Unified Court System, Office of Court Administration by July 24, 2026. The Committee will request that the Office of Court Administration review the proposal for New York county summonses, assess a plain-language guide on jury pay, parking, and deferral procedures, identify the appropriate authorities for federal and other states' summonses, complete its review by Friday, August 28, 2026, and report back in the status updates broadcast on Wednesday, September 2, 2026 (Wednesdays at 2:00 PM ET). This transmittal is a request for review and a status report only, and does not guarantee adoption of a guide in New York or nationwide.",
+      answer: "Thank you for your submission. You wrote: 'Jury duty summons in my county arrive with no information about pay, parking, or deferrals. I propose a plain-language juror guide mailed with every summons nationwide.' Jury duty summons in New York are administered within the judicial branch by the New York State Unified Court System, Office of Court Administration, through county Commissioners of Jurors; federal and other states' summonses are administered by their respective court systems. The Committee will transmit your proposal to the New York State Unified Court System, Office of Court Administration by November 6, 2026. The Committee will request that the Office of Court Administration review the proposal for New York county summonses, assess a plain-language guide on jury pay, parking, and deferral procedures, identify the appropriate authorities for federal and other states' summonses, complete its review by Friday, December 11, 2026, and report back in the status updates broadcast on Wednesday, December 16, 2026 (Wednesdays at 2:00 PM ET). This transmittal is a request for review and a status report only, and does not guarantee adoption of a guide in New York or nationwide.",
       citations: [
-        { commitment: "transmit your proposal to the New York State Unified Court System, Office of Court Administration", source: "New York State Unified Court System, Office of Court Administration", date: "July 24, 2026" },
-        { commitment: "review the proposal for New York county summonses, assess a plain-language guide on jury pay, parking, and deferral procedures, identify the appropriate authorities for federal and other states' summonses, complete its review by Friday, August 28, 2026, and report back in the status updates broadcast on Wednesday, September 2, 2026", source: "Office of Court Administration", date: "August 28, 2026" },
+        { commitment: "transmit your proposal to the New York State Unified Court System, Office of Court Administration", source: "New York State Unified Court System, Office of Court Administration", date: "November 6, 2026" },
+        { commitment: "review the proposal for New York county summonses, assess a plain-language guide on jury pay, parking, and deferral procedures, identify the appropriate authorities for federal and other states' summonses, complete its review by Friday, December 11, 2026, and report back in the status updates broadcast on Wednesday, December 16, 2026", source: "Office of Court Administration", date: "December 11, 2026" },
       ],
-      agencyRequest: "To: New York State Unified Court System, Office of Court Administration.\nAsk: Review the proposal for New York county summonses, assess a plain-language guide on jury pay, parking, and deferral procedures, identify the appropriate authorities for federal and other states' summonses, complete the review by Friday, August 28, 2026, and report back in the status updates broadcast on Wednesday, September 2, 2026, Wednesdays at 2:00 PM ET.\nPost: K-0032.",
+      agencyRequest: "To: New York State Unified Court System, Office of Court Administration.\nAsk: Review the proposal for New York county summonses, assess a plain-language guide on jury pay, parking, and deferral procedures, identify the appropriate authorities for federal and other states' summonses, complete the review by Friday, December 11, 2026, and report back in the status updates broadcast on Wednesday, December 16, 2026, Wednesdays at 2:00 PM ET.\nPost: K-0032.",
       trackerStatus: "Answered", officialReason: "",
       updates: [
         { date: "Oct 26", text: "Selected by random draw (position 8 of 10); referred to committee for answer." },
-        { date: "Oct 28", status: "Answered", text: "Juror guide draft completed covering pay, parking, and deferrals; coordination with state court administrators underway." },
-        { date: "Nov 1", status: "Answered", text: "Plain-language review completed; mailing format confirmed for distribution with jury summonses." }
+        { date: "Oct 28", status: "Answered", text: "Answer approved; proposal prepared for transmittal to the New York State Unified Court System, Office of Court Administration." },
+        { date: "Nov 1", status: "Answered", text: "Transmittal to the Office of Court Administration prepared for November 6; review of the plain-language guide proposal requested." }
       ] }
   ]
 };

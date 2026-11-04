@@ -369,7 +369,7 @@
     "briefing.watch": "Watch Live \u2192",
     "briefing.watch.hint": "Attend the airing of this briefing.",
     "briefing.next": "Next Week",
-    "briefing.next.hint": "Selected posts in committee review. Answers are still being formulated \u2014 never presented as final. These selections are published after the Monday draw, once the draw has selected the posts: the full posts for the next briefing appear here from the draw onward, in full, with answers coming on the briefing date.",
+    "briefing.next.hint": "Selected posts in committee review. Answers are still being formulated \u2014 never presented as final. These selections are published after the Monday draw, once the draw has selected the posts: the full posts for the next briefing appear here from the draw onward, in full, with approved answers published as soon as the committee approves them.",
     "briefing.draw": "The random draw \u2014 verifiably fair",
     "briefing.draw.lede": "The eligible pool is frozen and published <em>first</em> (all gate-passed posts since the last draw, minus the top-voted winner). The system runs the draw at the pre-announced time: <code>position = beacon value modulo the pool size + 1</code>. Random selection is conducted using the NIST Randomness Beacon.",
     "briefing.draw.excluded": "Excluded from the pool",
@@ -465,7 +465,7 @@
     "audit.heading": "Audit log",
     "audit.lede": "Every action is recorded in a hash-chained log, newest first.",
     "audit.intact": "Audit log intact.",
-    "audit.broken": "Audit log does not verify â€” entry {n}.",
+    "audit.broken": "Audit log does not verify — entry {n}.",
     "audit.ev.genesis": "Log started",
     "audit.ev.post": "Post published",
     "audit.ev.vote": "Vote cast",
@@ -509,6 +509,7 @@
     "response.ph": "Write your response…",
     "response.done": "You already responded here.",
     "demo.tracker.note": "Demo: committee and government responses are entered here for evaluation.",
+    "demo.badge": "Demo data \u2014 simulated citizen posts",
     "audit.ev.appeal": "Appeal filed",
     "audit.ev.rereview": "Re-review recorded",
     "audit.ev.challenge": "Challenge raised",
@@ -1728,7 +1729,7 @@
     li.className = "post" + (linked ? " is-linked" : "");
     if (linked) li.id = "linkedPost";
     var author = PodiumStore.citizenById(state, p.authorId);
-    var open = (p.cycleId === currentCycle());
+    var open = (p.cycleId === currentCycle()) && PodiumStore.cycleVotingOpen(state, p.cycleId, etNow());
     var voted = browserHasVoted(p.id);
     var cycle = PodiumStore.cycleById(state, p.cycleId);
     var html = '<div class="post-meta"><span class="post-author">' + esc(p.author || author.name) +
@@ -1762,8 +1763,8 @@
            place — no re-sort, no re-page, no snapshot rebuild. */
         var pid = btn.getAttribute("data-post");
         var prev = PodiumStore.userVoteInCycle(state, state.currentUserId, currentCycle());
-        var vres = PodiumStore.castVote(state, state.currentUserId, pid);
-        if (vres && vres !== "capped") { var vp = findPostAny(pid); audit("vote", vp ? (vp.ref || pid) : pid, vres); }
+        var vres = PodiumStore.castVote(state, state.currentUserId, pid, etNow());
+        if (vres && vres !== "capped" && vres !== "closed") { var vp = findPostAny(pid); audit("vote", vp ? (vp.ref || pid) : pid, vres); }
         if (vres === "capped" && state.demoVote) refreshVoteButtons(state.demoVote.postId);
         refreshVoteButtons(prev);
         refreshVoteButtons(pid);
@@ -1989,6 +1990,13 @@
       $("composerForm").style.display = "none";
       return;
     }
+    var cycleClosed = !PodiumStore.cycleVotingOpen(state, currentCycle(), etNow());
+    if (cycleClosed) {
+      box.hidden = false;
+      box.textContent = T("vote.closedweek");
+      $("composerForm").style.display = "none";
+      return;
+    }
     var existing = PodiumStore.userPostInCycle(state, state.currentUserId, currentCycle());
     if (existing) {
       box.hidden = false;
@@ -2132,7 +2140,7 @@
       d3.textContent = T("gate.ok");
       gm.appendChild(d3);
     }
-    var blocked = res.hard.length > 0 || res.soft.length > 0 || res.punctFix || clarity.unclear || gateState.overLimit;
+    var blocked = res.hard.length > 0 || res.soft.length > 0 || res.punctFix || clarity.unclear || gateState.overLimit || !PodiumStore.cycleVotingOpen(state, currentCycle(), etNow());
     publishBtn.disabled = blocked;
 
   }
@@ -2626,7 +2634,7 @@
         return;
       }
       if (!PodiumStore.hasVoted(state, state.currentUserId, match.id)) {
-        PodiumStore.castVote(state, state.currentUserId, match.id);
+        PodiumStore.castVote(state, state.currentUserId, match.id, etNow());
       }
       insteadBtn.textContent = PodiumStore.hasVoted(state, state.currentUserId, match.id) ? T("vote.upvoted.check") : T("voiced.instead");
       renderFeed();
@@ -2638,7 +2646,7 @@
     bothBtn.addEventListener("click", function () {
       if (!state.currentUserId) { openCitizens("vote"); return; }
       if (match.cycleId === currentCycle() && !PodiumStore.hasVoted(state, state.currentUserId, match.id)) {
-        PodiumStore.castVote(state, state.currentUserId, match.id);
+        PodiumStore.castVote(state, state.currentUserId, match.id, etNow());
       }
       renderFeed();
       publishBtn.focus();
@@ -2673,7 +2681,7 @@
     vb.textContent = PodiumStore.hasVoted(state, state.currentUserId, dup.id) ? T("vote.upvoted.check") : T("vote.upvoteit");
     vb.addEventListener("click", function () {
       if (!PodiumStore.hasVoted(state, state.currentUserId, dup.id)) {
-        PodiumStore.castVote(state, state.currentUserId, dup.id);
+        PodiumStore.castVote(state, state.currentUserId, dup.id, etNow());
       }
       vb.textContent = PodiumStore.hasVoted(state, state.currentUserId, dup.id) ? T("vote.upvoted.check") : T("vote.upvoteit");
       renderFeed();
@@ -4502,6 +4510,7 @@
     setPh("searchInput", T("feed.search.ph"));
     setText("pageSizeLabel", T("feed.perpage"));
     setText("voteRule", T("feed.voterule"));
+    setText("demoDataBadge", T("demo.badge"));
     setText("prevPage", T("feed.prev"));
     setText("nextPage", T("feed.next"));
     setAttr("view-post", "aria-label", T("post.aria"));
