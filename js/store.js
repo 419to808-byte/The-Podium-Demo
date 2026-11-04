@@ -971,13 +971,35 @@ var PodiumStore = (function () {
     return { ok: true, determinationId: item.determinationId };
   }
 
+  /* Agency-request derivation for the challenge template: "To: {agency}.\nAsk:
+     {ask}\nPost: {ref}." parses to agency/ask; the broadcast date in the Ask
+     prose parses to dueDate ("" when absent — the caller then requires it). */
+  function parseAgencyRequest(text) {
+    var out = { agency: "", ask: "", dueDate: "" };
+    var t = String(text || "");
+    if (!t) return out;
+    var lines = t.split("\n");
+    var i, line;
+    for (i = 0; i < lines.length; i++) {
+      line = lines[i].replace(/\r/g, "").trim();
+      if (line.indexOf("To: ") === 0 && !out.agency) {
+        out.agency = line.slice(4).replace(/\.\s*$/, "").trim();
+      } else if (line.indexOf("Ask: ") === 0 && !out.ask) {
+        out.ask = line.slice(5).trim();
+      }
+    }
+    var m = /broadcast on (?:[A-Za-z]+, )?([A-Za-z]+ \d{1,2}, \d{4})/.exec(t);
+    if (m) out.dueDate = m[1];
+    return out;
+  }
   function raiseChallenge(item, f) {
     if (!item) return { ok: false, reason: "no-item" };
     if (!f || !f.by) return { ok: false, reason: "need-citizen" };
     if (!String(f.solution || "").trim()) return { ok: false, reason: "need-solution" };
     var ch = item.challenges || (item.challenges = []);
     var c = { id: "ch" + (ch.length + 1), raisedBy: f.by, raisedName: f.name || "", date: f.date || "",
-      solution: String(f.solution), status: "open", answer: null };
+      solution: String(f.solution), status: "open", answer: null,
+      agency: String(f.agency || ""), ask: String(f.ask || ""), dueDate: String(f.dueDate || "") };
     ch.push(c);
     return { ok: true, challenge: c };
   }
@@ -1041,7 +1063,7 @@ var PodiumStore = (function () {
     etStamp: etStamp,
     auditAppend: auditAppend,
     setNoAction: setNoAction,
-    raiseChallenge: raiseChallenge,
+    raiseChallenge: raiseChallenge, parseAgencyRequest: parseAgencyRequest,
     answerChallenge: answerChallenge,
     addResponse: addResponse,
     verifyAudit: verifyAudit

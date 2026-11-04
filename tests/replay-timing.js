@@ -113,6 +113,42 @@
     ok("R28 stale demoVote reconciled, no phantom cap", pass);
   })();
 
+  /* R29: agency challenge template derivation + awaiting state. The raise
+     snapshots agency/ask/dueDate parsed from the briefing item's stored
+     agency request; the challenge stays open ("Awaiting government answer"
+     state) until the additional response with all four fields is recorded;
+     a request with no broadcast date parses to "" (the raise form then
+     requires a date). Pure store test, no DOM. */
+  (function () {
+    var st = freshState();
+    var b = null, i;
+    for (i = 0; i < st.briefingItems.length; i++) {
+      if (st.briefingItems[i] && st.briefingItems[i].postId === "p-w1-16") b = st.briefingItems[i];
+    }
+    var pass = false, openOk = false, answeredOk = false, formOk = false, nodateOk = false;
+    if (b && b.agencyRequest) {
+      var pr = PodiumStore.parseAgencyRequest(b.agencyRequest);
+      var agencyOk = (pr.agency === "U.S. Food and Drug Administration, Center for Food Safety and Applied Nutrition");
+      var askOk = (pr.ask.indexOf("Review the applicable bottled water standards") === 0);
+      var dueOk = (pr.dueDate === "December 2, 2026");
+      var emptyBlocked = !PodiumStore.raiseChallenge(b, { by: "u-x", name: "X", date: "D", solution: "  " }).ok;
+      var r = PodiumStore.raiseChallenge(b, { by: "u-x", name: "X", date: "D", solution: "Fund the pilot now", agency: pr.agency, ask: pr.ask, dueDate: pr.dueDate });
+      openOk = (agencyOk && askOk && dueOk && emptyBlocked && r.ok && r.challenge.agency === pr.agency &&
+        r.challenge.ask === pr.ask && r.challenge.dueDate === "December 2, 2026" &&
+        r.challenge.status === "open" && r.challenge.answer === null);
+      var missingOne = PodiumStore.answerChallenge(b, r.challenge.id, { text: "T", citedAuthority: "", whatWouldChange: "W", redirectTo: "R", date: "D" });
+      var full = PodiumStore.answerChallenge(b, r.challenge.id, { text: "Blocked by statute 42-X.", citedAuthority: "Statute 42-X, section 3", whatWouldChange: "Congress amends 42-X.", redirectTo: "State office.", date: "D" });
+      answeredOk = (!missingOne.ok && full.ok && r.challenge.status === "answered" &&
+        r.challenge.answer.citedAuthority === "Statute 42-X, section 3");
+      var again = PodiumStore.answerChallenge(b, r.challenge.id, { text: "T2", citedAuthority: "C", whatWouldChange: "W", redirectTo: "R", date: "D" });
+      formOk = (again.ok === false && again.reason === "already-answered");
+      var pr2 = PodiumStore.parseAgencyRequest("To: Some Agency.\nAsk: Do the thing with no date named.\nPost: X-0000.");
+      nodateOk = (pr2.agency === "Some Agency" && pr2.dueDate === "");
+      pass = (openOk && answeredOk && formOk && nodateOk);
+    }
+    ok("R29 challenge template derivation + awaiting state", pass);
+  })();
+
   /* Permanent regression cases for three behaviors proven before only by
      temporary probes (deleted after use). They drive the live app DOM with
      the runner's clock control, so they need that context: without the
