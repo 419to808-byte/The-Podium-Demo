@@ -2892,8 +2892,6 @@
     });
     row.appendChild(record);
     li.appendChild(row);
-    /* TEMP fix 19: This Week draft buttons — remove with fix 20 after seed replacement */
-    li.appendChild(buildWonderZone(p));
     return li;
   }
   function briefingWednesday(cycle) {
@@ -2945,11 +2943,6 @@
      evaluation. Display text only — never gates or hides the controls. */
   function wonderVisibilityNote() { return T("wonder.visibility"); }
   function wonderSimulatedNote() { return T("wonder.simulated"); }
-  /* TEMP fix 19b: refresh the enclosing view after a Wonder vote (Prior card goes stale otherwise) — remove with fix 20 after seed replacement */
-  function refreshWonderHostView() {
-    var vp = $("view-prior");
-    if (vp && !vp.hidden) { renderPriorCard(); } else { renderBriefing(); }
-  }
   function buildWonderZone(p) {
     var wonderBox = document.createElement("div");
     wonderBox.className = "zone zone-answer";
@@ -3010,7 +3003,7 @@
         (wonderLiaisonAdvice[p.id] || []).forEach(function (a) {
           audit("liaisonAdvice", p.ref, JSON.stringify({ liaison: a.liaison, claim: a.claim, authority: a.authority, date: a.date, outcome: a.outcome }));
         });
-        refreshWonderHostView();
+        renderBriefing();
       });
       var declineBtn = document.createElement("button");
       declineBtn.type = "button";
@@ -3019,7 +3012,7 @@
       declineBtn.addEventListener("click", function () {
         wonderDeclined[p.id] = true;
         audit("decline", p.ref + "-A", "");
-        refreshWonderHostView();
+        renderBriefing();
       });
       if (!draftGate(draft)) {
         approveBtn.disabled = true;
@@ -3518,8 +3511,6 @@
       showView("status");
     });
     card.appendChild(link);
-    /* TEMP fix 19b: Prior draft buttons — remove with fix 20 after seed replacement */
-    card.appendChild(buildWonderZone(p));
   }
   function renderStatus() {
     threadSelect($("statusSelect"), renderStatusCard);
