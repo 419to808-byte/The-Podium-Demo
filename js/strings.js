@@ -12,6 +12,7 @@ var PodiumStrings = (function () {
     "skip.main": { en: "Skip to main content", es: "Saltar al contenido principal" },
     "gov.text": { en: "An official website of the United States government", es: "Un sitio web oficial del gobierno de los Estados Unidos" },
     "gov.how": { en: "Here\u2019s how you know.", es: "As\u00ed es como lo sabes." },
+    "gov.demo": { en: "Demo \u2014 not an official U.S. government website.", es: "Demostraci\u00f3n \u2014 no es un sitio web oficial del gobierno de los Estados Unidos." },
     /* header */
     "brand.sub": { en: "The purpose of this platform is to ensure that every citizen has the opportunity to be heard by the nation.", es: "El prop\u00f3sito de esta plataforma es garantizar que cada ciudadano tenga la oportunidad de ser escuchado por la naci\u00f3n." },
     "citizen.signedout": { en: "Not signed in", es: "Sesi\u00f3n no iniciada" },
@@ -332,7 +333,7 @@ var PodiumStrings = (function () {
     "zone.post.next": { en: "Citizen Post \u2014 verbatim in full", es: "Publicaci\u00f3n ciudadana \u2014 textual \u00edntegra" },
     "zone.post.final": { en: "Citizen Post \u2014 verbatim, final", es: "Publicaci\u00f3n ciudadana \u2014 textual, final" },
     "next.selectedfor": { en: "\u2014 {name} \u00b7 selected for next week\u2019s briefing", es: "\u2014 {name} \u00b7 seleccionada para la sesi\u00f3n de la pr\u00f3xima semana" },
-    "next.answercoming": { en: "Answer coming {date}. The committee is still formulating it.", es: "Respuesta el {date}. El comit\u00e9 a\u00fan la est\u00e1 formulando." },
+    "next.answercoming": { en: "Approved answers are published as soon as the committee approves them.", es: "Las respuestas aprobadas se publican en cuanto el comit\u00e9 las apruebe." },
     "wonder.draft": { en: "Draft answer with Wonder", es: "Redactar respuesta con Wonder" },
     "wonder.visibility": { en: "Drafts are public: the public sees the drafts and the vote, not only approved answers. Drafts are never edited: the committee votes on each draft as written and approves as the committee, with no individual member named.", es: "Los borradores son p\u00fablicos: el p\u00fablico ve los borradores y la votaci\u00f3n, no solo las respuestas aprobadas. Los borradores nunca se editan: el comit\u00e9 vota cada borrador tal como est\u00e1 escrito y aprueba como comit\u00e9, sin nombrar a ning\u00fan miembro individual." },
     "wonder.simulated": { en: "Demo only: in the real product the committee reviews and approves drafts; approval here is simulated and changes only what is displayed.", es: "Solo demo: en el producto real el comit\u00e9 revisa y aprueba borradores; la aprobaci\u00f3n aqu\u00ed es simulada y solo cambia lo que se muestra." },

@@ -362,12 +362,28 @@ var PodiumStore = (function () {
       "p-w3-01": "three-year phase-in",
       "p-w3-09": "plain-language juror guide mailed with every jury summons nationwide"
     };
+    /* Returning-visitor S6 dates (TY, Nov 4): a save created AFTER the 4147313
+       seed replacement holds the new answer text with the OLD S6 transmit
+       dates — none of the OLD_ANSWER_MARK substrings match it, so the answer
+       migration above never fires for it. The old transmit date appears in
+       each old answer and in none of the new seed texts; a stored answer
+       containing its OLD_DATE_MARK is stale and gets the same
+       answer/citations/agencyRequest replacement. Updates and trackerStatus
+       are untouched here (the updates migration owns those); seed version
+       stays 13; votes, refs, and the draw are untouched. */
+    var OLD_DATE_MARK = {
+      "p-w1-05": "June 12, 2026",
+      "p-w2-01": "August 19, 2026",
+      "p-w3-09": "July 24, 2026"
+    };
     var seedAns = {};
     needSeed().briefingItems.forEach(function (b) { if (b && OLD_ANSWER_MARK[b.postId]) seedAns[b.postId] = b; });
     function staleSeedAnswer(b) {
       var sd = (b && OLD_ANSWER_MARK[b.postId]) ? seedAns[b.postId] : null;
       if (!b || !sd) return false;
       if (typeof b.answer === "string" && b.answer.indexOf(OLD_ANSWER_MARK[b.postId]) !== -1 && b.answer !== sd.answer) return true;
+      var dm = OLD_DATE_MARK[b.postId];
+      if (dm && typeof b.answer === "string" && b.answer.indexOf(dm) !== -1 && b.answer !== sd.answer) return true;
       return b.answer === sd.answer &&
         (JSON.stringify(b.citations) !== JSON.stringify(sd.citations) || b.agencyRequest !== sd.agencyRequest);
     }

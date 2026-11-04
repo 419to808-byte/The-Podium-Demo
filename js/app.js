@@ -82,6 +82,7 @@
     "skip.main": "Skip to main content",
     "gov.text": "An official website of the United States government",
     "gov.how": "Here\u2019s how you know.",
+    "gov.demo": "Demo \u2014 not an official U.S. government website.",
     "gov.h1": "Official websites use .gov",
     "gov.b1": "A .gov website belongs to an official government organization in the United States.",
     "gov.h2": "Secure .gov websites use HTTPS",
@@ -401,7 +402,7 @@
     "zone.post.next": "Citizen Post \u2014 verbatim in full",
     "zone.post.final": "Citizen Post \u2014 verbatim, final",
     "next.selectedfor": "\u2014 {name} \u00b7 selected for next week\u2019s briefing",
-    "next.answercoming": "Answer coming {date}. The committee is still formulating it.",
+    "next.answercoming": "Approved answers are published as soon as the committee approves them.",
     "wonder.draft": "Draft answer with Wonder",
     "wonder.visibility": "Drafts are public: the public sees the drafts and the vote, not only approved answers. Drafts are never edited: the committee votes on each draft as written and approves as the committee, with no individual member named.",
     "wonder.simulated": "Demo only: in the real product the committee reviews and approves drafts; approval here is simulated and changes only what is displayed.",
@@ -2925,7 +2926,7 @@
       '<div class="zone zone-post"><span class="zone-label">' + esc(T("zone.post.next")) + "</span>" +
       "<blockquote>" + esc(p.body) + "</blockquote>" +
       '<p class="hint">' + esc(Tf("next.selectedfor", { name: author.name })) + "</p></div>" + sealHtml(p) +
-      '<p class="hint">' + esc(Tf("next.answercoming", { date: briefingWednesday(cycle) })) + "</p>" +
+      '<p class="hint">' + esc(T("next.answercoming")) + "</p>" +
       translateSlotHtml(p);
     li.appendChild(buildWonderZone(p));
     mountTranslateSlots(li);
@@ -4448,6 +4449,7 @@
     setText("skipLink", T("skip.main"));
     setText("govText", T("gov.text"));
     setText("govHowLabel", T("gov.how"));
+    setText("govDemo", T("gov.demo"));
     renderGovPanel();
     syncAutoUi(); /* re-labels the toggle; applyLanguage re-renders the feed after this */
     setText("brandSub", T("brand.sub"));
