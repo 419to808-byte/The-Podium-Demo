@@ -10,13 +10,13 @@ resolved.
 Open the file directly — double-click it or paste the path into a browser:
 
 ```
-podium/index.html
+index.html
 ```
 
 Works from `file://` and from any static host. Demo data is seeded in-app;
 your votes and posts persist in the browser's localStorage.
 
-To serve over HTTP (any one of these, from the `podium/` folder):
+To serve over HTTP (any one of these, from the repo root):
 
 ```
 npx serve .
@@ -52,9 +52,11 @@ Netlify Drop, Cloudflare Pages, Vercel static, or any web server.
    shared link lands on that post, highlighted, with the upvote visible.
 7. **Briefing** — condensed: two This Week summary cards (verbatim excerpt,
    "Read verbatim in full" expansion, "See full record" link); Next Week
-   shows the FULL verbatim text of each in-committee post with
-   answer-coming dates (never answers; published post-briefing, not
-   before it); read-only draw record (pool record + excluded-posts audit
+   shows the FULL verbatim text of each in-committee post; approved
+   answers are published Friday — as soon as the committee approves them —
+   and display immediately on approval in the Next Week zone (never held
+   to the briefing);
+   read-only draw record (pool record + excluded-posts audit
    with reasons + worked example: pool 12, beacon …4839 → post #4).
 8. **Prior Posts & Answers** — archive: each selection's verbatim post plus
    the committee's answer, with a cross-link to its status updates.
@@ -74,10 +76,11 @@ Netlify Drop, Cloudflare Pages, Vercel static, or any web server.
 index.html        app shell (feed, composer, briefing, prior answers,
                   status updates, watch live, modals)
 css/style.css     mobile-first styles, no framework
-js/seed.js        deterministic demo data (115 citizens, 5 cycles, 217 posts:
-                  6 retained selections + 3 demo copies + 8 current-cycle
-                  seed posts + 200 generated scale posts, 6 briefing
-                  items, exact draw math)
+js/seed.js        deterministic demo data (129 citizens, 5 cycles, 219 posts:
+                  w1: 2, w2: 4, w3: 3, w4: 109, w5: 101 — 6 retained
+                  selections + 3 demo copies + 8 current-cycle seed posts
+                  + 200 generated scale posts + 2 seeded Spanish posts,
+                  6 briefing items, exact draw math)
 js/ai-adapter.js  ALL model calls go through PodiumAI (local fallback plus
                   live Muse Spark via Meta Model API when a key is set)
 js/store.js       localStorage persistence + queries (votes,
@@ -107,7 +110,8 @@ runs standalone at the same time, same room, same cameras.
   No sign-in, no vote.
 - Committee answers are seeded sample responses. On a Next Week post on
   the briefing tab, "Draft answer with Wonder" drafts a replacement with
-  Muse Wonder (`muse-wonder-1.0`, same footer key, 30s timeout) for
+  Muse Wonder (`muse-wonder-1.0`, same footer key, 90s per attempt,
+  5-minute retry budget) for
   committee review; it displays separately as pending review and only
   replaces the displayed answer after "Approve draft" (demo approval;
   the seeded record is preserved and remains the fallback). Prior Posts
@@ -115,7 +119,7 @@ runs standalone at the same time, same room, same cameras.
   drafts answers only — never citizen posts — and never falls back to
   Spark.
 - Posts are final: no edit, no redact, no comments in v1.
-- Automated suites, run from the committed runner (27 replay-timing cases incl. Watch-agenda rollover, Prior/Status refill, and Replay-screening stacking, + 35 gate cases: 27 fallback + 8 live-stubbed, all against the real adapter): open `tests/run-tests.html` in a browser (file:// or the hosted site, no build) and read the combined pass/total at the top. Headless: `msedge --headless --dump-dom file:///…/podium/tests/run-tests.html` and read the `RUNNER-DONE ok=… fail=…` title plus the `CASE-OK`/`CASE-FAIL` lines.
+- Automated suites, run from the committed runner (27 replay-timing cases incl. Watch-agenda rollover, Prior/Status refill, and Replay-screening stacking, + 35 gate cases: 27 fallback + 8 live-stubbed, all against the real adapter): open `tests/run-tests.html` in a browser (file:// or the hosted site, no build) and read the combined pass/total at the top. Headless: `msedge --headless --dump-dom file:///…/tests/run-tests.html` and read the `RUNNER-DONE ok=… fail=…` title plus the `CASE-OK`/`CASE-FAIL` lines.
 - Tracker statuses: Answered → Action Promised → In Progress → Resolved,
   plus No Action with an official reason.
 
