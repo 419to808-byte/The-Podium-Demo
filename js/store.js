@@ -343,6 +343,46 @@ var PodiumStore = (function () {
         if (b && b.citations === undefined && seedCite[b.postId]) { b.citations = deepCopy(seedCite[b.postId]); filled = true; }
       });
     }
+    /* Seed-answer refresh for the six replaced answers (TY, Nov 3): the
+       seed replacement swapped all six briefing-item answers for fresh
+       Wonder drafts, with derived citations and a new agencyRequest per
+       item. Saved states pin the old wording, so refresh where the stored
+       answer still carries a distinctive substring of the old text -- a
+       pinned answer may be a summary or the full text, so an exact match
+       would miss variants. Also completes items whose answer already
+       matches the seed but whose citations/agencyRequest are stale or
+       missing (e.g. after the older exact-text refreshes). Anything else
+       (including a diverged answer) is left alone; votes, refs, statuses,
+       updates, and the draw are untouched. */
+    var OLD_ANSWER_MARK = {
+      "p-w1-16": "issue guidance encouraging potassium bicarbonate",
+      "p-w1-05": "two-year pilot of quarterly mobile cardiac screening",
+      "p-w2-01": "monthly cash-price posting",
+      "p-w2-06": "twenty-year published schedule",
+      "p-w3-01": "three-year phase-in",
+      "p-w3-09": "plain-language juror guide mailed with every jury summons nationwide"
+    };
+    var seedAns = {};
+    needSeed().briefingItems.forEach(function (b) { if (b && OLD_ANSWER_MARK[b.postId]) seedAns[b.postId] = b; });
+    function staleSeedAnswer(b) {
+      var sd = (b && OLD_ANSWER_MARK[b.postId]) ? seedAns[b.postId] : null;
+      if (!b || !sd) return false;
+      if (typeof b.answer === "string" && b.answer.indexOf(OLD_ANSWER_MARK[b.postId]) !== -1 && b.answer !== sd.answer) return true;
+      return b.answer === sd.answer &&
+        (JSON.stringify(b.citations) !== JSON.stringify(sd.citations) || b.agencyRequest !== sd.agencyRequest);
+    }
+    var needsAns = (s.briefingItems || []).some(staleSeedAnswer);
+    if (needsAns) {
+      (s.briefingItems || []).forEach(function (b) {
+        var sd = (b && OLD_ANSWER_MARK[b.postId]) ? seedAns[b.postId] : null;
+        if (b && sd && staleSeedAnswer(b)) {
+          b.answer = sd.answer;
+          b.citations = deepCopy(sd.citations);
+          b.agencyRequest = sd.agencyRequest;
+          filled = true;
+        }
+      });
+    }
     /* Backfill voting windows onto saved cycles (the rollover needs them).
        Seed values only, never overwritten where present. */
     var needsWindows = (s.cycles || []).some(function (c) { return !c.votingStart || !c.votingEnd; });
