@@ -912,6 +912,13 @@ var PodiumStore = (function () {
         changed = true;
       }
     });
+    /* Reconcile the demo session cap: if the collapse removed the vote the
+       demoVote points at, the cap would keep blocking other citizens
+       ("capped") although no vote is recorded — clear it. */
+    if (s.demoVote && s.demoVote.cycleId === current) {
+      var dk = s.demoVote.voterId + ":" + s.demoVote.postId;
+      if (!s.votes[dk]) { s.demoVote = null; changed = true; }
+    }
     if (changed) save(s);
     return changed;
   }
@@ -1063,6 +1070,7 @@ var PodiumStore = (function () {
     userVoteInCycle: userVoteInCycle,
     cycleVotingOpen: cycleVotingOpen,
     castVote: castVote,
+    collapseExtraVotes: collapseExtraVotes,
     cycleDateTime: cycleDateTime,
     cycleYear: cycleYear,
     displayDateFor: displayDateFor,

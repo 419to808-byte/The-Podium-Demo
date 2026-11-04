@@ -71,6 +71,48 @@
   ok("R15 Jan 2027 feed falls back to the latest-started cycle",
     PodiumStore.currentCycleId(s, at(2027, 0, 5, 12, 0)) === "w5");
 
+  /* S13: stale demoVote reconciled by the collapse — a pre-change save whose
+     demoVote points at a post the collapse removes must not stay capped,
+     while a demoVote on a surviving vote still caps. Pure store test, no DOM. */
+  (function () {
+    var now = at(2026, 10, 5, 12, 0); /* Nov 5 noon: w5 voting open */
+    var st = freshState();
+    var cur = PodiumStore.currentCycleId(st, now);
+    var w5ids = st.posts.filter(function (p) { return p.cycleId === cur; }).map(function (p) { return p.id; });
+    var LS = null, backup = null, hadKey = false;
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        LS = window.localStorage;
+        backup = LS.getItem("podium.v1");
+        hadKey = true;
+      }
+    } catch (e) { LS = null; }
+    var pass = false;
+    try {
+      st.votes = {};
+      st.votes["u-stale:" + w5ids[0]] = true;
+      st.votes["u-stale:" + w5ids[1]] = true; /* last key survives the collapse */
+      st.demoVote = { cycleId: cur, voterId: "u-stale", postId: w5ids[0] };
+      var base = st.posts.filter(function (p) { return p.id === w5ids[2]; })[0].votes;
+      var collapsed = PodiumStore.collapseExtraVotes(st, now);
+      var cleared = (st.demoVote === null);
+      var kept = !!st.votes["u-stale:" + w5ids[1]] && !st.votes["u-stale:" + w5ids[0]];
+      var res = PodiumStore.castVote(st, "u-other", w5ids[2], now);
+      var rose = st.posts.filter(function (p) { return p.id === w5ids[2]; })[0].votes;
+      st.demoVote = { cycleId: cur, voterId: "u-stale", postId: w5ids[1] };
+      var ctrl = PodiumStore.castVote(st, "u-other", w5ids[2], now);
+      pass = (cur === "w5" && collapsed === true && cleared && kept &&
+        res === "voted" && rose === base + 1 && ctrl === "capped");
+    } catch (e) { pass = false; }
+    try {
+      if (LS) {
+        if (!hadKey || backup === null) LS.removeItem("podium.v1");
+        else LS.setItem("podium.v1", backup);
+      }
+    } catch (e) {}
+    ok("R28 stale demoVote reconciled, no phantom cap", pass);
+  })();
+
   /* Permanent regression cases for three behaviors proven before only by
      temporary probes (deleted after use). They drive the live app DOM with
      the runner's clock control, so they need that context: without the
@@ -187,7 +229,7 @@
       var h = document.querySelector("#watchMain h3").textContent;
       var t = watchMainText();
       ok("R21 Nov 5 Upcoming names the wait, no empty bill",
-        /Nov 11/.test(h) && !/On the air bill/.test(t) &&
+        /Nov 11/.test(h) && !/On the agenda/.test(t) &&
         /Selections for this briefing have not been drawn yet\./.test(t));
     });
     /* No-future-briefing fallback (already in app): agendaCycle returns
