@@ -3159,7 +3159,7 @@
       if (!bAt || !c.topPostId) return;
       if (bAt <= nowEt) thisWeek = c; /* cycles are chronological: last aired wins */
       var dAt = cycleDateTimeFor(c, c.drawAt);
-      if (bAt > nowEt && (!dAt || dAt <= nowEt)) next = c; /* most recently drawn, unbriefed */
+      if (bAt > nowEt && (!dAt || dAt <= nowEt) && !next) next = c; /* nearest drawn, unbriefed */
     });
     /* No stale-status fallback: before the first briefing airs, This Week is
        empty (the section renders nothing until a briefing datetime passes). */
