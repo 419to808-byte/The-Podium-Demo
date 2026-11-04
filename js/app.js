@@ -280,7 +280,7 @@
     /* composer */
     "post.aria": "Post composer",
     "post.rule.applies": "The Verbatim Rule applies.",
-    "post.rule.text": "Your post may be read aloud, word for word, in front of the entire nation. Profanity, slang, and ridicule will not post. Once published, it is final.",
+    "post.rule.text": "Your post may be read aloud, word for word, in front of the entire nation. Profanity, slurs, and personal attacks will not post. Once published, it is final.",
     "post.rule.reminder": "Your post may be read aloud, word for word, in front of the entire nation. Profanity, slang, and ridicule will not post. Once published, it is final.",
     "notice.signin": "<strong>Sign in to post.</strong> Pick a demo citizen to address the nation. ",
     "notice.published.a": "<strong>Each citizen may submit one post per weekly cycle.</strong> You already published this week (",
