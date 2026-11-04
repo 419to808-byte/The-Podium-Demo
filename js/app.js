@@ -540,7 +540,7 @@
     "demo.tracker.note": "Demo: committee and government responses are entered here for evaluation.",
     "demo.badge": "Demo data \u2014 simulated citizen posts",
     "audit.ev.challenge": "Challenge raised",
-    "audit.ev.challengeanswer": "Government answer recorded",
+    "audit.ev.challenge-answer": "Government answer recorded",
     "audit.ev.response": "Citizen response posted",
     /* watch */
     "watch.aria": "Watch live broadcast",
@@ -3408,8 +3408,9 @@
     return { agency: agency, ask: ask, dueDate: due };
   }
   function challengeTemplateText(f, solution, ref) {
+    var askStop = /\.\s*$/.test(f.ask || "") ? "" : ".";
     return "To: " + f.agency + "\n" +
-      "Challenge: We challenge " + f.agency + "'s position that it cannot " + f.ask + ".\n" +
+      "Challenge: We challenge " + f.agency + "'s position that it cannot " + f.ask + askStop + "\n" +
       "The solution is already mapped out: " + solution + ".\n" +
       "Response required: " + f.agency + " must provide an additional response addressing this challenge, in the first status-updates broadcast on or after " + f.dueDate + " (Wednesdays at 2:00 PM ET). The response will be recorded on video and in writing.\n" +
       "Post: " + ref + ".";

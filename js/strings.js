@@ -446,7 +446,7 @@ var PodiumStrings = (function () {
     "demo.tracker.note": { en: "Demo: committee and government responses are entered here for evaluation.", es: "Demo: las respuestas del comité y del gobierno se registran aquí para evaluación." },
     "demo.badge": { en: "Demo data \u2014 simulated citizen posts", es: "Datos de demostraci\u00f3n \u2014 publicaciones ciudadanas simuladas" },
     "audit.ev.challenge": { en: "Challenge raised", es: "Desafío planteado" },
-    "audit.ev.challengeanswer": { en: "Government answer recorded", es: "Respuesta del gobierno registrada" },
+    "audit.ev.challenge-answer": { en: "Government answer recorded", es: "Respuesta del gobierno registrada" },
     "audit.ev.response": { en: "Citizen response posted", es: "Respuesta ciudadana publicada" },
     "prior.tostatus": { en: "Status updates for {ref} \u2192", es: "Actualizaciones de estado de {ref} \u2192" },
     "status.aria": { en: "Status updates follow-through record", es: "Registro de seguimiento de actualizaciones de estado" },
