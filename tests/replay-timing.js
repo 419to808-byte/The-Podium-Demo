@@ -365,7 +365,7 @@
         var t1 = document.querySelector("#nowReading").textContent;
         var src = v ? String(v.src).split("/").pop() : "";
         w1ok = !!v && src === "podium-replay-final-v5.mp4" &&
-          h1 === "Screening" && nowReadingRefs() === "C-0046,C-0046-A,B-0005,B-0005-A" &&
+          h1 === "Briefing" && nowReadingRefs() === "C-0046,C-0046-A,B-0005,B-0005-A" &&
           /TOP-VOTED/.test(t1) && /RANDOM DRAW/.test(t1) &&
           /assess the feasibility of quarterly scheduling/.test(t1) &&
           document.querySelectorAll("#nowReading .zone-post").length === 2 &&
@@ -388,7 +388,7 @@
         tClick(w2Btn);
         var t2 = document.querySelector("#nowReading").textContent;
         w2ok = !!document.querySelector("#watchMain canvas") &&
-          document.querySelector("#watchMain #nowReading h3").textContent === "Screening" &&
+          document.querySelector("#watchMain #nowReading h3").textContent === "Briefing" &&
           nowReadingRefs() === "B-0014,B-0014-A,A-0015,A-0015-A" &&
           /TOP-VOTED/.test(t2) && /RANDOM DRAW/.test(t2) &&
           document.querySelectorAll("#nowReading .zone-post").length === 2 &&
