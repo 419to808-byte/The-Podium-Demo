@@ -3087,9 +3087,11 @@
       draftBtn.disabled = true;
       draftBtn.style.display = "none";
       wonderStatus.textContent = Tf("wonder.drafting", { model: PodiumAI.WONDER_MODEL });
+      var wref = p.ref || p.id;
       clearWonderRetryTimer();
       wonderRetryTimer = setInterval(function () {
-        if (typeof PodiumAI.wonderRetrying === "function" && PodiumAI.wonderRetrying()) {
+        var retryingNow = (typeof PodiumAI.wonderRetryingFor === "function") ? PodiumAI.wonderRetryingFor(wref) : (typeof PodiumAI.wonderRetrying === "function" && PodiumAI.wonderRetrying());
+        if (retryingNow) {
           wonderStatus.textContent = T("wonder.retrying");
         }
       }, 1000);
@@ -3098,7 +3100,7 @@
         draftBtn.disabled = false;
         if (!draft) {
           draftBtn.style.display = "";
-          var werr = (typeof PodiumAI.wonderFailure === "function") ? PodiumAI.wonderFailure() : null;
+          var werr = ((typeof PodiumAI.wonderFailureFor === "function") && PodiumAI.wonderFailureFor(wref)) || ((typeof PodiumAI.wonderFailure === "function") ? PodiumAI.wonderFailure() : null);
           var wkind = werr && werr.kind;
           if (wkind === "timeout") wonderStatus.textContent = T("wonder.err.timeout");
           else if (wkind === "network") wonderStatus.textContent = T("wonder.err.network");

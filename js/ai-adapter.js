@@ -701,9 +701,12 @@ var PodiumAI = (function () {
   var WONDER_RETRY_BUDGET_MS = 300000; /* 5 minutes total for the retry loop below; worst case ~= budget + one in-flight attempt (~6.5 min) */
   var WONDER_RETRY_DELAY_MS = 2000; /* pause between attempts so an instant failure does not spin hot */
   var wonderCancelFlag = false; /* set by wonderCancel(): the loop ends when the user navigates away */
-  var wonderRetryActive = false; /* true while a retry attempt is pending (drives the "Retrying..." UI state) */
-  function wonderCancel() { wonderCancelFlag = true; wonderRetryActive = false; }
-  function wonderRetrying() { return wonderRetryActive; }
+  var wonderRetryRefs = {}; /* ref -> pending-retry count; per-post "Retrying..." state (TY, Nov 4: a shared boolean leaked across posts) */
+  var wonderErrors = {}; /* ref -> last failure for that post, captured synchronously so overlapping posts keep their own reason */
+  function wonderCancel() { wonderCancelFlag = true; wonderRetryRefs = {}; }
+  function wonderRetrying() { for (var k in wonderRetryRefs) { if (wonderRetryRefs[k] > 0) return true; } return false; }
+  function wonderRetryingFor(ref) { return (wonderRetryRefs[ref || ""] || 0) > 0; }
+  function wonderFailureFor(ref) { return wonderErrors[ref || ""] || null; }
   var WONDER_DRAFTS_KEY = "podium.v1.wonderDrafts"; /* ref -> draft envelope; exact across reloads and tabs */
   var WONDER_COMPAT_KEY = "podium.v1.wonderCompat"; /* {omitTempSeed:true} once a 400 proves the API rejects them */
   var wonderInflight = {}; /* ref -> in-flight draftCommitteeEnvelope promise: exactly one request per post */
@@ -782,18 +785,21 @@ var PodiumAI = (function () {
     "Add a 'Citations:' section listing one line per commitment in the exact form '- COMMITMENT | SOURCE | DATE' (commitment quote, agency or authority, date), or — if the answer makes no commitments — a line reading exactly 'No commitments in this answer.'. " +
     "Then end your reply with its agency request: a final 'Agency request:' section of three lines in the exact form 'To: AGENCY' (the agency the answer asks something of), 'Ask: SPECIFIC ASK' (what the committee asks that agency to do, including asking the agency to report back in the first status-updates broadcast on or after the due date: name 'the status-updates broadcast', its date, and its slot time 'Wednesdays at 2:00 PM ET'), 'Post: REF' (this post's reference code) — or, if the answer asks nothing of any agency, a final line reading exactly 'No agency request.'" +
     "The draft is a suggestion for the committee to vote on as written: Wonder does not decide, the draft text is never final, and Wonder is never the face of an answer.";
-  function wonderChat(systemText, userText, seed) {
+  function wonderChat(systemText, userText, seed, ref) {
     var t = WONDER_TRANSPORT;
     var key = getKey();
     if (!t.endpoint || !t.model || !key) {
       wonderLastError = key ? { kind: "config" } : { kind: "no-key" };
+      if (ref) wonderErrors[ref] = wonderLastError;
       wonderWarn(wonderLastError);
       return Promise.resolve(null);
     }
     var content = systemText + "\n\n" + userText;
+    var rkey = ref || "";
     var t0 = Date.now();
     wonderCancelFlag = false;
-    wonderRetryActive = false;
+    /* No retry-state reset here: another post's loop may be mid-retry, and
+       clearing it would hide its "Retrying..." state (per-post map now). */
     /* Retry loop (TY, Nov 4): keep retrying the SAME single draft creation
        until a draft exists. Retries on network failure and per-attempt
        timeout only, never on HTTP status, never past the 5-minute budget.
@@ -857,26 +863,29 @@ var PodiumAI = (function () {
       }
     function wait(ms) { return new Promise(function (res) { setTimeout(res, ms); }); }
     function loop() {
-        if (wonderCancelFlag) { wonderRetryActive = false; return Promise.resolve(null); }
+        if (wonderCancelFlag) { wonderRetryRefs[rkey] = 0; return Promise.resolve(null); }
         return withTimeout(singleAttempt, WONDER_TIMEOUT_MS).then(function (res) {
-          if (res && res.text) { wonderLastError = null; wonderRetryActive = false; return res.text; }
+          if (res && res.text) { wonderLastError = null; delete wonderErrors[rkey]; wonderRetryRefs[rkey] = 0; return res.text; }
           var err = (!res) ? { name: "AbortError", message: "attempt timed out after 90s" }
             : (res && res.failed) ? res.failed
             : { name: "EmptyError", message: "empty reply" };
           var got = classify(err);
           if (got.kind === "http" || got.kind === "empty") {
-            wonderLastError = got; /* HTTP error status (or a 200 with no text): never retry */
+            wonderLastError = got; wonderErrors[rkey] = got; /* per-post copy, captured synchronously */
             wonderWarn(wonderLastError);
-            wonderRetryActive = false;
+            wonderRetryRefs[rkey] = 0;
             return null;
           }
-          wonderLastError = got; /* network failure or per-attempt timeout: retry while budget remains */
+          wonderLastError = got; wonderErrors[rkey] = got; /* per-post copy, captured synchronously */
           wonderWarn(wonderLastError);
           if (!wonderCancelFlag && (Date.now() - t0) < WONDER_RETRY_BUDGET_MS) {
-            wonderRetryActive = true;
-            return wait(WONDER_RETRY_DELAY_MS).then(loop);
+            wonderRetryRefs[rkey] = (wonderRetryRefs[rkey] || 0) + 1;
+            return wait(WONDER_RETRY_DELAY_MS).then(function () {
+              wonderRetryRefs[rkey] = Math.max(0, (wonderRetryRefs[rkey] || 0) - 1);
+              return loop();
+            });
           }
-          wonderRetryActive = false;
+          wonderRetryRefs[rkey] = 0;
           return null;
         });
     }
@@ -891,16 +900,16 @@ var PodiumAI = (function () {
     var ref = post.ref || post.id;
     /* Stored draft first: no API call when one exists — same tab, new tab, after reload. */
     var stored = readStoredDraft(ref);
-    if (stored) { wonderLastError = null; return Promise.resolve(stored); }
+    if (stored) { wonderLastError = null; delete wonderErrors[ref]; return Promise.resolve(stored); }
     /* In-flight guard: a second call while generation runs shares the one request. */
     if (wonderInflight[ref]) return wonderInflight[ref];
     var user = "Reference code: " + (post.ref || "") + "\n" +
       "Topic: " + (post.topic || "") + "\n" +
       "Author state: " + (post.authorState || "not stated") + "\n" +
       "Citizen post (verbatim):\n" + String(post.body || "");
-    var pr = wonderChat(ANSWER_SYSTEM, user, seedFromRef(ref)).then(function (text) {
+    var pr = wonderChat(ANSWER_SYSTEM, user, seedFromRef(ref), ref).then(function (text) {
       delete wonderInflight[ref];
-      if (!text) return null;
+      if (!text) { wonderErrors[ref] = wonderLastError; return null; }
       var d = parseDraftEnvelope(text.replace(/^Sample committee response:\s*/i, ""));
       if (!d.text) return null;
       /* Unapprovable envelope: zero valid citations and no no-commitments
@@ -910,6 +919,7 @@ var PodiumAI = (function () {
          the failure is surfaced through wonderLastError, never silently. */
       if (!d.noCommitments && (!d.citations || !d.citations.length)) {
         wonderLastError = { kind: "unapprovable", name: "UnapprovableDraft", message: "draft has no valid citations" };
+        wonderErrors[ref] = wonderLastError;
         wonderWarn(wonderLastError);
         return d;
       }
@@ -1041,9 +1051,11 @@ var PodiumAI = (function () {
     suggestTopicLive: suggestTopicLive,
     topicLabels: TOPIC_KEYWORDS.map(function (pair) { return pair[0]; }),
     wonderFailure: function () { return wonderLastError; },
+    wonderFailureFor: wonderFailureFor,
     loadStoredDrafts: loadStoredDrafts,
     wonderCancel: wonderCancel,
     wonderRetrying: wonderRetrying,
+    wonderRetryingFor: wonderRetryingFor,
     draftCommitteeAnswer: draftCommitteeAnswer,
     draftCommitteeEnvelope: draftCommitteeEnvelope,
     generateDemoPost: generateDemoPost,
