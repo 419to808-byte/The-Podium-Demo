@@ -8,7 +8,7 @@ var PodiumStrings = (function () {
   var LANG_KEY = "podium.v1.lang";
   var TABLE = {
     /* document */
-    "doc.title": { en: "The Podium \u2014 A Civic Portal", es: "The Podium \u2014 Un portal c\u00edvico" },
+    "doc.title": { en: "The Podium Demo \u2014 A Civic Portal", es: "The Podium Demo \u2014 Un portal c\u00edvico" },
     "skip.main": { en: "Skip to main content", es: "Saltar al contenido principal" },
     "gov.text": { en: "An official website of the United States government", es: "Un sitio web oficial del gobierno de los Estados Unidos" },
     "gov.how": { en: "Here\u2019s how you know.", es: "As\u00ed es como lo sabes." },

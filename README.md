@@ -1,4 +1,4 @@
-# THE PODIUM — a civic portal (hackathon v1)
+# THE PODIUM DEMO — a civic portal (hackathon v1)
 
 Verified citizens post ideas and concerns. The community votes (upvote-only).
 Each week the top-voted post plus one randomly drawn post are read aloud

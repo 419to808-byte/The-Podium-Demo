@@ -78,7 +78,7 @@
      is touched for this. */
   var EN_CHROME = {
     /* document */
-    "doc.title": "The Podium \u2014 A Civic Portal",
+    "doc.title": "The Podium Demo \u2014 A Civic Portal",
     "skip.main": "Skip to main content",
     "gov.text": "An official website of the United States government",
     "gov.how": "Here\u2019s how you know.",
@@ -3978,7 +3978,7 @@
       var shareTimer = setTimeout(function () {
         if (!settled) { settled = true; copyShareLink(url, btn); }
       }, 5000);
-      navigator.share({ title: "The Podium", text: excerpt(p.body, 140), url: url })
+      navigator.share({ title: "The Podium Demo", text: excerpt(p.body, 140), url: url })
         .then(function () { settled = true; clearTimeout(shareTimer); },
           function (e) {
             settled = true; clearTimeout(shareTimer);
@@ -4497,7 +4497,7 @@
       g.fillText(live ? "\u25cf " + T("watch.live") : T("watch.replay"), 28, 64);
       g.fillStyle = "#ffffff";
       g.font = "28px Georgia, serif";
-      g.fillText("THE PODIUM", 28, 110);
+      g.fillText("THE PODIUM DEMO", 28, 110);
       g.fillStyle = "#d7dee8";
       g.font = "20px Georgia, serif";
       g.fillText(String(title).slice(0, 42), 28, 145);
