@@ -121,7 +121,7 @@
     "committee.note": "One citizen cycles out and one new citizen joins every week, so the committee is always 12 people with a mix of experience.",
     "committee.rules.summary": "Committee rules \u2014 selection, pay, structure & schedule",
     "committee.rules.selection.heading": "How members are selected",
-    "committee.rules.selection.body": "Twelve ordinary verified citizens, chosen by random draw from a national pool using the NIST Randomness Beacon \u2014 the same rig-proof method as the post draw. Selection is a summons, not a draft: if your name comes up, you agree to serve or decline and the next citizen is drawn. To serve you must be a verified citizen, 18 or older, with no post in the current cycle, not a government employee, and not currently incarcerated or on parole or probation \u2014 a past felony does not exclude you; eligibility returns 5 years after the sentence is fully complete. Terms are 12 weeks, one new citizen joins every week, and after cycling out you sit out 12 weeks. No more than 2 terms per year. No committee member can submit a post while serving on the committee, for the whole 12-week term.",
+    "committee.rules.selection.body": "Twelve ordinary verified citizens, chosen by random draw from a national pool using the NIST Randomness Beacon \u2014 the same method as the post draw, proof against rigging. Selection is a summons, not a draft: if your name comes up, you agree to serve or decline and the next citizen is drawn. To serve you must be a verified citizen, 18 or older, with no post in the current cycle, not a government employee, and not currently incarcerated or on parole or probation \u2014 a past felony does not exclude you; eligibility returns 5 years after the sentence is fully complete. Terms are 12 weeks, one new citizen joins every week, and after cycling out you sit out 12 weeks. No more than 2 terms per year. No committee member can submit a post while serving on the committee, for the whole 12-week term.",
     "committee.rules.pay.heading": "Pay",
     "committee.rules.pay.body": "Members are paid $150 per day, for Friday and Saturday ($300 a week). The solo thinking days are not separately paid. Travel, hotel, and meals for the weekly in-person meeting are covered separately at government rates and booked directly \u2014 members never pay out of pocket \u2014 plus childcare support for in-person days. The pay is $150 flat, no top-up. The plan isn't for committee members to get rich off this \u2014 it's more of a public service.",
     "committee.rules.structure.heading": "Structure",
@@ -141,34 +141,34 @@
     "rule.reminder": "Reminder of the rule",
     "rule.p1": "By the rules of this portal, the highest-voted post <strong>MUST</strong> be read aloud \u2014 word for word, exactly as its author wrote it \u2014 and discussed, by a representative of the United States, in front of the entire country. Another post, drawn at random, must be read and discussed the same way.",
     "rule.p2": "AI will be used to detect profanity and errors, correct grammar, and suggest clearer formatting. It will never steer you: your topic, your position, or your meaning. And once your post is published, it is final.",
-    "rule.p3": "Keep in mind that your post may be read in front of the entire nation. Write in your most professional manner. Profanity, slang, and ridicule will not post. State your idea or concern plainly and professionally. You are not posting a comment. You are addressing the nation \u2014 speaking to and for every American. Give it the seriousness it deserves.",
-    "rule.p4": "Even if the committee cannot resolve an issue, it has at least brought light to the concern. That is the bare essential of this platform: to shine a light on concerns and ideas, and to try to resolve them or implement helpful changes.",
+    "rule.p3": "Keep in mind that your post may be read in front of the entire nation. Write in your most professional manner. Profanity, slang, and ridicule will not post. State your idea or concern plainly and professionally. You are not posting a comment. You are addressing the nation \u2014 speaking to and for every American. Treat it with the seriousness it deserves.",
+    "rule.p4": "Even if the committee cannot resolve an issue, it has at least brought light to the concern. That is the fundamental purpose of this platform: to shine a light on concerns and ideas, and to seek to resolve them or implement helpful changes.",
     "rule.readfull": "Read the full rule",
     /* fine print */
     "fine.summary": "Fine print (official register)",
     "fine.lede": "All submissions are subject to automated pre-publication review. Submissions containing profanity, slurs, or personal attacks shall not be published. Submissions containing slang or errors materially affecting comprehensibility shall be held pending correction by the submitting party, with suggested revisions provided for consideration; no submission shall be altered by the System without the submitting party\u2019s express action. Weekly selections shall consist of (i) the submission receiving the highest number of votes during the applicable period and (ii) one (1) submission selected by random drawing from among all eligible published submissions. Selected submissions shall be read aloud in their entirety, verbatim, and discussed in the weekly briefing. A published submission is final and shall not be edited or redacted.",
     "fine.statements": "Statements of policy, principles, and fundamentals",
     "fine.purpose": "The purpose of this platform is to ensure that every citizen has the opportunity to be heard by the nation. Citizens will address the nation and speak on its behalf.",
-    "fine.li1": "The highest-voted post and one randomly drawn post are read aloud word-for-word, in full, by a U.S. representative and discussed in the weekly briefing. No editor stands between author and nation. Nothing is edited after posting.",
-    "fine.li2": "AI detects problems and suggests wording before publication only. It never steers a post's topic, position, or meaning, and never changes, substitutes, or declines a post on its own.",
-    "fine.li3": "Profanity, slurs, and personal attacks are hard-blocked and never publish. Slang, misspellings, grammar, and unclear text are held with suggested rewording; the author accepts or retypes, and AI never silently changes text. Held drafts are not published, do not enter the draw, and do not use the citizen's one-post slot.",
+    "fine.li1": "The highest-voted post and one randomly drawn post are read aloud in full, word for word, by a representative of the United States and discussed in the weekly briefing. No editor stands between author and nation. Nothing is edited after posting.",
+    "fine.li2": "AI detects problems and suggests wording only before publication. It never steers a post's topic, position, or meaning, and never changes, substitutes, or declines a post on its own.",
+    "fine.li3": "Profanity, slurs, and personal attacks are blocked outright and never publish. Slang, misspellings, grammar, and unclear text are held with suggested rewording; the author accepts the suggestion or retypes the text, and AI never changes text silently. Held drafts are not published, do not enter the draw, and do not use the citizen's one-post slot.",
     "fine.li4": "Once published, a post is final. It cannot be deleted, withdrawn, archived, or hidden.",
-    "fine.li5": "Voting is upvote-only. One vote per citizen per weekly cycle, switchable until voting closes Sunday at 11:59 PM ET.",
-    "fine.li6": "One post per citizen per weekly cycle.",
-    "fine.li7": "Posts are capped at 630 words.",
-    "fine.li8": "The random draw is rig-proof: the eligible pool is frozen in a fixed published order at the cutoff, and the position is the NIST Randomness Beacon value mod pool size, plus one. The draw is internal only, with no button, replay, or re-roll.",
-    "fine.li9": "The committee prepares answers only. It never alters, substitutes, delays, or declines a selection. It reviews selections a week ahead and routes each answer to the correct branch and level.",
+    "fine.li5": "Voting is upvote-only. Each citizen casts one vote per weekly cycle, switchable until voting closes Sunday at 11:59 PM ET.",
+    "fine.li6": "Each citizen may submit one post per weekly cycle.",
+    "fine.li7": "Posts are limited to 630 words.",
+    "fine.li8": "The random draw is proof against rigging: the eligible pool is frozen in a fixed published order at the cutoff, and the position is the NIST Randomness Beacon value modulo the pool size, plus one. The draw is internal only, with no button, replay, or re-roll.",
+    "fine.li9": "The committee prepares answers only. It never alters, substitutes, delays, or declines a selection. It reviews selections one week in advance and routes each answer to the correct branch and level.",
     "fine.li10": "The committee does not fund. It asks for funds and allocates funds.",
-    "fine.li11": "Committee answers start as AI drafts that the committee votes on as written \u2014 never edited \u2014 and approves as the committee, the answerer of record; no individual member is named. AI never delivers a final answer alone and never touches a citizen post. The drafts are public: the public sees the drafts and the vote, not only approved answers.",
-    "fine.li12": "An exact-duplicate post in the same cycle does not create a new post; the citizen is offered an upvote on the existing post, with no post-anyway exit. The draw pool excludes the winner and any post exactly matching the winner. Similar-but-distinct posts are advisory only.",
-    "fine.li13": "The Live Feed shows the current cycle only. Past-cycle posts that were never selected are deleted; selected posts are kept as the briefing record.",
-    "fine.li14": "Posting and voting run Monday 12:00 AM to Sunday 11:59 PM ET. The pool freezes at the Sunday cutoff, the draw is Monday at 12:00 PM ET, the committee has the week plus a Monday-Tuesday buffer, and the briefing airs Wednesdays at 1:00 PM ET as the fixed opening segment.",
-    "fine.li15": "This Week shows only the most recently aired briefing. Next Week shows the next briefing's selections. A briefing's replay publishes when that briefing airs. Prior Posts & Answers and Status Updates list aired selections only.",
-    "fine.li16": "Participation is for verified citizens; in this demo, verification is simulated only and no real identification is collected or stored.",
+    "fine.li11": "Committee answers begin as AI drafts that the committee votes on as written \u2014 never edited \u2014 and approves as the committee, the answerer of record; no individual member is named. AI never delivers a final answer alone and never touches a citizen post. The drafts are public: the public sees the drafts and the vote, not only approved answers.",
+    "fine.li12": "An exact-duplicate post in the same cycle does not create a new post; the citizen is offered an upvote on the existing post, with no option to post it anyway. The draw pool excludes the winner and any post exactly matching the winner. Similar-but-distinct posts are advisory only.",
+    "fine.li13": "The Live Feed shows the current cycle only. Posts from past cycles that were never selected are deleted; selected posts are kept as the briefing record.",
+    "fine.li14": "Posting and voting run from Monday 12:00 AM to Sunday 11:59 PM ET. The pool freezes at the Sunday cutoff, the draw is Monday at 12:00 PM ET, the committee has the week plus a Monday–Tuesday buffer, and the briefing airs Wednesdays at 1:00 PM ET as the fixed opening segment.",
+    "fine.li15": "This Week shows only the most recently aired briefing. Next Week shows the next briefing's selections. A briefing's replay is published when that briefing airs. Prior Posts & Answers and Status Updates list aired selections only.",
+    "fine.li16": "Participation is limited to verified citizens; in this demo, verification is simulated only, and no real identification is collected or stored.",
     "fine.li17": "Language: a citizen may post in any language. The original post is the official record and is read aloud verbatim in the author's language. Translations are machine aids for readers and never replace the original.",
-    "fine.li18": "Live activity: when \u2018Simulate live activity\u2019 is on, the feed shows AI-generated demonstration posts, clearly labeled. They are never voted on, never drawn, and never briefed.",
+    "fine.li18": "Live activity: when \u2018Simulate live activity\u2019 is enabled, the feed shows AI-generated demonstration posts, clearly labeled. They are never voted on, never drawn, and never briefed.",
     "fine.li19": "Mock accounts: signing up stores a local profile in this browser only, with no real identity verification.",
-    "fine.li20": "Real sign-in/sign-up: shown as a preview; the backend and text verification are not built yet.",
+    "fine.li20": "Real sign-in/sign-up: shown as a preview; the backend and text verification are not yet built.",
     "fine.li21": "Security: every post carries a SHA-256 hash, and every action is recorded in a hash-chained audit log.",
     /* feed */
     "feed.aria": "Feed of citizen posts",
@@ -185,7 +185,7 @@
     "feed.search": "Keyword search",
     "feed.search.ph": "e.g. bridges, school lunches",
     "feed.perpage": "Per page",
-    "feed.voterule": "One vote per citizen per week. You can change it until voting closes Sunday at 11:59 PM ET.",
+    "feed.voterule": "Each citizen casts one vote per weekly cycle, switchable until voting closes Sunday at 11:59 PM ET.",
     "feed.prev": "\u2190 Prev",
     "feed.next": "Next \u2192",
     "feed.page": "Page",
@@ -268,7 +268,7 @@
     "post.rule.text": "Your post may be read aloud, word for word, in front of the entire nation. Profanity, slang, and ridicule will not post. Once published, it is final.",
     "post.rule.reminder": "Your post may be read aloud, word for word, in front of the entire nation. Profanity, slang, and ridicule will not post. Once published, it is final.",
     "notice.signin": "<strong>Sign in to post.</strong> Pick a demo citizen to address the nation. ",
-    "notice.published.a": "<strong>One post per citizen per weekly cycle.</strong> You already published this week (",
+    "notice.published.a": "<strong>Each citizen may submit one post per weekly cycle.</strong> You already published this week (",
     "notice.published.b": "). You can still vote on this week\u2019s posts.",
     "post.topic": "Topic",
     "post.topic.hint": "Pick a topic, or accept the single AI suggestion at review.",
@@ -354,11 +354,11 @@
     "mock.browsernote": "This account lives only in this browser. No real verification, no server.",
     "mock.signout": "Sign out",
     "real.heading": "Real account \u2014 coming soon",
-    "real.note": "Preview only \u2014 the real sign-in/sign-up needs a backend and a texting service, which are not built yet. Nothing here is saved or sent.",
+    "real.note": "Preview only \u2014 the real sign-in/sign-up needs a backend and a texting service, which are not yet built. Nothing here is saved or sent.",
     "real.phone": "Phone number",
     "real.sendcode": "Send verification code",
     "real.code": "6-digit code",
-    "real.smsnote": "The real product texts a 6-digit code to your phone. Enter it here to verify. This demo cannot send texts \u2014 the backend and texting service are not built yet.",
+    "real.smsnote": "The real product texts a 6-digit code to your phone. Enter it here to verify. This demo cannot send texts \u2014 the backend and texting service are not yet built.",
     "real.incode": "Send me a sign-in code",
     "real.innote": "Sign in with your password plus a texted code, or with a texted code alone.",
     /* briefing */
@@ -371,7 +371,7 @@
     "briefing.next": "Next Week",
     "briefing.next.hint": "Selected posts in committee review. Answers are still being formulated \u2014 never presented as final. These selections are published after the Monday draw, once the draw has selected the posts: the full posts for the next briefing appear here from the draw onward, in full, with answers coming on the briefing date.",
     "briefing.draw": "The random draw \u2014 verifiably fair",
-    "briefing.draw.lede": "The eligible pool is frozen and published <em>first</em> (all gate-passed posts since the last draw, minus the top-voted winner). The system runs the draw at the pre-announced time: <code>position = beacon value mod pool size + 1</code>. Random selection conducted using the NIST Randomness Beacon.",
+    "briefing.draw.lede": "The eligible pool is frozen and published <em>first</em> (all gate-passed posts since the last draw, minus the top-voted winner). The system runs the draw at the pre-announced time: <code>position = beacon value modulo the pool size + 1</code>. Random selection is conducted using the NIST Randomness Beacon.",
     "briefing.draw.excluded": "Excluded from the pool",
     "briefing.draw.readonly": "Read-only record: pool size, beacon timestamp and value, computed position, and the drawn post. The draw is an internal system function \u2014 nothing here re-runs it.",
     "briefing.draw.worked": "Worked example",
@@ -494,11 +494,11 @@
     "rereview.outcome.upheld": "Appeal upheld — back under review",
     "rereview.outcome.rejected": "Appeal rejected — determination stands",
     "rereview.note.ph": "Re-review note (optional)",
-    "challenge.legend": "Why can't we do this? — committee challenges",
-    "challenge.name": "Why can't we do this?",
-    "challenge.raise": "Raise challenge",
-    "challenge.solution.label": "Solution already mapped out",
-    "challenge.solution.ph": "Summarize the mapped-out solution…",
+    "challenge.legend": "Why did the committee decline?",
+    "challenge.name": "Why did the committee decline?",
+    "challenge.raise": "Record answer",
+    "challenge.solution.label": "The committee's answer",
+    "challenge.solution.ph": "Why the committee declined\u2026",
     "challenge.by": "Challenged by {name} on {date}",
     "challenge.awaiting": "Awaiting government answer",
     "challenge.answer.legend": "Government answer",
@@ -561,7 +561,7 @@
     "footer.process.chain": "1. A citizen posts an idea or concern \u2014 630 words max, gate-checked, final once published. 2. The community votes \u2014 one vote per citizen per weekly cycle, switchable until Sunday 11:59 PM ET. 3. At the cutoff the pool freezes; Monday at 12:00 PM ET the NIST Randomness Beacon draw picks one post at random. 4. The committee prepares answers and routes each selection to the correct branch and level. 5. Wednesday at 1:00 PM ET the briefing airs \u2014 the highest-voted post and the drawn post are read aloud word-for-word and discussed. 6. Approved answers are published, and follow-through is tracked in Status Updates until Answered, Action Promised, In Progress, Resolved \u2014 or No Action, with an official reason.",
     "footer.notices": "Notices",
     "footer.security": "Security",
-    "footer.security.note": "Demo: every post carries a SHA-256 hash, and every action is recorded in a hash-chained audit log. The real product is planned to verify identity through Login.gov and use phishing-resistant sign-in, designed to meet federal security standards. The backend items are not built yet.",
+    "footer.security.note": "Demo: every post carries a SHA-256 hash, and every action is recorded in a hash-chained audit log. The real product is planned to verify identity through Login.gov and use phishing-resistant sign-in, designed to meet federal security standards. The backend items are not yet built.",
     "footer.demonotice": "<strong>Demo notice:</strong> sign-in is simulated; no real personal data is collected, requested, or stored. AI checks run locally until a Model API key is provided for the session. Answers shown are demonstration content \u2014 seeded sample responses and live Muse Wonder drafts.",
     "footer.key": "Model API key",
     "footer.key.hint": "(demo session only \u2014 kept in sessionStorage, cleared when the tab closes; never committed)",
@@ -1278,7 +1278,7 @@
      auto-translation (cards re-render originals-only). Manual Translate
      buttons are independent and keep working on or off. */
   var AUTO_KEY = "podium.v1.autotranslate";
-  var autoTransOn = false;
+  var autoTransOn = true;
   function autoTransLangName() { return uiLang() === "es" ? "Espa\u00f1ol" : "English"; }
   function syncAutoUi() {
     var box = $("autoTransToggle");
@@ -1297,8 +1297,8 @@
   function setAutoTrans(on) {
     autoTransOn = !!on;
     try {
-      if (autoTransOn) window.sessionStorage.setItem(AUTO_KEY, "1");
-      else window.sessionStorage.removeItem(AUTO_KEY);
+      if (autoTransOn) window.sessionStorage.removeItem(AUTO_KEY);
+      else window.sessionStorage.setItem(AUTO_KEY, "0");
     } catch (e) { /* session-only */ }
     feedList = null; /* rebuild so auto-translations appear or disappear */
     syncAutoUi();
@@ -1330,8 +1330,8 @@
     box.addEventListener("change", function () { setAutoTrans(box.checked); });
   })();
   try {
-    if (window.sessionStorage.getItem(AUTO_KEY) === "1") autoTransOn = true;
-  } catch (e) { /* default off */ }
+    if (window.sessionStorage.getItem(AUTO_KEY) === "0") autoTransOn = false;
+  } catch (e) { /* default on */ }
   /* Translate one rendered feed page. Cards carry data-autotranslate with the
      post id (set in renderFeed); posts already in the target language are
      left alone; cached translations render immediately with no call. */
@@ -2654,8 +2654,8 @@
     panel.appendChild(exits);
   }
 
-  /* Layer 1 anti-flood: exact copy of a current-cycle post. Hard gate with
-     no post-anyway exit. The draft is kept; the citizen can upvote instead. */
+  /* Layer 1 anti-flood: exact copy of a current-cycle post. Hard gate, with
+     no option to post it anyway. The draft is kept; the citizen can upvote instead. */
   function showCopyRedirect(dup) {
     var gm = $("gateMessages");
     gm.innerHTML = "";
@@ -4434,29 +4434,6 @@
   function setHtml(id, v) { var el = $(id); if (el) el.innerHTML = v; }
   function setAttr(id, a, v) { var el = $(id); if (el) el.setAttribute(a, v); }
   function setPh(id, v) { var el = $(id); if (el) el.setAttribute("placeholder", v); }
-  /* Verbatim Rule minimize: one button after the last rule paragraph
-     collapses the four rule paragraphs AND the Fine print <details>;
-     heading + button stay. The card is a single shared node, so one toggle
-     covers every tab. Session-only state ("1" = minimized); fresh sessions
-     start expanded. Hiding uses hidden, never the open attribute, so the
-     Fine print keeps its own open/closed state across the cycle. */
-  var RULE_KEY = "podium.v1.rule";
-  var ruleCollapsed = false;
-  try { ruleCollapsed = sessionStorage.getItem(RULE_KEY) === "1"; } catch (e) {}
-  function syncRuleToggle() {
-    ["ruleP1", "ruleP2", "ruleP3", "ruleP4"].forEach(function (id) {
-      var p = $(id);
-      if (p) p.hidden = ruleCollapsed;
-    });
-    var card = $("ruleCard");
-    var fine = card ? card.querySelector("details.fine-print") : null;
-    if (fine) fine.hidden = ruleCollapsed;
-    var btn = $("ruleToggle");
-    if (btn) {
-      btn.textContent = T(ruleCollapsed ? "rule.show" : "rule.minimize");
-      btn.setAttribute("aria-expanded", ruleCollapsed ? "false" : "true");
-    }
-  }
   function applyStaticChrome() {
     document.documentElement.lang = uiLang();
     document.title = T("doc.title");
@@ -4479,7 +4456,6 @@
     setText("ruleP2", T("rule.p2"));
     setText("ruleP3", T("rule.p3"));
     setText("ruleP4", T("rule.p4"));
-    syncRuleToggle(); /* re-labels the button, keeps the collapsed state */
     setText("readFullRule", T("rule.readfull"));
     setText("fineSummary", T("fine.summary"));
     setText("fineLede", T("fine.lede"));
@@ -4627,15 +4603,6 @@
     langSelInit.value = uiLang();
     langSelInit.addEventListener("change", function () { applyLanguage(langSelInit.value); });
   }
-  var ruleToggleBtn = $("ruleToggle");
-  if (ruleToggleBtn) ruleToggleBtn.addEventListener("click", function () {
-    ruleCollapsed = !ruleCollapsed;
-    try {
-      if (ruleCollapsed) sessionStorage.setItem(RULE_KEY, "1");
-      else sessionStorage.removeItem(RULE_KEY);
-    } catch (e) { /* private mode: the toggle still works for the session view */ }
-    syncRuleToggle();
-  });
   applyStaticChrome();
   renderCitizen();
   updateOnePostNotice();
