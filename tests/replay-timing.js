@@ -289,7 +289,7 @@
         w1ok = !!v && src === "podium-replay-final-v5.mp4" &&
           h1 === "Screening" && nowReadingRefs() === "C-0046,C-0046-A,B-0005,B-0005-A" &&
           /TOP-VOTED/.test(t1) && /RANDOM DRAW/.test(t1) &&
-          /allocate the funds across the twelve counties/.test(t1) &&
+          /assess the feasibility of quarterly scheduling/.test(t1) &&
           document.querySelectorAll("#nowReading .zone-post").length === 2 &&
           document.querySelectorAll("#nowReading .zone-answer").length === 2 &&
           document.querySelectorAll("#nowReading button").length === 2;

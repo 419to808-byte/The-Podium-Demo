@@ -2878,6 +2878,8 @@
     var citeDiv = document.createElement("div");
     citeDiv.innerHTML = citationsHtml(item, p) + standingLabelHtml();
     while (citeDiv.firstChild) li.appendChild(citeDiv.firstChild);
+    var seedReqB = seedAgencyBlock(item);
+    if (seedReqB) li.appendChild(seedReqB);
     var row = document.createElement("div");
     row.className = "btn-row";
     var record = document.createElement("button");
@@ -3502,6 +3504,8 @@
     }
     html += trackerHtml(b, p);
     card.innerHTML = html;
+    var seedReqP = seedAgencyBlock(b);
+    if (seedReqP) { var paz = card.querySelectorAll(".zone-answer"); if (paz.length) paz[0].appendChild(seedReqP); else card.appendChild(seedReqP); }
     wireTracker(card, b, p, renderPriorCard);
     mountTranslateSlots(card);
     wireApproverLinks(card);
@@ -3560,6 +3564,8 @@
       b.updates.map(function (u, i) { return "<li><span class=\"ref-code\">" + esc(updateCode(p, i)) + "</span> <strong>" + esc(u.date) + ":</strong> " + esc(u.text) + responsesHtml(b, p, "update", i) + "</li>"; }).join("") +
       "</ul>" + trackerHtml(b, p);
     card.innerHTML = html;
+    var seedReqS = seedAgencyBlock(b);
+    if (seedReqS) { var sh = card.querySelector("h4"); if (sh) card.insertBefore(seedReqS, sh); else card.appendChild(seedReqS); }
     wireTracker(card, b, p, renderStatusCard);
     var back = document.createElement("button");
     wireApproverLinks(card);
@@ -3596,6 +3602,28 @@
       out += '<p class="hint">' + esc(T("cite.commitment")) + ": " + esc(c[i].commitment) + " \u2014 " + esc(T("cite.source")) + ": " + esc(c[i].source) + ", " + esc(c[i].date) + "." + (c[i].liaison ? " \u2014 " + esc(T("cite.via")) + " " + esc(c[i].liaison) : "") + "</p>";
     }
     return out;
+  }
+  /* Seeded agency request (TY, Nov 3): briefing items carry the request
+     verbatim from the draft envelope; render it with the same label and
+     copy control as draft requests. Display-only. */
+  function seedAgencyBlock(b) {
+    if (!b || !b.agencyRequest) return null;
+    var reqText = b.agencyRequest;
+    var reqBlock = document.createElement("div");
+    reqBlock.innerHTML = '<p><span class="zone-label">' + esc(T("wonder.request")) + '</span></p>' +
+      '<p>' + esc(reqText).replace(/\n/g, '<br>') + '</p>';
+    var copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "btn btn-small";
+    copyBtn.textContent = T("wonder.copy");
+    copyBtn.addEventListener("click", function () {
+      copyText(reqText, function (ok) {
+        copyBtn.textContent = ok ? T("share.copied") : T("share.failed");
+        setTimeout(function () { copyBtn.textContent = T("wonder.copy"); }, 2000);
+      });
+    });
+    reqBlock.appendChild(copyBtn);
+    return reqBlock;
   }
   function committeeLineHtml() {
     var full = T("approver.bycommittee"), name = T("approver.committee"), i = full.indexOf(name), html;
