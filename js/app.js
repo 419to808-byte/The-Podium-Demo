@@ -410,7 +410,11 @@
     "wonder.decline": "Decline draft",
     "wonder.declined.note": "Declined by the committee. This post reverts to shine light: it will still be read aloud at the briefing and tracked, never buried.",
     "wonder.drafting": "Drafting with Muse Wonder ({model})...",
+    "wonder.retrying": "Retrying the Muse Wonder draft request...",
     "wonder.unavailable": "Muse Wonder is unavailable (no session key, or the call failed) \u2014 the seeded answer above stands. Answers are never drafted by Spark.",
+    "wonder.err.timeout": "Muse Wonder timed out after repeated tries \u2014 the seeded answer above stands. Answers are never drafted by Spark.",
+    "wonder.err.network": "Muse Wonder could not be reached (network failure) \u2014 the seeded answer above stands. Answers are never drafted by Spark.",
+    "wonder.err.http": "Muse Wonder returned an error (HTTP {status}) \u2014 the seeded answer above stands. Answers are never drafted by Spark.",
     "wonder.approved": "Approved by committee (demo)",
     "wonder.nocites": "This draft carries no citations and no \u201cNo commitments in this answer\u201d declaration, so it cannot be approved.",
     "wonder.request": "Agency request \u2014 ready to send.",
@@ -619,6 +623,8 @@
   }
   var tabs = document.querySelectorAll(".main-nav .tab");
   function showView(name) {
+    if (typeof PodiumAI !== "undefined" && PodiumAI && typeof PodiumAI.wonderCancel === "function") { PodiumAI.wonderCancel(); }
+    clearWonderRetryTimer();
     tabs.forEach(function (t) {
       var on = t.getAttribute("data-view") === name;
       t.classList.toggle("is-active", on);
@@ -2917,6 +2923,8 @@
   var wonderDrafts = {};   /* postId -> draft envelope { text, citations, noCommitments }, session-only */
   var wonderApproved = {}; /* postId -> true once approved in this session */
   var wonderDeclined = {}; /* postId -> true once declined in this session (post reverts to shine light) */
+  var wonderRetryTimer = null; /* interval id showing the "Retrying..." state while a Wonder retry loop runs */
+  function clearWonderRetryTimer() { if (wonderRetryTimer) { clearInterval(wonderRetryTimer); wonderRetryTimer = null; } }
   var wonderLiaisonAdvice = {}; /* postId -> [{liaison, claim, authority, date, outcome}] recorded in the draft zone, logged on approval, session-only */
   /* Committee-only visibility (TY, Oct 28): in the real product drafts
      and editing are committee-only; the demo shows them publicly for
@@ -3051,10 +3059,23 @@
       draftBtn.disabled = true;
       draftBtn.style.display = "none";
       wonderStatus.textContent = Tf("wonder.drafting", { model: PodiumAI.WONDER_MODEL });
+      clearWonderRetryTimer();
+      wonderRetryTimer = setInterval(function () {
+        if (typeof PodiumAI.wonderRetrying === "function" && PodiumAI.wonderRetrying()) {
+          wonderStatus.textContent = T("wonder.retrying");
+        }
+      }, 1000);
       PodiumAI.draftCommitteeEnvelope(p).then(function (draft) {
+        clearWonderRetryTimer();
         draftBtn.disabled = false;
         if (!draft) {
-          wonderStatus.textContent = T("wonder.unavailable");
+          draftBtn.style.display = "";
+          var werr = (typeof PodiumAI.wonderFailure === "function") ? PodiumAI.wonderFailure() : null;
+          var wkind = werr && werr.kind;
+          if (wkind === "timeout") wonderStatus.textContent = T("wonder.err.timeout");
+          else if (wkind === "network") wonderStatus.textContent = T("wonder.err.network");
+          else if (wkind === "http") wonderStatus.textContent = Tf("wonder.err.http", { status: (werr && werr.status) || "?" });
+          else wonderStatus.textContent = T("wonder.unavailable");
           return;
         }
         wonderDrafts[p.id] = draft;

@@ -697,7 +697,21 @@ var PodiumAI = (function () {
     endpoint: "https://api.meta.ai/v1/chat/completions",
     model: "muse-wonder-1.0"
   };
-  var WONDER_TIMEOUT_MS = 30000; /* committee has a week; not real-time */
+  var WONDER_TIMEOUT_MS = 90000; /* per-attempt timeout: one attempt waits at most 90s (a working draft took ~25s on Oct 28) */
+  var WONDER_RETRY_BUDGET_MS = 300000; /* 5 minutes total for the retry loop below; worst case ~= budget + one in-flight attempt (~6.5 min) */
+  var WONDER_RETRY_DELAY_MS = 2000; /* pause between attempts so an instant failure does not spin hot */
+  var wonderCancelFlag = false; /* set by wonderCancel(): the loop ends when the user navigates away */
+  var wonderRetryActive = false; /* true while a retry attempt is pending (drives the "Retrying..." UI state) */
+  function wonderCancel() { wonderCancelFlag = true; wonderRetryActive = false; }
+  function wonderRetrying() { return wonderRetryActive; }
+  var wonderLastError = null; /* {kind:"no-key"|"http"|"network"|"timeout"|"empty", ...} — console + UI only, never the key */
+  function wonderWarn(f) {
+    try {
+      if (typeof console !== "undefined" && console.warn) {
+        console.warn("[Podium] Wonder draft failed:", f.kind + (f.status ? " " + f.status : ""), (f.name ? f.name + ": " : "") + (f.message || ""));
+      }
+    } catch (e) {}
+  }
   var ANSWER_SYSTEM = "You draft committee answers for a civic portal's weekly briefing. " +
     "Draft an answer responsive to this post's SPECIFIC ask: specific and actionable (what will be done, by whom, by when, where applicable), " +
     "routed to the correct agency or branch of government, in an official tone. " +
@@ -711,31 +725,80 @@ var PodiumAI = (function () {
   function wonderChat(systemText, userText) {
     var t = WONDER_TRANSPORT;
     var key = getKey();
-    if (!t.endpoint || !t.model || !key) return Promise.resolve(null);
+    if (!t.endpoint || !t.model || !key) {
+      wonderLastError = key ? { kind: "config" } : { kind: "no-key" };
+      wonderWarn(wonderLastError);
+      return Promise.resolve(null);
+    }
     var content = systemText + "\n\n" + userText;
-    return withTimeout(function (signal) {
+    var t0 = Date.now();
+    wonderCancelFlag = false;
+    wonderRetryActive = false;
+    /* Retry loop (TY, Nov 4): keep retrying the SAME single draft creation
+       until a draft exists. Retries on network failure and per-attempt
+       timeout only, never on HTTP status, never past the 5-minute budget.
+       Each iteration gets a fresh AbortController, so no signal is reused. */
+    function singleAttempt(signal) {
       var opts = {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
         body: JSON.stringify({ model: t.model, messages: [{ role: "user", content: content }] })
       };
       if (signal) opts.signal = signal;
+      /* Never reject: withTimeout resolves null on its OWN timer, so a single
+         attempt reports its outcome as a value to stay distinguishable from
+         a per-attempt timeout. */
       return fetch(t.endpoint, opts).then(function (resp) {
-        if (!resp.ok) throw new Error("model api " + resp.status);
+        if (!resp.ok) { var e = new Error("model api " + resp.status); e.httpStatus = resp.status; throw e; }
         return resp.json();
       }).then(function (data) {
         var msg = data && data.choices && data.choices[0] && data.choices[0].message;
         var text = msg && typeof msg.content === "string" ? msg.content.trim() : "";
-        return text || null;
-      }, function () { return null; });
-    }, WONDER_TIMEOUT_MS);
+        return { text: text || null };
+      }, function (err) {
+        return { failed: err || new Error("fetch failed") };
+      });
+    }
+      function classify(err) {
+        if (err && err.httpStatus) return { kind: "http", status: err.httpStatus, name: err.name || "Error", message: "HTTP " + err.httpStatus };
+        var name = (err && err.name) || "Error";
+        var message = (err && err.message) || "";
+        if (name === "AbortError") return { kind: "timeout", name: name, message: message || "aborted" };
+        return { kind: "network", name: name, message: message || "fetch failed" };
+      }
+    function wait(ms) { return new Promise(function (res) { setTimeout(res, ms); }); }
+    function loop() {
+        if (wonderCancelFlag) { wonderRetryActive = false; return Promise.resolve(null); }
+        return withTimeout(singleAttempt, WONDER_TIMEOUT_MS).then(function (res) {
+          if (res && res.text) { wonderLastError = null; wonderRetryActive = false; return res.text; }
+          var err = (!res) ? { name: "AbortError", message: "attempt timed out after 90s" }
+            : (res && res.failed) ? res.failed
+            : { name: "EmptyError", message: "empty reply" };
+          var got = classify(err);
+          if (got.kind === "http" || got.kind === "empty") {
+            wonderLastError = got; /* HTTP error status (or a 200 with no text): never retry */
+            wonderWarn(wonderLastError);
+            wonderRetryActive = false;
+            return null;
+          }
+          wonderLastError = got; /* network failure or per-attempt timeout: retry while budget remains */
+          wonderWarn(wonderLastError);
+          if (!wonderCancelFlag && (Date.now() - t0) < WONDER_RETRY_BUDGET_MS) {
+            wonderRetryActive = true;
+            return wait(WONDER_RETRY_DELAY_MS).then(loop);
+          }
+          wonderRetryActive = false;
+          return null;
+        });
+    }
+    return loop();
   }
   /* Draft a committee answer for a selected post. Input is the post object
      (verbatim body, topic, ref, frozen authorState). Resolves the clean
      draft envelope { text, citations, noCommitments, agencyRequest } (no "Sample committee response:" prefix — the UI labels it
      as a draft), or null when Wonder is unavailable. */
   function draftCommitteeEnvelope(post) {
-    if (!post || !getKey()) return Promise.resolve(null);
+    if (!post || !getKey()) { wonderLastError = { kind: (!getKey()) ? "no-key" : "config" }; wonderWarn(wonderLastError); return Promise.resolve(null); }
     var user = "Reference code: " + (post.ref || "") + "\n" +
       "Topic: " + (post.topic || "") + "\n" +
       "Author state: " + (post.authorState || "not stated") + "\n" +
@@ -864,6 +927,9 @@ var PodiumAI = (function () {
     findTopSimilarLive: findTopSimilarLive,
     suggestTopicLive: suggestTopicLive,
     topicLabels: TOPIC_KEYWORDS.map(function (pair) { return pair[0]; }),
+    wonderFailure: function () { return wonderLastError; },
+    wonderCancel: wonderCancel,
+    wonderRetrying: wonderRetrying,
     draftCommitteeAnswer: draftCommitteeAnswer,
     draftCommitteeEnvelope: draftCommitteeEnvelope,
     generateDemoPost: generateDemoPost,
