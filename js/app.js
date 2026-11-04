@@ -437,6 +437,9 @@
     "wonder.approve": "Approve draft",
     "wonder.decline": "Decline draft",
     "wonder.declined.note": "Declined by the committee. This post reverts to shine light: it will still be read aloud at the briefing and tracked, never buried.",
+    "wonder.decline.reason": "Decline reason (required)",
+    "wonder.decline.reason.ph": "Why the committee is declining this draft…",
+    "wonder.declined.reason": "Decline reason",
     "wonder.drafting": "Drafting with Muse Wonder ({model})...",
     "wonder.retrying": "Retrying the Muse Wonder draft request...",
     "wonder.unavailable": "Muse Wonder is unavailable (no session key, or the call failed) \u2014 the seeded answer above stands. Answers are never drafted by Spark.",
@@ -516,15 +519,6 @@
     "noaction.vote": "Decided by committee vote",
     "noaction.authority.required": "A cited authority is required — name the regulation, statute, budget line, or jurisdiction.",
     "form.required": "This field is required.",
-    "appeal.button": "Appeal this determination.",
-    "appeal.by": "Appeal by {name} on {date}",
-    "appeal.awaiting": "Awaiting committee re-review",
-    "rereview.legend": "Committee re-review",
-    "rereview.uphold": "Uphold appeal — back under review",
-    "rereview.reject": "Reject appeal — determination stands",
-    "rereview.outcome.upheld": "Appeal upheld — back under review",
-    "rereview.outcome.rejected": "Appeal rejected — determination stands",
-    "rereview.note.ph": "Re-review note (optional)",
     "challenge.legend": "Why did the committee decline?",
     "challenge.name": "Why did the committee decline?",
     "challenge.raise": "Record answer",
@@ -541,8 +535,6 @@
     "response.done": "You already responded here.",
     "demo.tracker.note": "Demo: committee and government responses are entered here for evaluation.",
     "demo.badge": "Demo data \u2014 simulated citizen posts",
-    "audit.ev.appeal": "Appeal filed",
-    "audit.ev.rereview": "Re-review recorded",
     "audit.ev.challenge": "Challenge raised",
     "audit.ev.challengeanswer": "Government answer recorded",
     "audit.ev.response": "Citizen response posted",
@@ -2981,6 +2973,8 @@
   })();
   var wonderApproved = {}; /* postId -> true once approved in this session */
   var wonderDeclined = {}; /* postId -> true once declined in this session (post reverts to shine light) */
+  function storedDecline(p) { try { var b = PodiumStore.briefingItemFor(state, p.id); return (b && b.decline) || null; } catch (e) { return null; } }
+  function isDeclined(p) { return !!(wonderDeclined[p.id] || storedDecline(p)); }
   var wonderRetryTimer = null; /* interval id showing the "Retrying..." state while a Wonder retry loop runs */
   function clearWonderRetryTimer() { if (wonderRetryTimer) { clearInterval(wonderRetryTimer); wonderRetryTimer = null; } }
   var wonderLiaisonAdvice = {}; /* postId -> [{liaison, claim, authority, date, outcome}] recorded in the draft zone, logged on approval, session-only */
@@ -3001,7 +2995,7 @@
     wonderVisibility.textContent = wonderVisibilityNote();
     var wonderStatus = document.createElement("p");
     wonderStatus.className = "hint";
-    if (!draftEnvelope() && !wonderApproved[p.id] && !wonderDeclined[p.id]) wonderBox.appendChild(draftBtn);
+    if (!draftEnvelope() && !wonderApproved[p.id] && !isDeclined(p)) wonderBox.appendChild(draftBtn);
     wonderBox.appendChild(wonderVisibility);
     wonderBox.appendChild(wonderStatus);
     function draftEnvelope() { return wonderDrafts[p.id] || null; }
@@ -3029,7 +3023,7 @@
       var prior = wonderBox.querySelector("[data-wonder-pending]");
       if (prior) prior.remove();
       var draft = draftEnvelope();
-      if (!draft || wonderApproved[p.id] || wonderDeclined[p.id]) return;
+      if (!draft || wonderApproved[p.id] || isDeclined(p)) return;
       var box = document.createElement("div");
       box.setAttribute("data-wonder-pending", "1");
       box.innerHTML = '<span class="zone-label">' + esc(T("wonder.pending")) + "</span>" +
@@ -3058,8 +3052,12 @@
       declineBtn.textContent = T("wonder.decline");
       declineBtn.addEventListener("click", function () {
         if (!hasCommitteeAuthority()) return; /* stale box: authority lost after render */
+        var reason = reasonTa.value.trim();
+        if (!reason) { trackerMsg(box, "form.required"); return; }
+        var brec = PodiumStore.briefingItemFor(state, p.id);
+        if (brec) { brec.decline = { reason: reason, date: todayShort() }; try { PodiumStore.save(state); } catch (e) { /* session-only fallback */ } }
         wonderDeclined[p.id] = true;
-        audit("decline", p.ref + "-A", "");
+        audit("decline", p.ref + "-A", reason);
         renderBriefing();
       });
       if (!draftGate(draft)) {
@@ -3114,6 +3112,16 @@
          they are absent from the DOM (same pattern as the help box). The
          draft text, citations, and agency request above stay public. */
       if (hasCommitteeAuthority()) {
+        var reasonField = document.createElement("div");
+        reasonField.className = "field";
+        var reasonLabel = document.createElement("label");
+        reasonLabel.textContent = T("wonder.decline.reason");
+        var reasonTa = document.createElement("textarea");
+        reasonTa.rows = 2;
+        reasonTa.placeholder = T("wonder.decline.reason.ph");
+        reasonField.appendChild(reasonLabel);
+        reasonField.appendChild(reasonTa);
+        box.appendChild(reasonField);
         box.appendChild(approveBtn);
         box.appendChild(document.createTextNode(" "));
         box.appendChild(declineBtn);
@@ -3153,9 +3161,11 @@
         showDraft();
       });
     });
-    if (wonderDeclined[p.id]) {
+    if (isDeclined(p)) {
       var dec = document.createElement("div");
       dec.innerHTML = '<p class="hint">' + esc(T("wonder.declined.note")) + '</p>';
+      var sdec = storedDecline(p);
+      if (sdec && sdec.reason) dec.innerHTML += '<p><span class="zone-label">' + esc(T("wonder.declined.reason")) + "</span> " + esc(sdec.reason) + (sdec.date ? " (" + esc(sdec.date) + ")" : "") + "</p>";
       wonderBox.appendChild(dec);
     } else if (wonderApproved[p.id] && draftEnvelope()) {
       var done = document.createElement("div");
@@ -3365,25 +3375,7 @@
       "<p><strong>" + esc(T("noaction.redirect")) + ":</strong> " + esc(b.redirectTo || "") + "</p>" +
       (b.committeeVote ? '<p class="hint">' + esc(T("noaction.vote")) + "</p>" : "") + "</div>";
   }
-  function appealsHtml(b, p) {
-    var ap = (b && b.appeals) || [], out = "", i;
-    for (i = 0; i < ap.length; i++) {
-      var a = ap[i];
-      out += '<div class="zone zone-answer"><span class="zone-label">' + esc(Tf("appeal.by", { name: a.name, date: a.date })) + "</span>";
-      out += a.outcome
-        ? "<p>" + esc(a.outcome.decision === "upheld" ? T("rereview.outcome.upheld") : T("rereview.outcome.rejected")) + (a.outcome.note ? " \u2014 " + esc(a.outcome.note) : "") + (a.outcome.date ? " (" + esc(a.outcome.date) + ")" : "") + "</p>"
-        : '<p class="hint">' + esc(T("appeal.awaiting")) + "</p>" +
-          '<div class="field"><label>' + esc(T("rereview.legend")) + "</label>" +
-          '<textarea data-rr-note rows="2" placeholder="' + esc(T("rereview.note.ph")) + '"></textarea></div>' +
-          '<div class="btn-row"><button type="button" class="btn btn-small" data-act="rereview-uphold">' + esc(T("rereview.uphold")) + "</button>" +
-          '<button type="button" class="btn btn-small" data-act="rereview-reject">' + esc(T("rereview.reject")) + "</button></div>";
-      out += "</div>";
-    }
-    if (b && b.trackerStatus === "No Action" && isAuthor(p) && !PodiumStore.appealFor(b, b.determinationId || 0)) {
-      out += '<div class="btn-row"><button type="button" class="btn btn-small" data-act="appeal">' + esc(T("appeal.button")) + "</button></div>";
-    }
-    return out;
-  }
+
   function responsesHtml(b, p, kind, id) {
     var rs = ((b && b.responses) || []).filter(function (r) { return r && r.kind === kind && String(r.id) === String(id); });
     var out = "";
@@ -3435,10 +3427,16 @@
       '<div class="btn-row"><button type="button" class="btn btn-small" data-act="challenge-raise">' + esc(T("challenge.raise")) + "</button></div>";
     return out;
   }
+  function declineHtml(b) {
+    if (!b || !b.decline || !b.decline.reason) return "";
+    return '<div class="zone zone-answer"><span class="zone-label">' + esc(T("wonder.declined.reason")) + "</span>" +
+      "<p>" + esc(b.decline.reason) + (b.decline.date ? " (" + esc(b.decline.date) + ")" : "") + "</p>" +
+      committeeLineHtml() + "</div>";
+  }
   function trackerHtml(b, p) {
     if (!b || !p) return "";
     return '<p class="hint">' + esc(T("demo.tracker.note")) + "</p>" +
-      noActionHtml(b) + appealsHtml(b, p) + challengesHtml(b, p) +
+      noActionHtml(b) + declineHtml(b) + challengesHtml(b, p) +
       responsesHtml(b, p, "record", "record");
   }
   function trackerMsg(root, key) {
@@ -3463,23 +3461,6 @@
       trackerMsg(root, null);
       rerun();
     }
-    var ap = root.querySelector('[data-act="appeal"]');
-    if (ap) ap.addEventListener("click", function () {
-      var me = PodiumStore.citizenById(state, state.currentUserId);
-      var r = PodiumStore.fileAppeal(b, { by: state.currentUserId, name: me ? me.name : "", date: todayShort() });
-      if (!r.ok) { fail("form.required"); return; }
-      audit("appeal", p.ref || "", me ? me.name : "");
-      ok(rerender);
-    });
-    Array.prototype.forEach.call(root.querySelectorAll('[data-act="rereview-uphold"], [data-act="rereview-reject"]'), function (btn) {
-      btn.addEventListener("click", function () {
-        var note = trackerVal(root, "[data-rr-note]");
-        var r = PodiumStore.reviewAppeal(b, { decision: btn.getAttribute("data-act") === "rereview-uphold" ? "upheld" : "reinstated", note: note, date: todayShort() });
-        if (!r.ok) { fail("form.required"); return; }
-        audit("rereview", p.ref || "", r.appeal.outcome.decision);
-        ok(rerender);
-      });
-    });
     var raise = root.querySelector('[data-act="challenge-raise"]');
     if (raise) raise.addEventListener("click", function () {
       var me = PodiumStore.citizenById(state, state.currentUserId);
