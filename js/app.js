@@ -646,7 +646,7 @@
     if (name === "status") renderStatus();
     if (name === "committee") renderCommittee();
     if (name === "watch") { renderWatch(); } else { stopWatchPlayback(); }
-    if (name === "post") renderComposerGate();
+    if (name === "post") { updateOnePostNotice(); renderComposerGate(); }
     window.scrollTo(0, 0);
   }
   tabs.forEach(function (t) {
