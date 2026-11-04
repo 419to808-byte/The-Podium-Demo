@@ -88,7 +88,7 @@
     "gov.h2": "Secure .gov websites use HTTPS",
     "gov.b2": "A lock {lock} or https:// means you\u2019ve safely connected to the .gov website. Share sensitive information only on official, secure websites.",
     /* header */
-    "brand.sub": "The purpose of this platform is to ensure that every citizen has the opportunity to be heard by the nation.",
+    "brand.sub": "The purpose of this platform is to ensure that every citizen has the opportunity to have their concerns or ideas heard by the nation.",
     "citizen.signedout": "Not signed in",
     "citizen.signin": "Sign in",
     "citizen.signedin": "Signed in as",
@@ -156,14 +156,14 @@
     "rule.reminder": "Reminder of the rule",
     "rule.p1": "By the rules of this portal, the highest-voted post <strong>MUST</strong> be read aloud \u2014 word for word, exactly as its author wrote it \u2014 and discussed, by a representative of the United States, in front of the entire country. Another post, drawn at random, must be read and discussed the same way.",
     "rule.p2": "AI will be used to detect profanity and errors and to suggest corrections to grammar and clearer formatting. It will never steer you: your topic, your position, or your meaning. And once your post is published, it is final.",
-    "rule.p3": "Keep in mind that your post may be read in front of the entire nation. Write in your most professional manner. Profanity, slurs, and personal attacks will not post. State your idea or concern plainly and professionally. You are not posting a comment. You are addressing the nation \u2014 speaking to and for every American. Treat it with the seriousness it deserves.",
+    "rule.p3": "Keep in mind that your post may be read in front of the entire nation. Write in your most professional manner. Profanity, slurs, and personal attacks will not post. State your idea or concern plainly and professionally. You are not posting a comment. You are addressing the nation \u2014 speaking to and for every American. Treat it with the respect it deserves.",
     "rule.p4": "Even if the committee cannot resolve an issue, it has at least brought light to the concern. That is the fundamental purpose of this platform: to shine a light on concerns and ideas, and to seek to resolve them or implement helpful changes.",
     "rule.readfull": "Read the full rule",
     /* fine print */
     "fine.summary": "Fine print (official register)",
     "fine.lede": "All submissions are subject to automated pre-publication review. Submissions containing profanity, slurs, or personal attacks shall not be published. Submissions containing slang or errors materially affecting comprehensibility shall be held pending correction by the submitting party, with suggested revisions provided for consideration; no submission shall be altered by the System without the submitting party\u2019s express action. Weekly selections shall consist of (i) the submission receiving the highest number of votes during the applicable period and (ii) one (1) submission selected by random drawing from among all eligible published submissions. Selected submissions shall be read aloud in their entirety, verbatim, and discussed in the weekly briefing. A published submission is final and shall not be edited or redacted.",
     "fine.statements": "Statements of policy, principles, and fundamentals",
-    "fine.purpose": "The purpose of this platform is to ensure that every citizen has the opportunity to be heard by the nation. Citizens will address the nation and speak on its behalf.",
+    "fine.purpose": "The purpose of this platform is to ensure that every citizen has the opportunity to have their concerns or ideas heard by the nation. Citizens will address the nation and speak on its behalf.",
     "fine.li1": "The highest-voted post and one randomly drawn post are read aloud in full, word for word, by a representative of the United States and discussed in the weekly briefing. No editor stands between author and nation. Nothing is edited after posting.",
     "fine.li2": "AI detects problems and suggests wording only before publication. It never steers a post's topic, position, or meaning, and never changes, substitutes, or declines a post on its own.",
     "fine.li3": "Profanity, slurs, and personal attacks are blocked outright and never publish. Slang, misspellings, grammar, and unclear text are held with suggested rewording; the author accepts the suggestion or retypes the text, and AI never changes text silently. Held drafts are not published, do not enter the draw, and do not use the citizen's one-post slot.",
@@ -3772,14 +3772,15 @@
     var list = $("committeeList");
     if (!list) return;
     var members = (state.citizens || []).filter(function (c) { return c && c.committeeMember; })
-      .sort(function (a, b) { return (a.termWeek || 99) - (b.termWeek || 99); });
+      .sort(function (a, b) { return (b.termWeek || 0) - (a.termWeek || 0); });
     var html = "";
     members.forEach(function (c) {
       /* Civilian view: roster by name + state only, exactly as the public
          site shows it. Committee view adds term week + exit week below. */
       if (!hasCommitteeAuthority()) {
         html += '<li class="card"><p class="post-meta"><span class="post-author">' + esc(c.name) + "</span>" +
-          (c.state ? "<span>" + esc(c.state) + "</span>" : "") + "</p></li>";
+          (c.state ? "<span>" + esc(c.state) + "</span>" : "") +
+          ' <span class="hint">' + esc(Tf("committee.terms", { start: c.termStart || "", out: committeeCycleOut(c.termStart) })) + "</span></p></li>";
         return;
       }
       var dr = c.selectionDraw || {};
@@ -3790,8 +3791,8 @@
       if (c.termWeek === 12) badge = ' <span class="post-topic">' + esc(T("committee.cycling")) + "</span>";
       html += '<li class="card"><p class="post-meta"><span class="post-author">' + esc(c.name) + "</span>" +
         (c.state ? "<span>" + esc(c.state) + "</span>" : "") +
-        ' <span class="post-topic">' + esc(Tf("committee.week", { n: c.termWeek })) + "</span>" + badge + "</p>" +
-        "<p class=\"hint\">" + esc(Tf("committee.terms", { start: c.termStart || "", out: committeeCycleOut(c.termStart) })) + "</p>" +
+        ' <span class="post-topic">' + esc(Tf("committee.week", { n: c.termWeek })) + "</span>" + badge +
+        ' <span class="hint">' + esc(Tf("committee.terms", { start: c.termStart || "", out: committeeCycleOut(c.termStart) })) + "</span></p>" +
         '<p><span class="zone-label">' + esc(T("authority.roster.term")) + "</span> " + esc(String(c.termWeek)) + " \u00b7 " +
         '<span class="zone-label">' + esc(T("authority.roster.exit")) + "</span> " + esc(String(authorityExitWeek(c))) + "</p>" +
         '<p><span class="zone-label">' + esc(T("committee.draw")) + "</span></p>" +
