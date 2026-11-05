@@ -3147,7 +3147,7 @@
           wonderStatus.textContent = T("wonder.retrying");
         }
       }, 1000);
-      PodiumAI.draftCommitteeEnvelope(p).then(function (draft) {
+      PodiumAI.draftCommitteeEnvelope(p, draftDatesFor(p)).then(function (draft) {
         clearWonderRetryTimer();
         draftBtn.disabled = false;
         if (!draft) {
@@ -3206,6 +3206,30 @@
   function cycleDateTimeFor(c, str) {
     var y = PodiumStore.cycleYear(c);
     return PodiumStore.cycleDateTime(str, y === null ? etNow().getFullYear() : y);
+  }
+  /* Deterministic Wonder draft dates (TY, Nov 4): computed in code from the
+     post's briefing date and passed to Wonder as FIXED values, so a live
+     draft anchors to the same week as the seeded record. Rule: transmit =
+     first Wednesday strictly after the briefing; due = transmit + 13 days
+     (Tuesday); broadcast = first Wednesday on or after the due date.
+     Seeded answers are fixed records and do NOT all follow this rule â€”
+     it governs FUTURE live drafts only. Returns null when the post has
+     no aired-or-scheduled briefing to anchor to. */
+  var DRAFT_MO = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function draftDateStr(d) { return DRAFT_MO[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear(); }
+  function draftAddDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function draftNextWednesday(d) { var t = draftAddDays(d, 1); while (t.getDay() !== 3) t = draftAddDays(t, 1); return t; }
+  function draftDatesFor(post) {
+    if (!post) return null;
+    var b = PodiumStore.briefingItemFor(state, post.id);
+    var c = b && PodiumStore.cycleById(state, b.cycleId);
+    var bAt = c && cycleDateTimeFor(c, c.briefingAt);
+    if (!bAt || isNaN(bAt.getTime())) return null;
+    var transmit = draftNextWednesday(bAt);
+    var due = draftAddDays(transmit, 13);
+    var broadcast = due;
+    while (broadcast.getDay() !== 3) broadcast = draftAddDays(broadcast, 1);
+    return { transmit: draftDateStr(transmit), due: draftDateStr(due), broadcast: draftDateStr(broadcast) };
   }
   function renderBriefing() {
     var nowEt = etNow();

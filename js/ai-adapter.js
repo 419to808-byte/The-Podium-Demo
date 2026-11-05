@@ -892,10 +892,12 @@ var PodiumAI = (function () {
     return loop();
   }
   /* Draft a committee answer for a selected post. Input is the post object
-     (verbatim body, topic, ref, frozen authorState). Resolves the clean
+     (verbatim body, topic, ref, frozen authorState) plus an optional dates
+     object { transmit, due, broadcast } (each "Month D, YYYY") that is
+     stated to Wonder as fixed values for verbatim use. Resolves the clean
      draft envelope { text, citations, noCommitments, agencyRequest } (no "Sample committee response:" prefix — the UI labels it
      as a draft), or null when Wonder is unavailable. */
-  function draftCommitteeEnvelope(post) {
+  function draftCommitteeEnvelope(post, dates) {
     if (!post || !getKey()) { wonderLastError = { kind: (!getKey()) ? "no-key" : "config" }; wonderWarn(wonderLastError); return Promise.resolve(null); }
     var ref = post.ref || post.id;
     /* Stored draft first: no API call when one exists — same tab, new tab, after reload. */
@@ -907,6 +909,16 @@ var PodiumAI = (function () {
       "Topic: " + (post.topic || "") + "\n" +
       "Author state: " + (post.authorState || "not stated") + "\n" +
       "Citizen post (verbatim):\n" + String(post.body || "");
+    /* Deterministic schedule (TY, Nov 4): when the caller passes fixed
+       dates, state them as exact values and require verbatim use — Wonder
+       must not derive, choose, or adjust dates. Callers without dates keep
+       the old behavior (no fixed-dates block). */
+    if (dates && dates.transmit && dates.due && dates.broadcast) {
+      user += "\nFixed schedule — use these exact dates verbatim in the answer, its citations, and its agency request (do not derive, choose, or adjust dates):\n" +
+        "Transmit the proposal by: " + dates.transmit + "\n" +
+        "Agency status report due: " + dates.due + "\n" +
+        "Status-updates broadcast: " + dates.broadcast + " (Wednesdays at 2:00 PM ET)";
+    }
     var pr = wonderChat(ANSWER_SYSTEM, user, seedFromRef(ref), ref).then(function (text) {
       delete wonderInflight[ref];
       if (!text) { wonderErrors[ref] = wonderLastError; return null; }
